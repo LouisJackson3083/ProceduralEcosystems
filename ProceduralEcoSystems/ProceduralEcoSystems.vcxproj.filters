@@ -62,6 +62,9 @@
     <Text Include="default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </Text>
+    <Text Include="normals.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -95,6 +98,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="skybox.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="default.geom">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="normals.geom">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

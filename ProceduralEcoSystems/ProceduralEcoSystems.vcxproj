@@ -154,14 +154,17 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="default.vert" />
+    <Text Include="normals.frag" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag" />
+    <None Include="default.geom" />
     <None Include="framebuffer.frag" />
     <None Include="framebuffer.vert" />
     <None Include="grass.frag" />
     <None Include="light.frag" />
     <None Include="light.vert" />
+    <None Include="normals.geom" />
     <None Include="outlining.frag" />
     <None Include="outlining.vert" />
     <None Include="skybox.frag" />

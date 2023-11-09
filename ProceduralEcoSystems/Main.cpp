@@ -1,6 +1,4 @@
-
 #include"Model.h"
-#include"Skybox.h"
 
 
 const unsigned int width = 800;
@@ -38,19 +36,26 @@ int main()
 	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
 	glViewport(0, 0, width, height);
 
-	// Generates Shader objects
-	Shader shaderProgram("default.vert", "default.frag");
-	Shader skyboxShader("skybox.vert", "skybox.frag");
+
+
+
+
+	// Generates Shader object using shaders default.vert and default.frag
+	Shader shaderProgram("default.vert", "default.frag", "default.geom");
+	Shader normalsShader("default.vert", "normals.frag", "normals.geom");
 
 	// Take care of all the light related things
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::mat4 lightModel = glm::mat4(1.0f);
+	lightModel = glm::translate(lightModel, lightPos);
 
 	shaderProgram.Activate();
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	skyboxShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+
+
+
 
 
 	// Enables the Depth Buffer
@@ -67,9 +72,8 @@ int main()
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 
-	// Load in models and skybox
 	Model model("./Resources/Models/crow/scene.gltf");
-	Skybox skybox;
+
 
 
 	// Variables to create periodic event for FPS displaying
@@ -121,16 +125,8 @@ int main()
 
 		// Draw the normal model
 		model.Draw(shaderProgram, camera);
-
-		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
-		glDepthFunc(GL_LEQUAL);
-
-		skyboxShader.Activate();
-		skybox.Draw(skyboxShader, camera, width, height);
-
-		// Switch back to the normal depth function
-		glDepthFunc(GL_LESS);
-
+		// Draw the normals
+		model.Draw(normalsShader, camera);
 
 		// Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
@@ -142,7 +138,7 @@ int main()
 
 	// Delete all the objects we've created
 	shaderProgram.Delete();
-	skyboxShader.Delete();
+	normalsShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);
 	// Terminate GLFW before ending the program
