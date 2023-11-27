@@ -17,8 +17,18 @@ public:
 	// Store VAO in public so it can be used in the Draw function
 	VAO VAO;
 
+	// Holds number of instances (if 1 the mesh will be rendered normally)
+	unsigned int instancing;
+
 	// Initializes the mesh
-	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures);
+	Mesh
+	(
+		std::vector <Vertex>& vertices,
+		std::vector <GLuint>& indices,
+		std::vector <Texture>& textures,
+		unsigned int instancing = 1,
+		std::vector <glm::mat4> instanceMatrix = {}
+	);
 
 	// Draws the mesh
 	void Draw

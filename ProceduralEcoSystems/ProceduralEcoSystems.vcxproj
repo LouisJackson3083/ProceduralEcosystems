@@ -153,15 +153,18 @@
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="default.vert" />
+    <Text Include="geom_default.vert" />
     <Text Include="normals.frag" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag" />
-    <None Include="default.geom" />
+    <None Include="default.vert" />
+    <None Include="geom_default.frag" />
+    <None Include="geom_default.geom" />
     <None Include="framebuffer.frag" />
     <None Include="framebuffer.vert" />
     <None Include="grass.frag" />
+    <None Include="instanced.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
     <None Include="normals.geom" />

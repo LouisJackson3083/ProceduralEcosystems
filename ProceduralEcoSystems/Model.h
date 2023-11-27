@@ -11,7 +11,7 @@ class Model
 {
 public:
 	// Loads in a model from a file and stores tha information in 'data', 'JSON', and 'file'
-	Model(const char* file);
+	Model(const char* file, unsigned int instancing = 1, std::vector<glm::mat4> instanceMatrix = {});
 
 	void Draw
 	(
@@ -27,6 +27,8 @@ private:
 	const char* file;
 	std::vector<unsigned char> data;
 	json JSON;
+	// Holds number of instances (if 1 the mesh will be rendered normally)
+	unsigned int instancing;
 
 	// All the meshes and transformations
 	std::vector<Mesh> meshes;
@@ -34,6 +36,7 @@ private:
 	std::vector<glm::quat> rotationsMeshes;
 	std::vector<glm::vec3> scalesMeshes;
 	std::vector<glm::mat4> matricesMeshes;
+	std::vector<glm::mat4> instanceMatrix;
 
 	// Prevents textures from being loaded twice
 	std::vector<std::string> loadedTexName;

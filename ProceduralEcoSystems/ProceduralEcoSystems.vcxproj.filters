@@ -59,7 +59,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="default.vert">
+    <Text Include="geom_default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </Text>
     <Text Include="normals.frag">
@@ -67,7 +67,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.frag">
+    <None Include="geom_default.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="light.vert">
@@ -100,10 +100,19 @@
     <None Include="skybox.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="default.geom">
+    <None Include="geom_default.geom">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="normals.geom">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="instanced.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="default.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="default.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

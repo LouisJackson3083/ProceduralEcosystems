@@ -57,11 +57,11 @@ vec4 pointLight()
 vec4 direcLight()
 {
 	// ambient lighting
-	float ambient = 0.20f;
+	float ambient = 0.50f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));
+	vec3 lightDirection = normalize(vec3(1.0f, 1.0f, -2.0f));
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
 	// specular lighting
