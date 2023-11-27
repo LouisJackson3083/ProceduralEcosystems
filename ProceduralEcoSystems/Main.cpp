@@ -4,6 +4,7 @@
 
 const unsigned int width = 800;
 const unsigned int height = 800;
+unsigned int samples = 8;
 
 
 float randf()
@@ -21,6 +22,7 @@ int main()
 	// In this case we are using OpenGL 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_SAMPLES, samples);
 	// Tell GLFW we are using the CORE profile
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -71,6 +73,8 @@ int main()
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 
+	glEnable(GL_MULTISAMPLE);
+
 	// Enables Cull Facing
 	glEnable(GL_CULL_FACE);
 	// Keeps front faces
@@ -99,7 +103,7 @@ int main()
 
 
 	// The number of asteroids to be created
-	const unsigned int number = 500;
+	const unsigned int number = 5000;
 	// Radius of circle around which asteroids orbit
 	float radius = 100.0f;
 	// How much ateroids deviate from the radius
