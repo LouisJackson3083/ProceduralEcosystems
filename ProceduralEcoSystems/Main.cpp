@@ -1,5 +1,6 @@
 #include"Model.h"
 #include<math.h>
+#include"Terrain.h"
 
 
 const unsigned int width = 800;
@@ -69,6 +70,8 @@ int main()
 
 
 
+	// line below sets gl to render wireframes
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
@@ -83,10 +86,10 @@ int main()
 	glFrontFace(GL_CCW);
 
 	// Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 50.0f, 50.0f));
+	Camera camera(width, height, glm::vec3(1.0f, 1.0f, 1.0f));
 
 
-	Model model("./Resources/Models/jupiter/scene.gltf");
+	Terrain terrain;
 
 
 
@@ -100,62 +103,6 @@ int main()
 	// Use this to disable VSync (not advized)
 	//glfwSwapInterval(0);
 
-
-
-	// The number of asteroids to be created
-	const unsigned int number = 5000;
-	// Radius of circle around which asteroids orbit
-	float radius = 100.0f;
-	// How much ateroids deviate from the radius
-	float radiusDeviation = 25.0f;
-
-	// Holds all transformations for the asteroids
-	std::vector <glm::mat4> instanceMatrix;
-
-	for (unsigned int i = 0; i < number; i++)
-	{
-		// Generates x and y for the function x^2 + y^2 = radius^2 which is a circle
-		float x = randf();
-		float finalRadius = radius + randf() * radiusDeviation;
-		float y = ((rand() % 2) * 2 - 1) * sqrt(1.0f - x * x);
-
-		// Holds transformations before multiplying them
-		glm::vec3 tempTranslation;
-		glm::quat tempRotation;
-		glm::vec3 tempScale;
-
-		// Makes the random distribution more even
-		if (randf() > 0.5f)
-		{
-			// Generates a translation near a circle of radius "radius"
-			tempTranslation = glm::vec3(y * finalRadius, randf(), x * finalRadius);
-		}
-		else
-		{
-			// Generates a translation near a circle of radius "radius"
-			tempTranslation = glm::vec3(x * finalRadius, randf(), y * finalRadius);
-		}
-		// Generates random rotations
-		tempRotation = glm::quat(1.0f, randf(), randf(), randf());
-		// Generates random scales
-		tempScale = 0.1f * glm::vec3(randf(), randf(), randf());
-
-
-		// Initialize matrices
-		glm::mat4 trans = glm::mat4(1.0f);
-		glm::mat4 rot = glm::mat4(1.0f);
-		glm::mat4 sca = glm::mat4(1.0f);
-
-		// Transform the matrices to their correct form
-		trans = glm::translate(trans, tempTranslation);
-		rot = glm::mat4_cast(tempRotation);
-		sca = glm::scale(sca, tempScale);
-
-		// Push matrix transformation
-		instanceMatrix.push_back(trans * rot * sca);
-	}
-	// Create the asteroid model with instancing enabled
-	Model asteroid("./Resources/Models/asteroid/scene.gltf", number, instanceMatrix);
 
 
 
@@ -200,8 +147,7 @@ int main()
 
 
 		// Draw the normal model
-		model.Draw(shaderProgram, camera);
-		asteroid.Draw(instancedShader, camera);
+		terrain.Draw(shaderProgram, camera);
 
 		// Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
