@@ -84,6 +84,33 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+Texture::Texture(float** noiseMap, const char* texType, GLuint slot)
+{
+	GLfloat checkImage[16][16];
+
+	for (int i = 0; i < 16; i++) {
+		for (int j = 0; j < 16; j++) {
+			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+			checkImage[i][j] = (GLfloat) r;
+		}
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// Generates an OpenGL texture object
+	glGenTextures(1, &ID);
+
+	glBindTexture(GL_TEXTURE_2D, ID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 16, 16, 0, GL_RED, GL_FLOAT, checkImage);
+
+	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
 	// Gets the location of the uniform

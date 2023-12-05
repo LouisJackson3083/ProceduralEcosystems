@@ -22,9 +22,6 @@ private:
 	std::vector<glm::mat4> matricesMeshes;
 	std::vector<glm::mat4> instanceMatrix;
 
-	std::vector <Vertex> vertices;
-	std::vector <GLuint> indices;
-	std::vector <Texture> textures;
 
 	// Prevents textures from being loaded twice
 	std::vector<std::string> loadedTexName;

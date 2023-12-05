@@ -1,6 +1,10 @@
+#include"NoiseGUI.h"
 #include"Model.h"
 #include<math.h>
 #include"Terrain.h"
+#include"MapGenerator.h"
+#include"Noise.h"
+#include <typeinfo>
 
 
 const unsigned int width = 800;
@@ -73,6 +77,9 @@ int main()
 	// line below sets gl to render wireframes
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+
+	glEnable(GL_TEXTURE_2D);
+
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 
@@ -91,6 +98,12 @@ int main()
 
 	Terrain terrain;
 
+	//MapGenerator mapGenerator;
+	//mapGenerator.GenerateMap(5,8, 0.5f);
+	Noise noise;
+	noise.generateNoiseMap(512, 512, 0.5f);
+	// std::cout << typeid(noise.noiseMap).name() << std::endl;
+	NoiseGUI noiseGUI(window, noise.noiseMap);
 
 
 	// Variables to create periodic event for FPS displaying
@@ -102,7 +115,6 @@ int main()
 
 	// Use this to disable VSync (not advized)
 	//glfwSwapInterval(0);
-
 
 
 
@@ -130,15 +142,16 @@ int main()
 			//camera.Inputs(window);
 		}
 
-
-		
-
-
-
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		noiseGUI.NewFrame();
+		/*
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();*/
 
 		// Handles camera inputs (delete this if you have disabled VSync)
 		camera.Inputs(window);
@@ -149,13 +162,23 @@ int main()
 		// Draw the normal model
 		terrain.Draw(shaderProgram, camera);
 
+
+		noiseGUI.Update();
+		/*ImGui::Begin("DebugWindow");
+		ImGui::Text("HELLO");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+
 		// Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
 
-
+	noiseGUI.CleanUp();
+	
 
 	// Delete all the objects we've created
 	shaderProgram.Delete();
