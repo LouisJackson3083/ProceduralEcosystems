@@ -4,13 +4,14 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include"Texture.h"
+#include"Noise.h"
 
 class NoiseGUI {
 public:
 
 	NoiseGUI(GLFWwindow* window);
 
-	NoiseGUI(GLFWwindow* window, float** noiseMap);
+	NoiseGUI(GLFWwindow* window, Noise& noise);
 
 	void NewFrame();
 
@@ -19,8 +20,13 @@ public:
 	void CleanUp();
 
 	Texture texture = Texture("./Resources/Textures/pop_cat.png", "diffuse", 0);
+	Noise noise = Noise(0.5f, 4, 0.5f, 2.0f, rand());
 
 private:
+	float sliderScale;
+	float sliderLacunarity;
+	float sliderPersistance;
+	int sliderOctaves;
 };
 
 #endif

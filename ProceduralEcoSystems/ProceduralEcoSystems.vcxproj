@@ -152,7 +152,6 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MapGenerator.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="NoiseGUI.cpp" />
@@ -200,7 +199,6 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="MapGenerator.h" />
     <ClInclude Include="Noise.h" />
     <ClInclude Include="NoiseGUI.h" />
     <ClInclude Include="SimplexNoise.h" />

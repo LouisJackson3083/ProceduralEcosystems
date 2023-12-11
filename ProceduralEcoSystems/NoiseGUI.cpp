@@ -10,17 +10,20 @@ NoiseGUI::NoiseGUI(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-NoiseGUI::NoiseGUI(GLFWwindow* window, float** noiseMap) {
+NoiseGUI::NoiseGUI(GLFWwindow* window, Noise& noise) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+	noise = noise;
+	sliderScale = noise.scale;
+	sliderPersistance = noise.persistance;
+	sliderLacunarity = noise.lacunarity;
+	sliderOctaves = noise.octaves;
 
-	texture = Texture(noiseMap, "diffuse", 0);
-	std::cout << texture.ID << std::endl;
-
+	texture = Texture(noise, "diffuse", 0);
 }
 
 void NoiseGUI::NewFrame() {
@@ -34,6 +37,27 @@ void NoiseGUI::Update() {
 	ImGui::Begin("DebugWindow");
 	ImGui::Text("HELLO");
 	ImGui::Image((void*)(intptr_t) texture.ID, ImVec2(512.0f, 512.0f));
+	bool boolScale = ImGui::SliderFloat("Scale", &sliderScale, 0.0f, 100.0f);
+	bool boolLacunarity = ImGui::SliderFloat("Lacunarity", &sliderLacunarity, 0.0f, 5.0f);
+	bool boolPersistance = ImGui::SliderFloat("Persistance", &sliderPersistance, 0.0f, 5.0f);
+	bool boolOctaves = ImGui::SliderInt("Octaves", &sliderOctaves, 0, 50);
+	
+	if (boolScale ||
+		boolLacunarity ||
+		boolPersistance ||
+		boolOctaves
+		) {
+		noise.updateNoiseValues(sliderScale, sliderOctaves, sliderLacunarity, sliderPersistance);
+		texture.Delete();
+		texture = Texture(noise, "diffuse", 0);
+	}
+	if (ImGui::Button("New Seed!")) {
+		noise.updateSeed(rand());
+		texture.Delete();
+		texture = Texture(noise, "diffuse", 0);
+		std::cout << noise.seed << std::endl;
+	}
+
 	ImGui::End();
 
 	ImGui::Render();
@@ -44,4 +68,5 @@ void NoiseGUI::CleanUp() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+	texture.Delete();
 }

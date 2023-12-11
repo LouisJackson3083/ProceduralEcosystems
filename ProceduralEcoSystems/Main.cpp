@@ -2,7 +2,6 @@
 #include"Model.h"
 #include<math.h>
 #include"Terrain.h"
-#include"MapGenerator.h"
 #include"Noise.h"
 #include <typeinfo>
 
@@ -97,13 +96,8 @@ int main()
 
 
 	Terrain terrain;
-
-	//MapGenerator mapGenerator;
-	//mapGenerator.GenerateMap(5,8, 0.5f);
-	Noise noise;
-	noise.generateNoiseMap(512, 512, 0.5f);
-	// std::cout << typeid(noise.noiseMap).name() << std::endl;
-	NoiseGUI noiseGUI(window, noise.noiseMap);
+	Noise noise(0.5f, 4, 0.5f, 2.0f, rand());
+	NoiseGUI noiseGUI(window, noise);
 
 
 	// Variables to create periodic event for FPS displaying

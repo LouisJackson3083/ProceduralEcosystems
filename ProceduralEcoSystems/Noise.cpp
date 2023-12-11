@@ -6,8 +6,52 @@
 #include <cmath>
 #include <cstdint>
 
-Noise::Noise() {
 
+Noise::Noise(float input_scale, int input_octaves, float input_persistance, float input_lacunarity, int input_seed) {
+    scale = input_scale;
+    octaves = input_octaves;
+    persistance = input_persistance;
+    lacunarity = input_lacunarity;
+    seed = input_seed;
+    srand(seed);
+    time_created = time(0);
+
+    float amplitude = 1.0f;
+    float frequency = 1;
+    predictedNoiseMax = 0.0f;
+    for (int i = 0; i < octaves; i++) {
+        predictedNoiseMax += 1.0f * amplitude;
+        amplitude *= persistance;
+        frequency *= lacunarity;
+
+        offsets.push_back(rand());
+
+        std::cout << offsets[i] << std::endl;
+    }
+    std::cout << "SIZE OF OFFSETS: " << offsets.size() << std::endl;
+    std::cout << "num OF octaves: " << octaves << std::endl;
+    std::cout << "time created: " << time_created << std::endl;
+
+}
+
+void Noise::updateNoiseValues(float input_scale, int input_octaves, float input_persistance, float input_lacunarity) {
+    std::cout << "SIZE OF OFFSETS before updating: " << offsets.size() << std::endl;
+    scale = input_scale;
+    octaves = input_octaves;
+    persistance = input_persistance;
+    lacunarity = input_lacunarity;
+
+    float amplitude = 1.0f;
+    float frequency = 1;
+    predictedNoiseMax = 0.0f;
+    for (int i = 0; i < octaves; i++) {
+        predictedNoiseMax += 1.0f * amplitude;
+        amplitude *= persistance;
+        frequency *= lacunarity;
+    }
+    std::cout << "NOISE VALUES UPDATED" << octaves << std::endl;
+    std::cout << "SIZE OF OFFSETS after updating: " << offsets.size() << std::endl;
+    std::cout << "time created: " << time_created << std::endl;
 }
 
 float** Noise::generateNoiseMap(int width, int height, float scale) {
@@ -35,7 +79,47 @@ float** Noise::generateNoiseMap(int width, int height, float scale) {
 
 }
 
-void Noise::SaveImage(const char* filename, float img_vals[][512])
-{   
-    
+float Noise::get(int x, int y) {
+    float amplitude = 1.0f;
+    float frequency = 1;
+    float noiseHeight = 0;
+    float maxNoiseEstimate = 0.0f;
+    float minNoiseEstimate = 0.0f;
+
+    //std::cout << "SIZE OF OFFSETS before getting: " << offsets.size() << std::endl;
+
+    for (int i = 0; i < octaves; i++) {
+
+        float sampleX = x / scale * frequency + offsets[i];
+        float sampleY = y / scale * frequency + offsets[i];
+        float simplexNoiseValue = SimplexNoise::noise(sampleX, sampleY);
+        noiseHeight += simplexNoiseValue * amplitude;
+
+        maxNoiseEstimate += 1.0f * amplitude;
+        minNoiseEstimate -= 1.0f * amplitude;
+
+        amplitude *= persistance;
+        frequency *= lacunarity;
+    }
+
+    return (noiseHeight + predictedNoiseMax) / (predictedNoiseMax * 2);
+
+
+}
+
+void Noise::updateSeed(int input_seed) {
+    seed = input_seed;
+    srand(seed);
+
+    offsets.clear();
+    std::cout << "SIZE OF OFFSETS after clearing: " << offsets.size() << std::endl;
+
+
+    std::cout << "num OF octaves: " << octaves << std::endl;
+
+    for (int i = 0; i < octaves; i++) {
+        offsets.push_back(rand());
+        std::cout << offsets[i] << std::endl;
+    }
+    std::cout << "SIZE OF OFFSETS after re-init: " << offsets.size() << std::endl;
 }

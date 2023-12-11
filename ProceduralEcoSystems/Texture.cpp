@@ -84,14 +84,18 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::Texture(float** noiseMap, const char* texType, GLuint slot)
+Texture::Texture(Noise noise, const char* texType, GLuint slot)
 {
-	GLfloat checkImage[16][16];
+	const int texSize = 256;
 
-	for (int i = 0; i < 16; i++) {
-		for (int j = 0; j < 16; j++) {
+	GLfloat checkImage[texSize][texSize];
+
+	for (int i = 0; i < texSize; i++) {
+		for (int j = 0; j < texSize; j++) {
 			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-			checkImage[i][j] = (GLfloat) r;
+
+			checkImage[i][j] = (GLfloat) noise.get(i, j);
+
 		}
 	}
 
@@ -105,7 +109,7 @@ Texture::Texture(float** noiseMap, const char* texType, GLuint slot)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 16, 16, 0, GL_RED, GL_FLOAT, checkImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, texSize, texSize, 0, GL_RED, GL_FLOAT, checkImage);
 
 	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
 	glBindTexture(GL_TEXTURE_2D, 0);
