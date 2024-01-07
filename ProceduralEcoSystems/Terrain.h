@@ -2,35 +2,20 @@
 #define TERRAIN_CLASS_H
 
 #include"Mesh.h"
+#include"Chunk.h"
+#include<vector>
+#include<glm/glm.hpp>
 
 class Terrain
 {
 public:
-	Terrain();
+	Noise* noise;
+	int size;
+	std::vector <Chunk> chunkList;
 
-	void Draw
-	(
-		Shader& shader,
-		Camera& camera
-	);
+	Terrain(Noise* input_noise, int input_size);
 
-	void GenQuad(int displacement);
-
-private:
-	// All the meshes and transformations
-	std::vector<Mesh> meshes;
-	std::vector<glm::mat4> matricesMeshes;
-	std::vector<glm::mat4> instanceMatrix;
-
-
-	// Prevents textures from being loaded twice
-	std::vector<std::string> loadedTexName;
-	std::vector<Texture> loadedTex;
-
-	// Holds number of instances (if 1 the mesh will be rendered normally)
-	unsigned int instancing;
+	void DrawTerrain(Shader& shader, Camera& camera);
+	void GenerateTerrainMesh();
 };
-
-
-
 #endif

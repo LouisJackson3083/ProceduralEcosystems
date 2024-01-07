@@ -84,9 +84,10 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::Texture(Noise noise, const char* texType, GLuint slot)
+Texture::Texture(Noise* noise, const char* texType, GLuint slot)
 {
 	const int texSize = 256;
+
 
 	GLfloat checkImage[texSize][texSize];
 
@@ -94,7 +95,7 @@ Texture::Texture(Noise noise, const char* texType, GLuint slot)
 		for (int j = 0; j < texSize; j++) {
 			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
-			checkImage[i][j] = (GLfloat) noise.get(i, j);
+			checkImage[i][j] = (GLfloat) noise->get(i, j);
 
 		}
 	}

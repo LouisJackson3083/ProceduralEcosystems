@@ -6,6 +6,8 @@
 #include <cmath>
 #include <cstdint>
 
+Noise::Noise() {
+}
 
 Noise::Noise(float input_scale, int input_octaves, float input_persistance, float input_lacunarity, int input_seed) {
     scale = input_scale;
@@ -25,17 +27,11 @@ Noise::Noise(float input_scale, int input_octaves, float input_persistance, floa
         frequency *= lacunarity;
 
         offsets.push_back(rand());
-
-        std::cout << offsets[i] << std::endl;
     }
-    std::cout << "SIZE OF OFFSETS: " << offsets.size() << std::endl;
-    std::cout << "num OF octaves: " << octaves << std::endl;
-    std::cout << "time created: " << time_created << std::endl;
 
 }
 
 void Noise::updateNoiseValues(float input_scale, int input_octaves, float input_persistance, float input_lacunarity) {
-    std::cout << "SIZE OF OFFSETS before updating: " << offsets.size() << std::endl;
     scale = input_scale;
     octaves = input_octaves;
     persistance = input_persistance;
@@ -49,9 +45,10 @@ void Noise::updateNoiseValues(float input_scale, int input_octaves, float input_
         amplitude *= persistance;
         frequency *= lacunarity;
     }
-    std::cout << "NOISE VALUES UPDATED" << octaves << std::endl;
-    std::cout << "SIZE OF OFFSETS after updating: " << offsets.size() << std::endl;
-    std::cout << "time created: " << time_created << std::endl;
+
+    if (offsets.size() != octaves) {
+        updateSeed(seed);
+    }
 }
 
 float** Noise::generateNoiseMap(int width, int height, float scale) {
@@ -86,7 +83,6 @@ float Noise::get(int x, int y) {
     float maxNoiseEstimate = 0.0f;
     float minNoiseEstimate = 0.0f;
 
-    //std::cout << "SIZE OF OFFSETS before getting: " << offsets.size() << std::endl;
 
     for (int i = 0; i < octaves; i++) {
 
@@ -112,14 +108,8 @@ void Noise::updateSeed(int input_seed) {
     srand(seed);
 
     offsets.clear();
-    std::cout << "SIZE OF OFFSETS after clearing: " << offsets.size() << std::endl;
-
-
-    std::cout << "num OF octaves: " << octaves << std::endl;
 
     for (int i = 0; i < octaves; i++) {
         offsets.push_back(rand());
-        std::cout << offsets[i] << std::endl;
     }
-    std::cout << "SIZE OF OFFSETS after re-init: " << offsets.size() << std::endl;
 }

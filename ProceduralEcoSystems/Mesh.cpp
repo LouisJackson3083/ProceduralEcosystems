@@ -46,7 +46,6 @@ Mesh::Mesh
 	EBO.Unbind();
 }
 
-
 void Mesh::Draw
 (
 	Shader& shader,

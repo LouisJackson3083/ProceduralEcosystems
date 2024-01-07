@@ -4,7 +4,6 @@
 
 class Noise {
 public:
-	float** noiseMap;
 
 	int seed;
 
@@ -18,6 +17,8 @@ public:
 	std::vector<float> offsets;
 
 	time_t time_created;
+
+	Noise();
 
 	Noise(float input_scale, int input_octaves, float input_persistance, float input_lacunarity, int input_seed);
 

@@ -96,6 +96,9 @@
     <ClCompile Include="NoiseGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Chunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="geom_default.vert">
@@ -220,6 +223,9 @@
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
     <ClInclude Include="NoiseGUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

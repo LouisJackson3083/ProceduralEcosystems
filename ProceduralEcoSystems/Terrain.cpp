@@ -1,58 +1,38 @@
 #include "Terrain.h"
 
-Terrain::Terrain() {
-	// Vertices coordinates
-	
-
-	Terrain::instanceMatrix = {};
-	Terrain::instancing = 1;
-
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		GenQuad(i);
-	}
+Terrain::Terrain(Noise* input_noise, int input_size) {
+	noise = input_noise;
+	size = input_size;
+	chunkList.resize(1);
 }
 
-void Terrain::Draw(Shader& shader, Camera& camera)
-{
-	// Go over all meshes and draw each one
-	for (unsigned int i = 0; i < meshes.size(); i++)
-	{
-		meshes[i].Mesh::Draw(shader, camera);
+void Terrain::GenerateTerrainMesh() {
+	Chunk chunk = Chunk(size);
+	int vertexIndex = 0;
+	float offset = (size - 1) / 2.0f;
+
+	for (int x = 0; x < size; x++) {
+		for (int z = 0; z < size; z++) {
+			chunk.vertices[vertexIndex] = glm::vec3{ offset+x, noise->get(x, z), offset-z };
+
+			//std::cout << vertexIndex << ": " << offset + x << ", " << noise->get(x, z) << ", " << offset - z << std::endl;
+			//std::cout << vertexIndex << ": " << chunk.vertices[vertexIndex].x << ", " << chunk.vertices[vertexIndex].y << ", " << chunk.vertices[vertexIndex].z << std::endl;
+
+			chunk.uvs[vertexIndex] = glm::vec2{ x / (float)size, z / (float)size };
+
+			if (x < size - 1 && z < size - 1) {
+				chunk.AddTriangle(vertexIndex, vertexIndex + size + 1, vertexIndex + size);
+				chunk.AddTriangle(vertexIndex + size + 1, vertexIndex, vertexIndex + 1);
+			}
+			vertexIndex++;
+		}
 	}
+
+	chunk.CreateMesh();
+
+	chunkList[0] = chunk;
 }
 
-void Terrain::GenQuad(int displacement) {
-	Vertex vertices[] =
-	{ //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
-		Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-		Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-		Vertex{glm::vec3(1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
-	};
-
-
-	// Indices for vertices order
-	GLuint indices[] =
-	{
-		0, 1, 2,
-		0, 2, 3
-	};
-
-	// Texture data
-	Texture textures[]
-	{
-		Texture("./Resources/Textures/planks.png", "diffuse", 0),
-		Texture("./Resources/Textures/planksSpec.png", "specular", 1)
-	};
-
-	// Store mesh data in vectors for the mesh
-	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
-	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-
-
-
-	// Combine the vertices, indices, and textures into a mesh
-	meshes.push_back(Mesh(verts, ind, tex, instancing, instanceMatrix));
+void Terrain::DrawTerrain(Shader& shader, Camera& camera) {
+	chunkList[0].Draw(shader, camera);
 }

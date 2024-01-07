@@ -31,8 +31,8 @@ int main()
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Create a GLFWwindow object of 800 by 800 pixels, naming it "YoutubeOpenGL"
-	GLFWwindow* window = glfwCreateWindow(width, height, "YoutubeOpenGL", NULL, NULL);
+	// Create a GLFWwindow object of 800 by 800 pixels, naming it "procedural eco systems"
+	GLFWwindow* window = glfwCreateWindow(width, height, "Procedural Eco-Systems", NULL, NULL);
 	// Error check if the window fails to create
 	if (window == NULL)
 	{
@@ -74,7 +74,7 @@ int main()
 
 
 	// line below sets gl to render wireframes
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
 	glEnable(GL_TEXTURE_2D);
@@ -85,20 +85,21 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 
 	// Enables Cull Facing
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	// Keeps front faces
-	glCullFace(GL_FRONT);
+	//glCullFace(GL_FRONT);
 	// Uses counter clock-wise standard
-	glFrontFace(GL_CCW);
+	//glFrontFace(GL_CCW);
 
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(1.0f, 1.0f, 1.0f));
 
+	Noise noise(6.0f, 8.0f, 2.0f, 0.6f, rand());
+	NoiseGUI noiseGUI(window, &noise);
+	Terrain terrain(&noise, 4);
+	terrain.GenerateTerrainMesh();
 
-	Terrain terrain;
-	Noise noise(0.5f, 4, 0.5f, 2.0f, rand());
-	NoiseGUI noiseGUI(window, noise);
-
+	Model model("./Resources/Models/crow/scene.gltf");
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -109,7 +110,6 @@ int main()
 
 	// Use this to disable VSync (not advized)
 	//glfwSwapInterval(0);
-
 
 
 	// Main while loop
@@ -154,8 +154,8 @@ int main()
 
 
 		// Draw the normal model
-		terrain.Draw(shaderProgram, camera);
-
+		terrain.DrawTerrain(shaderProgram, camera);
+		model.Draw(shaderProgram, camera);
 
 		noiseGUI.Update();
 		/*ImGui::Begin("DebugWindow");

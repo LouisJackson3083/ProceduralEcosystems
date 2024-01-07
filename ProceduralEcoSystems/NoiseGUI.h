@@ -11,7 +11,7 @@ public:
 
 	NoiseGUI(GLFWwindow* window);
 
-	NoiseGUI(GLFWwindow* window, Noise& noise);
+	NoiseGUI(GLFWwindow* window, Noise* input_noise);
 
 	void NewFrame();
 
@@ -20,7 +20,7 @@ public:
 	void CleanUp();
 
 	Texture texture = Texture("./Resources/Textures/pop_cat.png", "diffuse", 0);
-	Noise noise = Noise(0.5f, 4, 0.5f, 2.0f, rand());
+	Noise* noise;
 
 private:
 	float sliderScale;
