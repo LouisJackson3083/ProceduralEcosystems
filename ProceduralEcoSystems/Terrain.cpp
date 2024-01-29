@@ -13,6 +13,24 @@ void Terrain::GenerateTerrainMesh() {
 
 	for (int x = 0; x < size; x++) {
 		for (int z = 0; z < size; z++) {
+
+			chunk.vertices.push_back
+			(
+				Vertex
+				{
+					glm::vec3{ offset + x, noise->get(x, z), offset - z },
+					glm::vec3{1.0f, 1.0f, 1.0f},
+					glm::vec3(0.0f, 0.0f, 1.0f),
+					glm::vec2{ x / (float)size, z / (float)size }
+				}
+			);
+
+			if (x < size - 1 && z < size - 1) {
+				chunk.AddTriangle(vertexIndex, vertexIndex + size + 1, vertexIndex + size);
+				chunk.AddTriangle(vertexIndex + size + 1, vertexIndex, vertexIndex + 1);
+			}
+
+			/*
 			chunk.vertices[vertexIndex] = glm::vec3{ offset+x, noise->get(x, z), offset-z };
 
 			//std::cout << vertexIndex << ": " << offset + x << ", " << noise->get(x, z) << ", " << offset - z << std::endl;
@@ -23,7 +41,9 @@ void Terrain::GenerateTerrainMesh() {
 			if (x < size - 1 && z < size - 1) {
 				chunk.AddTriangle(vertexIndex, vertexIndex + size + 1, vertexIndex + size);
 				chunk.AddTriangle(vertexIndex + size + 1, vertexIndex, vertexIndex + 1);
-			}
+			}*/
+
+
 			vertexIndex++;
 		}
 	}

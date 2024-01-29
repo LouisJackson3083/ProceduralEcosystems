@@ -162,6 +162,7 @@
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="shaderClass.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />

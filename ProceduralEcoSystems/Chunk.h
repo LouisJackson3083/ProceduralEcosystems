@@ -5,6 +5,7 @@
 #include<glm/glm.hpp>
 #include<vector>
 #include"Mesh.h"
+#include"Texture.h"
 #include"VAO.h"
 #include"EBO.h"
 #include"Noise.h"
@@ -16,11 +17,16 @@ public:
 
 	int size;
 	int triangleIndex;
-	std::vector <glm::vec3> vertices;
-	std::vector <GLuint> triangles;
-	std::vector <glm::vec2> uvs;
+	
+	std::vector <Vertex> vertices;
+	std::vector <GLuint> indices;
+	std::vector <Texture> textures;
 
-	VAO VAO;
+	//std::vector <glm::vec3> vertices;
+	//std::vector <GLuint> triangles;
+	//std::vector <glm::vec2> uvs;
+
+	// VAO VAO;
 
 	Chunk();
 	Chunk(int input_size);

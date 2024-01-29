@@ -3,6 +3,7 @@
 #include<math.h>
 #include"Terrain.h"
 #include"Noise.h"
+#include"Test.h"
 #include <typeinfo>
 
 
@@ -74,7 +75,7 @@ int main()
 
 
 	// line below sets gl to render wireframes
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
 	glEnable(GL_TEXTURE_2D);
@@ -96,10 +97,11 @@ int main()
 
 	Noise noise(6.0f, 8.0f, 2.0f, 0.6f, rand());
 	NoiseGUI noiseGUI(window, &noise);
-	Terrain terrain(&noise, 4);
-	terrain.GenerateTerrainMesh();
 
-	Model model("./Resources/Models/crow/scene.gltf");
+	Test test(16);
+
+
+	Model model("./Resources/Models/windows/scene.gltf");
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -154,8 +156,9 @@ int main()
 
 
 		// Draw the normal model
-		terrain.DrawTerrain(shaderProgram, camera);
+		//terrain.DrawTerrain(shaderProgram, camera);
 		model.Draw(shaderProgram, camera);
+		test.Draw(shaderProgram, camera);
 
 		noiseGUI.Update();
 		/*ImGui::Begin("DebugWindow");
