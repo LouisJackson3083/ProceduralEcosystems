@@ -75,7 +75,7 @@ int main()
 
 
 	// line below sets gl to render wireframes
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
 	glEnable(GL_TEXTURE_2D);
@@ -97,6 +97,7 @@ int main()
 
 	Noise noise(6.0f, 8.0f, 2.0f, 0.6f, rand());
 	NoiseGUI noiseGUI(window, &noise);
+
 
 	Test test(16);
 
