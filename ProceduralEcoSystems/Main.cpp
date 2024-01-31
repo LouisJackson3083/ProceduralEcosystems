@@ -1,13 +1,13 @@
-#include"NoiseGUI.h"
+#include"GUI.h"
 #include"Model.h"
 #include<math.h>
 #include"Terrain.h"
 #include"Noise.h"
-#include"Test.h"
+#include"Patch.h"
 #include <typeinfo>
 
 
-const unsigned int width = 800;
+const unsigned int width = 1200;
 const unsigned int height = 800;
 unsigned int samples = 8;
 
@@ -77,7 +77,6 @@ int main()
 	// line below sets gl to render wireframes
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-
 	glEnable(GL_TEXTURE_2D);
 
 	// Enables the Depth Buffer
@@ -93,14 +92,11 @@ int main()
 	//glFrontFace(GL_CCW);
 
 	// Creates camera object
-	Camera camera(width, height, glm::vec3(1.0f, 1.0f, 1.0f));
+	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
-	Noise noise(6.0f, 8.0f, 2.0f, 0.6f, rand());
-	NoiseGUI noiseGUI(window, &noise);
-
-
-	Test test(16);
-
+	Noise noise(2.0f, 8.0f, 2.0f, 0.6f, rand());
+	Patch patch(32, 64, 31, &noise);
+	GUI GUI(window, &noise, &patch);
 
 	Model model("./Resources/Models/windows/scene.gltf");
 
@@ -144,7 +140,7 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		noiseGUI.NewFrame();
+		GUI.NewFrame();
 		/*
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -159,9 +155,9 @@ int main()
 		// Draw the normal model
 		//terrain.DrawTerrain(shaderProgram, camera);
 		model.Draw(shaderProgram, camera);
-		test.Draw(shaderProgram, camera);
+		patch.Draw(shaderProgram, camera);
 
-		noiseGUI.Update();
+		GUI.Update();
 		/*ImGui::Begin("DebugWindow");
 		ImGui::Text("HELLO");
 		ImGui::End();
@@ -175,7 +171,7 @@ int main()
 		glfwPollEvents();
 	}
 
-	noiseGUI.CleanUp();
+	GUI.CleanUp();
 	
 
 	// Delete all the objects we've created

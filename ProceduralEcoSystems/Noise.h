@@ -28,7 +28,7 @@ public:
 
 	float** generateNoiseMap(int width, int height, float scale);
 
-	float get(int x, int y);
+	float get(float x, float y);
 
 
 private:

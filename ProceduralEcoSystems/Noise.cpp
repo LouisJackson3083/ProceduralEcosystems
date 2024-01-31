@@ -76,13 +76,12 @@ float** Noise::generateNoiseMap(int width, int height, float scale) {
 
 }
 
-float Noise::get(int x, int y) {
+float Noise::get(float x, float y) {
     float amplitude = 1.0f;
     float frequency = 1;
     float noiseHeight = 0;
     float maxNoiseEstimate = 0.0f;
     float minNoiseEstimate = 0.0f;
-
 
     for (int i = 0; i < octaves; i++) {
 
