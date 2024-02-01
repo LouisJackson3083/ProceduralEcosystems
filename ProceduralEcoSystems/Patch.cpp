@@ -32,7 +32,7 @@ void Patch::UpdateMesh() {
 			// Push the current vertex onto the vector
 			float x = (float)i * scalar;
 			float z = (float)j * scalar;
-			vertices.push_back(PatchVertex
+			vertices.push_back(Vertex
 				{
 					glm::vec3{x, noise->get(x, z) * amplitude, z}, // Positions
 					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
@@ -62,14 +62,22 @@ void Patch::UpdateMesh() {
 
 	VAO.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
-	PatchVBO VBO(vertices);
+	VBO VBO(vertices);
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO(indices);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(PatchVertex), (void*)0);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(PatchVertex), (void*)(3 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(PatchVertex), (void*)(6 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 3, 3, GL_FLOAT, sizeof(PatchVertex), (void*)(9 * sizeof(float)));
+
+	// arg[1] = Specifies the index of the generic vertex attribute to be modified.
+	// arg[2] = Specifies the number of components per generic vertex attribute.
+	// arg[3] GL_FLOAT = type of data (i.e. float or int)
+	// arg[4] sizeof(PatchVertex) = Specifies the byte offset between consecutive generic vertex attributes. If stride is 0, the generic vertex 
+	// attributes are understood to be tightly packed in the array. The initial value is 0.
+	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
+	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	VAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
+	VAO.LinkAttrib(VBO, 3, 3, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
 
 	// Unbind all to prevent accidentally modifying them
 	VAO.Unbind();

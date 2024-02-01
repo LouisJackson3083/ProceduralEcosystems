@@ -8,7 +8,7 @@
 #include"Texture.h"
 #include"Camera.h"
 #include"EBO.h"
-#include"PatchVBO.h"
+#include"VBO.h"
 #include"VAO.h"
 #include"Noise.h"
 
@@ -16,7 +16,7 @@ class Patch {
 public:
 
 	Noise* noise;
-	std::vector<PatchVertex> vertices;
+	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	Texture texture = Texture("./Resources/Textures/pop_cat.png", "diffuse", 0);
 	VAO VAO;

@@ -187,6 +187,8 @@
     <None Include="outlining.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
+    <None Include="terrain.frag" />
+    <None Include="terrain.vert" />
     <None Include="windows.frag" />
   </ItemGroup>
   <ItemGroup>
