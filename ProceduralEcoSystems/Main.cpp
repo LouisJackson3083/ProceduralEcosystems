@@ -3,7 +3,7 @@
 #include<math.h>
 #include"Terrain.h"
 #include"Noise.h"
-#include"Patch.h"
+#include"Terrain.h"
 #include <typeinfo>
 
 
@@ -95,8 +95,8 @@ int main()
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
 	Noise noise(2.0f, 8.0f, 2.0f, 0.6f, rand());
-	Patch patch(32, 64, 31, &noise);
-	GUI GUI(window, &noise, &patch);
+	Terrain terrain(32, 64, 31, &noise);
+	GUI GUI(window, &noise, &terrain);
 
 	Model model("./Resources/Models/windows/scene.gltf");
 
@@ -141,10 +141,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		GUI.NewFrame();
-		/*
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();*/
 
 		// Handles camera inputs (delete this if you have disabled VSync)
 		camera.Inputs(window);
@@ -155,7 +151,7 @@ int main()
 		// Draw the normal model
 		//terrain.DrawTerrain(shaderProgram, camera);
 		model.Draw(shaderProgram, camera);
-		patch.Draw(shaderProgram, camera);
+		terrain.Draw(shaderProgram, camera);
 
 		GUI.Update();
 		/*ImGui::Begin("DebugWindow");

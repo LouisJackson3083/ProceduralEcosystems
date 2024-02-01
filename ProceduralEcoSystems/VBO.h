@@ -16,7 +16,6 @@ struct Vertex
 };
 
 
-
 class VBO
 {
 public:

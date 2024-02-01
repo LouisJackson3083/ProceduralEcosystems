@@ -10,7 +10,7 @@ GUI::GUI(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-GUI::GUI(GLFWwindow* window, Noise* input_noise, Patch* input_patch) {
+GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -23,10 +23,10 @@ GUI::GUI(GLFWwindow* window, Noise* input_noise, Patch* input_patch) {
 	sliderLacunarity = noise->lacunarity;
 	sliderPersistance = noise->persistance;
 
-	patch = input_patch;
-	sliderPatchSize = patch->size;
-	sliderPatchSubdivision = patch->subdivision;
-	sliderPatchAmplitude = patch->amplitude;
+	terrain = input_terrain;
+	sliderPatchSize = terrain->size;
+	sliderPatchSubdivision = terrain->subdivision;
+	sliderPatchAmplitude = terrain->amplitude;
 
 	boolWireframe = false;
 
@@ -73,9 +73,9 @@ void GUI::Update() {
 			boolPatchSubdivision ||
 			boolPatchAmplitude
 			) {
-			patch->amplitude = sliderPatchAmplitude;
-			patch->size = sliderPatchSize;
-			patch->subdivision = sliderPatchSubdivision;
+			terrain->amplitude = sliderPatchAmplitude;
+			terrain->size = sliderPatchSize;
+			terrain->subdivision = sliderPatchSubdivision;
 		}
 	}
 
@@ -86,7 +86,7 @@ void GUI::Update() {
 		texture = Texture(noise, "diffuse", 0);
 	}
 	if (ImGui::Button("Update Patch/Mesh")) {
-		patch->UpdateMesh();
+		terrain->UpdatePatches();
 	}
 	// Wireframe Checkbox
 	ImGui::Checkbox("Toggle Wireframe", &boolWireframe);

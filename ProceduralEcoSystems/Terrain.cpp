@@ -1,58 +1,37 @@
 #include "Terrain.h"
 
-Terrain::Terrain(Noise* input_noise, int input_size) {
+Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, Noise* input_noise) {
 	noise = input_noise;
 	size = input_size;
-	chunkList.resize(1);
+	subdivision = input_subdivision;
+	amplitude = input_amplitude;
+
+	patches.push_back(Patch(size, subdivision, amplitude, noise));
+
+	UpdatePatches();
 }
 
-void Terrain::GenerateTerrainMesh() {
-	Chunk chunk = Chunk(size);
-	int vertexIndex = 0;
-	float offset = (size - 1) / 2.0f;
-
-	for (int x = 0; x < size; x++) {
-		for (int z = 0; z < size; z++) {
-
-			chunk.vertices.push_back
-			(
-				Vertex
-				{
-					glm::vec3{ offset + x, noise->get(x, z), offset - z },
-					glm::vec3{1.0f, 1.0f, 1.0f},
-					glm::vec3(0.0f, 0.0f, 1.0f),
-					glm::vec2{ x / (float)size, z / (float)size }
-				}
-			);
-
-			if (x < size - 1 && z < size - 1) {
-				chunk.AddTriangle(vertexIndex, vertexIndex + size + 1, vertexIndex + size);
-				chunk.AddTriangle(vertexIndex + size + 1, vertexIndex, vertexIndex + 1);
-			}
-
-			/*
-			chunk.vertices[vertexIndex] = glm::vec3{ offset+x, noise->get(x, z), offset-z };
-
-			//std::cout << vertexIndex << ": " << offset + x << ", " << noise->get(x, z) << ", " << offset - z << std::endl;
-			//std::cout << vertexIndex << ": " << chunk.vertices[vertexIndex].x << ", " << chunk.vertices[vertexIndex].y << ", " << chunk.vertices[vertexIndex].z << std::endl;
-
-			chunk.uvs[vertexIndex] = glm::vec2{ x / (float)size, z / (float)size };
-
-			if (x < size - 1 && z < size - 1) {
-				chunk.AddTriangle(vertexIndex, vertexIndex + size + 1, vertexIndex + size);
-				chunk.AddTriangle(vertexIndex + size + 1, vertexIndex, vertexIndex + 1);
-			}*/
-
-
-			vertexIndex++;
-		}
+void Terrain::UpdatePatches() {
+	for (int i = 0; i < patches.size(); i++) {
+		patches[i].amplitude = amplitude;
+		patches[i].size = size;
+		patches[i].subdivision = subdivision;
+		patches[i].UpdateMesh();
 	}
-
-	chunk.CreateMesh();
-
-	chunkList[0] = chunk;
 }
 
-void Terrain::DrawTerrain(Shader& shader, Camera& camera) {
-	chunkList[0].Draw(shader, camera);
+
+void Terrain::Draw
+(
+	Shader& shader,
+	Camera& camera,
+	glm::mat4 matrix,
+	glm::vec3 translation,
+	glm::quat rotation,
+	glm::vec3 scale
+)
+{
+	for (int i = 0; i < patches.size(); i++) {
+		patches[i].Draw(shader, camera);
+	}
 }

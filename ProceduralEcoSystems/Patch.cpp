@@ -32,7 +32,7 @@ void Patch::UpdateMesh() {
 			// Push the current vertex onto the vector
 			float x = (float)i * scalar;
 			float z = (float)j * scalar;
-			vertices.push_back(Vertex
+			vertices.push_back(PatchVertex
 				{
 					glm::vec3{x, noise->get(x, z) * amplitude, z}, // Positions
 					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
@@ -62,14 +62,14 @@ void Patch::UpdateMesh() {
 
 	VAO.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO(vertices);
+	PatchVBO VBO(vertices);
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO(indices);
 
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 3, 3, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(PatchVertex), (void*)0);
+	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(PatchVertex), (void*)(3 * sizeof(float)));
+	VAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(PatchVertex), (void*)(6 * sizeof(float)));
+	VAO.LinkAttrib(VBO, 3, 3, GL_FLOAT, sizeof(PatchVertex), (void*)(9 * sizeof(float)));
 
 	// Unbind all to prevent accidentally modifying them
 	VAO.Unbind();

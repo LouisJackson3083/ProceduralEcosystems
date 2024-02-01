@@ -5,14 +5,14 @@
 #include"imgui_impl_opengl3.h"
 #include"Texture.h"
 #include"Noise.h"
-#include"Patch.h"
+#include"Terrain.h"
 
 class GUI {
 public:
 
 	GUI(GLFWwindow* window);
 
-	GUI(GLFWwindow* window, Noise* input_noise, Patch* input_patch);
+	GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain);
 
 	void NewFrame();
 
@@ -22,7 +22,7 @@ public:
 
 	Texture texture = Texture("./Resources/Textures/pop_cat.png", "diffuse", 0);
 	Noise* noise;
-	Patch* patch;
+	Terrain* terrain;
 
 private:
 	float sliderScale;

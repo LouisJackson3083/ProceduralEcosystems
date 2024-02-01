@@ -1,21 +1,29 @@
 #ifndef TERRAIN_CLASS_H
 #define TERRAIN_CLASS_H
 
-#include"Mesh.h"
-#include"Chunk.h"
-#include<vector>
-#include<glm/glm.hpp>
+#include"Patch.h"
 
-class Terrain
-{
+class Terrain {
 public:
-	Noise* noise;
+	std::vector<Patch> patches;
+
 	int size;
-	std::vector <Chunk> chunkList;
+	int subdivision;
+	float amplitude;
+	Noise* noise;
 
-	Terrain(Noise* input_noise, int input_size);
+	Terrain(int input_size, int input_subdivision, float input_amplitude, Noise* input_noise);
 
-	void DrawTerrain(Shader& shader, Camera& camera);
-	void GenerateTerrainMesh();
+	void UpdatePatches();
+
+	void Draw(
+		Shader& shader,
+		Camera& camera,
+		glm::mat4 matrix = glm::mat4(1.0f),
+		glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f)
+	);
 };
+
 #endif
