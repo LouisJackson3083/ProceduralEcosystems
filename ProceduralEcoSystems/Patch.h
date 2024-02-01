@@ -24,8 +24,9 @@ public:
 	int size;
 	int subdivision;
 	float amplitude;
+	glm::vec3 offset;
 
-	Patch(int input_size, int input_subdivision, float input_amplitude, Noise* input_noise);
+	Patch(glm::vec3 input_offset, int input_size, int input_subdivision, float input_amplitude, Noise* input_noise);
 
 	void UpdateMesh();
 

@@ -6,16 +6,27 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, N
 	subdivision = input_subdivision;
 	amplitude = input_amplitude;
 
-	patches.push_back(Patch(size, subdivision, amplitude, noise));
+	for (int i = 0; i < 5; i++) {
+		patches.push_back(
+			Patch(
+				glm::vec3{i * size, -24.0f, 0.0f}, 
+				size, 
+				subdivision / (i + 1), 
+				amplitude, 
+				noise
+			)
+		);
+	}
 
 	UpdatePatches();
 }
 
 void Terrain::UpdatePatches() {
 	for (int i = 0; i < patches.size(); i++) {
+		patches[i].offset = glm::vec3{ i * size, -24.0f, 0.0f };
 		patches[i].amplitude = amplitude;
 		patches[i].size = size;
-		patches[i].subdivision = subdivision;
+		patches[i].subdivision = subdivision / (i + 1);
 		patches[i].UpdateMesh();
 	}
 }

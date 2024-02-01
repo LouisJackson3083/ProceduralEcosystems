@@ -1,10 +1,11 @@
 #include"Patch.h"
 
-Patch::Patch(int input_size, int input_subdivision, float input_amplitude, Noise* input_noise) {
-	noise = input_noise;
+Patch::Patch(glm::vec3 input_offset, int input_size, int input_subdivision, float input_amplitude, Noise* input_noise) {
+	offset = input_offset;
 	size = input_size;
 	subdivision = input_subdivision;
 	amplitude = input_amplitude;
+	noise = input_noise;
 	UpdateMesh();
 }
 
@@ -34,10 +35,10 @@ void Patch::UpdateMesh() {
 			float z = (float)j * scalar;
 			vertices.push_back(Vertex
 				{
-					glm::vec3{x, noise->get(x, z) * amplitude, z}, // Positions
+					glm::vec3{x, noise->get(offset[0] + x, offset[1] + z) * amplitude, z}, // Positions
 					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
 					glm::vec3(0.0f, 0.0f, 0.0f), // Colors
-					glm::vec2(i, j) // Tex UV - Needs updating
+					glm::vec2(x, z) // Tex UV - Needs updating
 				}
 			);
 
@@ -105,5 +106,13 @@ void Patch::Draw
 	// Bind the VAO so OpenGL knows to use it
 	VAO.Bind();
 	// Draw primitives, number of indices, datatype of indices, index of indices
+
+	// Initialize matrices
+	glm::mat4 trans = glm::mat4(1.0f);
+	// Transform the matrices to their correct form
+	trans = glm::translate(trans, offset);
+	// Push the matrices to the vertex shader
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "translation"), 1, GL_FALSE, glm::value_ptr(trans));
+
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
