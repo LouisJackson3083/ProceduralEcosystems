@@ -32,7 +32,7 @@ int main()
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Create a GLFWwindow object of 800 by 800 pixels, naming it "procedural eco systems"
+	// Create a GLFWwindow object of 1200 by 800 pixels, naming it "procedural eco systems"
 	GLFWwindow* window = glfwCreateWindow(width, height, "Procedural Eco-Systems", NULL, NULL);
 	// Error check if the window fails to create
 	if (window == NULL)
@@ -88,10 +88,12 @@ int main()
 	//glFrontFace(GL_CCW);
 
 	// Creates camera object
+
+
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
 	Noise noise(2.0f, 8.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(4, 8, 31, &noise);
+	Terrain terrain(3, 8, 32, 20, &noise);
 	GUI GUI(window, &noise, &terrain);
 
 	Model model("./Resources/Models/windows/scene.gltf");
@@ -120,7 +122,7 @@ int main()
 			// Creates new title
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = "YoutubeOpenGL - " + FPS + "FPS / " + ms + "ms";
+			std::string newTitle = "Terrain - " + FPS + "FPS / " + ms + "ms";
 			glfwSetWindowTitle(window, newTitle.c_str());
 
 			// Resets times and counter

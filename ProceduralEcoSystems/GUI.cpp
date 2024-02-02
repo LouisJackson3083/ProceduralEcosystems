@@ -27,6 +27,7 @@ GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain) {
 	sliderPatchSize = terrain->size;
 	sliderPatchSubdivision = terrain->subdivision;
 	sliderPatchAmplitude = terrain->amplitude;
+	sliderRenderDistance = terrain->render_distance;
 
 	boolWireframe = false;
 
@@ -63,10 +64,11 @@ void GUI::Update() {
 	}
 
 	// Patch Sliders
-	if (ImGui::CollapsingHeader("Patch Sliders")) {
+	if (ImGui::CollapsingHeader("Terrain/Patch Sliders")) {
 		bool boolPatchSize = ImGui::SliderInt("Patch Size", &sliderPatchSize, 1, 32);
 		bool boolPatchSubdivision = ImGui::SliderInt("Patch Subdivisions", &sliderPatchSubdivision, 1, 128);
-		bool boolPatchAmplitude = ImGui::SliderFloat("Amplitude", &sliderPatchAmplitude, 0.0f, 64.0f);
+		bool boolPatchAmplitude = ImGui::SliderFloat("Patch Amplitude", &sliderPatchAmplitude, 0.0f, 64.0f);
+		bool boolRenderDistance = ImGui::SliderInt("Render Distance", &sliderRenderDistance, 1, 16);
 
 		// Patch Updates
 		if (boolPatchSize ||
@@ -76,6 +78,10 @@ void GUI::Update() {
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = sliderPatchSubdivision;
+		}
+
+		if (boolRenderDistance) {
+			terrain->UpdateRenderDistance(sliderRenderDistance);
 		}
 	}
 

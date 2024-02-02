@@ -30,10 +30,11 @@ private:
 	float sliderPersistance;
 	int sliderOctaves;
 
-	// Patch stuff
+	// Terrain/Patch stuff
 	int sliderPatchSize;
 	int sliderPatchSubdivision;
 	float sliderPatchAmplitude;
+	int sliderRenderDistance;
 
 	bool boolWireframe;
 };

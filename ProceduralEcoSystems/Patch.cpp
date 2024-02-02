@@ -31,11 +31,11 @@ void Patch::UpdateMesh() {
 	for (int i = 0; i < subdivision + 1; i++) {
 		for (int j = 0; j < subdivision + 1; j++) {
 			// Push the current vertex onto the vector
-			float x = (float)i * scalar;
-			float z = (float)j * scalar;
+			float x = ((float)i * scalar) - ((float)size / 2);
+			float z = ((float)j * scalar) - ((float)size / 2);
 			vertices.push_back(Vertex
 				{
-					glm::vec3{x, noise->get(offset[0] + x, offset[1] + z) * amplitude, z}, // Positions
+					glm::vec3{x, noise->get(offset[0] + x, offset[2] + z) * amplitude, z}, // Positions
 					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
 					glm::vec3(0.0f, 0.0f, 0.0f), // Colors
 					glm::vec2(x, z) // Tex UV - Needs updating

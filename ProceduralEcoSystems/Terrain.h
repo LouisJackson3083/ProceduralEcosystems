@@ -2,16 +2,20 @@
 #define TERRAIN_CLASS_H
 
 #include"Patch.h"
+#include <cmath>
 
 class Terrain {
 public:
 	std::vector<Patch> patches;
+	int render_distance;
 	int size;
 	int subdivision;
 	float amplitude;
 	Noise* noise;
 
-	Terrain(int input_size, int input_subdivision, float input_amplitude, Noise* input_noise);
+	Terrain(int input_render_distance, int input_size, int input_subdivision, float input_amplitude, Noise* input_noise);
+
+	void UpdateRenderDistance(int input_render_distance);
 
 	void UpdatePatches();
 

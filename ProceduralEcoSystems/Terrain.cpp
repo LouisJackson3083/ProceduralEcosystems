@@ -1,18 +1,21 @@
 #include "Terrain.h"
 
-Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, Noise* input_noise) {
-	noise = input_noise;
+Terrain::Terrain(int input_render_distance, int input_size, int input_subdivision, float input_amplitude, Noise* input_noise) {
+	render_distance = input_render_distance;
 	size = input_size;
 	subdivision = input_subdivision;
 	amplitude = input_amplitude;
+	noise = input_noise;
 
-	for (int i = 0; i < 5; i++) {
+	std::cout << render_distance*8 << std::endl;
+	int patchIndex = 0;
+	for (int j = 0; j < render_distance*8; j++) {
 		patches.push_back(
 			Patch(
-				glm::vec3{i * size, -24.0f, 0.0f}, 
-				size, 
-				subdivision / (i + 1), 
-				amplitude, 
+				glm::vec3{ 0.0f, 0.0f, 0.0f },
+				size,
+				subdivision,
+				amplitude,
 				noise
 			)
 		);
@@ -21,13 +24,39 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, N
 	UpdatePatches();
 }
 
+void Terrain::UpdateRenderDistance(int input_render_distance) {
+	render_distance = input_render_distance;
+	patches.clear();
+
+	for (int j = 0; j < render_distance * 8; j++) {
+		patches.push_back(
+			Patch(
+				glm::vec3{ 0.0f, 0.0f, 0.0f },
+				size,
+				subdivision,
+				amplitude,
+				noise
+			)
+		);
+	}
+}
+
 void Terrain::UpdatePatches() {
-	for (int i = 0; i < patches.size(); i++) {
-		patches[i].offset = glm::vec3{ i * size, -24.0f, 0.0f };
-		patches[i].amplitude = amplitude;
-		patches[i].size = size;
-		patches[i].subdivision = subdivision / (i + 1);
-		patches[i].UpdateMesh();
+
+	int patchIndex = 0;
+	for (int j = 0; j < render_distance; j++) {
+		for (int i = 0; i < 9; i++) {
+			int x = ((i % 3) - 1) * size * std::pow(3, j);
+			int z = ((i / 3) - 1) * size * std::pow(3, j);
+			if (x != 0 or z != 0) {
+				patches[patchIndex].offset = glm::vec3{ x, -24.0f, z };
+				patches[patchIndex].amplitude = amplitude;
+				patches[patchIndex].size = size * std::pow(3, j);
+				patches[patchIndex].subdivision = subdivision;
+				patches[patchIndex].UpdateMesh();
+				patchIndex++;
+			}
+		}
 	}
 }
 

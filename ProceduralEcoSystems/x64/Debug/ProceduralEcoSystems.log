@@ -1,7 +1,9 @@
-﻿  Main.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(93,20): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  Patch.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Patch.cpp(117,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+﻿  GUI.cpp
+  Main.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(95,20): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Terrain.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Terrain.cpp(49,10): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Terrain.cpp(50,10): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Terrain.cpp(54,37): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   Generating Code...
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe
