@@ -10,7 +10,7 @@ GUI::GUI(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain) {
+GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain, Camera* input_camera) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -27,7 +27,9 @@ GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain) {
 	sliderPatchSize = terrain->size;
 	sliderPatchSubdivision = terrain->subdivision;
 	sliderPatchAmplitude = terrain->amplitude;
-	sliderRenderDistance = terrain->render_distance;
+	sliderRenderDistance = terrain->render_distance / 3;
+
+	camera = input_camera;
 
 	boolWireframe = false;
 
@@ -42,6 +44,15 @@ void GUI::NewFrame() {
 
 void GUI::Update() {
 	ImGui::Begin("Noise Control");
+
+	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
+	ImGui::Text("Camera Position/Size = %d, %d", lastCamPos[0], lastCamPos[1]);
+	
+	if ((int)(camera->Position[0] / terrain->size) != lastCamPos[0] or (int)(camera->Position[0] / terrain->size)) {
+		lastCamPos = glm::vec2((int)(camera->Position[0] / terrain->size), (int)(camera->Position[2] / terrain->size));
+		//std::cout << "AAAAA" << std::endl;
+	}
+
 	ImGui::Image((void*)(intptr_t) texture.ID, ImVec2(256.0f, 256.0f));
 
 	//Noise Sliders
@@ -77,11 +88,12 @@ void GUI::Update() {
 			) {
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
-			terrain->subdivision = sliderPatchSubdivision;
+			terrain->subdivision = sliderPatchSubdivision * 3;
 		}
 
 		if (boolRenderDistance) {
 			terrain->UpdateRenderDistance(sliderRenderDistance);
+			terrain->UpdatePatches();
 		}
 	}
 

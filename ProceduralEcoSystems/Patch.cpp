@@ -1,57 +1,94 @@
 #include"Patch.h"
 
-Patch::Patch(glm::vec3 input_offset, int input_size, int input_subdivision, float input_amplitude, Noise* input_noise) {
+Patch::Patch(
+	glm::vec2 input_corner_data, 
+	glm::vec3 input_offset, 
+	int input_size, 
+	int input_subdivision, 
+	float input_amplitude,
+	Noise* input_noise, 
+	std::vector<Texture*> input_textures
+) {
+	corner_data = input_corner_data;
 	offset = input_offset;
 	size = input_size;
 	subdivision = input_subdivision;
 	amplitude = input_amplitude;
 	noise = input_noise;
+	textures = input_textures;
 	UpdateMesh();
+}
+
+glm::vec3 Patch::GetXYZ(int i, int j, float scalar) {
+	float x = ((float)i * scalar) - ((float)size / 2);
+	float z = ((float)j * scalar) - ((float)size / 2);
+	float y = noise->get(offset[0] + x, offset[2] + z) * amplitude;
+
+	int iRank = i % 3;
+	int jRank = j % 3;
+
+	// Handle z axis patch seaming 
+	if ((i == 0 and corner_data[0] == -1.0f) or (i == subdivision and corner_data[0] == 1.0f) and jRank != 0) {
+		// The process is to basically sample at 3 times the current patch size and interpolate between the two points
+		//                    o--------O y2
+		//           ---------^ use this point where y = 1/3 y1 + 2/3 y2
+		//  O--------
+		//  y1
+		float z1 = ((float)(j - jRank) * scalar) - ((float)size / 2);
+		float z2 = ((float)(j + 3 - jRank) * scalar) - ((float)size / 2);
+		float y1 = noise->get(offset[0] + x, offset[2] + z1) * amplitude;
+		float y2 = noise->get(offset[0] + x, offset[2] + z2) * amplitude;
+
+		y = (1.0f - ((float)jRank / 3.0f)) * y1 + ((float)jRank / 3.0f) * y2;
+	}
+	// Handle x axis patch seaming 
+	else if ((j == 0 and corner_data[1] == -1.0f) or (j == subdivision and corner_data[1] == 1.0f) and iRank != 0) {
+		float x1 = ((float)(i - iRank) * scalar) - ((float)size / 2);
+		float x2 = ((float)(i + 3 - iRank) * scalar) - ((float)size / 2);
+		float y1 = noise->get(offset[0] + x1, offset[2] + z) * amplitude;
+		float y2 = noise->get(offset[0] + x2, offset[2] + z) * amplitude;
+
+		y = (1.0f - ((float)iRank / 3.0f)) * y1 + ((float)iRank / 3.0f) * y2;
+	}
+
+	return glm::vec3(x, y, z);
 }
 
 void Patch::UpdateMesh() {
 	// Clear the vertices and indices vectors
 	vertices.clear();
 	indices.clear();
-
-	// int size - the size in metres of the whole patch, where
-	// 1 = 1m x 1m patch
-	// 2 = 2m x 2m patch
-	// 
-	// int subdivision - how many times the patch should be subdivided, where
-	// 2 = 2x2 quad patch ,
-	// 3 = 3x3 quad patch ,
-	// 4 = 4x4 quad patch ...
 	
 	// Used to keep track of the current vertex so that indice instantiation is correct
 	int vertexIndex = 0;
 	// This is the scalar we times each vertex by so the size does not change as we up the subdivisions
 	float scalar = ((float)size / (float)(subdivision));
-	
+
 	for (int i = 0; i < subdivision + 1; i++) {
 		for (int j = 0; j < subdivision + 1; j++) {
 			// Push the current vertex onto the vector
-			float x = ((float)i * scalar) - ((float)size / 2);
-			float z = ((float)j * scalar) - ((float)size / 2);
+
+			glm::vec3 position = GetXYZ(i, j, scalar);
+
 			vertices.push_back(Vertex
 				{
-					glm::vec3{x, noise->get(offset[0] + x, offset[2] + z) * amplitude, z}, // Positions
+					position, // Positions
 					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
 					glm::vec3(0.0f, 0.0f, 0.0f), // Colors
-					glm::vec2(x, z) // Tex UV - Needs updating
+					glm::vec2(position[0], position[2]) // Tex UV - Needs updating
 				}
 			);
 
 			if (i < subdivision && j < subdivision) {
 				// triangle 1
-				indices.push_back(vertexIndex);
-				indices.push_back(vertexIndex + subdivision + 2);
 				indices.push_back(vertexIndex + subdivision + 1);
+				indices.push_back(vertexIndex + subdivision + 2);
+				indices.push_back(vertexIndex);
 				//std::cout << "Added triangle 1: " << vertexIndex << "," << vertexIndex + size + 1 << "," << vertexIndex + size << std::endl;
 				// triangle 2
-				indices.push_back(vertexIndex + subdivision + 2);
-				indices.push_back(vertexIndex);
 				indices.push_back(vertexIndex + 1);
+				indices.push_back(vertexIndex);
+				indices.push_back(vertexIndex + subdivision + 2);
 				//std::cout << "Added triangle 2: " << vertexIndex + size + 1 << "," << vertexIndex << "," << vertexIndex + 1 << std::endl;
 			}
 
@@ -101,8 +138,28 @@ void Patch::Draw
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	// Export the camMatrix to the Vertex Shader of the pyramid
 	camera.Matrix(shader, "camMatrix");
+
 	// Binds textures so that they appear in the rendering
-	texture.Bind();
+	// Keep track of how many of each type of textures we have
+	unsigned int numDiffuse = 0;
+	unsigned int numSpecular = 0;
+	for (unsigned int i = 0; i < textures.size(); i++)
+	{
+		std::string num;
+		std::string type = textures[i]->type;
+		if (type == "diffuse")
+		{
+			num = std::to_string(numDiffuse++);
+		}
+		else if (type == "specular")
+		{
+			num = std::to_string(numSpecular++);
+		}
+		textures[i]->texUnit(shader, (type + num).c_str(), i);
+		textures[i]->Bind();
+	}
+
+	//texture->Bind();
 	// Bind the VAO so OpenGL knows to use it
 	VAO.Bind();
 	// Draw primitives, number of indices, datatype of indices, index of indices

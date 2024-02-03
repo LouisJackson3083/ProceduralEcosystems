@@ -52,6 +52,7 @@ int main()
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
+	Shader terrainShader("default.vert", "default.frag");
 	Shader instancedShader("instanced.vert", "default.frag");
 
 	// Take care of all the light related things
@@ -64,14 +65,13 @@ int main()
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
+	terrainShader.Activate();
+	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(terrainShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
 	instancedShader.Activate();
 	glUniform4f(glGetUniformLocation(instancedShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(instancedShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-
-
-
-	// line below sets gl to render wireframes
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -81,11 +81,11 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 
 	// Enables Cull Facing
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	// Keeps front faces
-	//glCullFace(GL_FRONT);
+	glCullFace(GL_FRONT);
 	// Uses counter clock-wise standard
-	//glFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);
 
 	// Creates camera object
 
@@ -93,8 +93,8 @@ int main()
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
 	Noise noise(2.0f, 8.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(3, 8, 32, 20, &noise);
-	GUI GUI(window, &noise, &terrain);
+	Terrain terrain(2, 1, 1, 8, &noise);
+	GUI GUI(window, &noise, &terrain, &camera);
 
 	Model model("./Resources/Models/windows/scene.gltf");
 
@@ -145,11 +145,10 @@ int main()
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
-
-		// Draw the normal model
+		// Draw the normal modelw
 		//terrain.DrawTerrain(shaderProgram, camera);
-		model.Draw(shaderProgram, camera);
-		terrain.Draw(shaderProgram, camera);
+		model.Draw(terrainShader, camera);
+		terrain.Draw(terrainShader, camera);
 
 		GUI.Update();
 		/*ImGui::Begin("DebugWindow");
@@ -170,6 +169,7 @@ int main()
 
 	// Delete all the objects we've created
 	shaderProgram.Delete();
+	terrainShader.Delete();
 	instancedShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);

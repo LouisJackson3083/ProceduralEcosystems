@@ -6,13 +6,19 @@
 #include"Texture.h"
 #include"Noise.h"
 #include"Terrain.h"
+#include<charconv>
 
 class GUI {
 public:
 
 	GUI(GLFWwindow* window);
 
-	GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain);
+	GUI(
+		GLFWwindow* window, 
+		Noise* input_noise, 
+		Terrain* input_terrain,
+		Camera* input_camera
+	);
 
 	void NewFrame();
 
@@ -23,6 +29,7 @@ public:
 	Texture texture = Texture("./Resources/Textures/pop_cat.png", "diffuse", 0);
 	Noise* noise;
 	Terrain* terrain;
+	Camera* camera;
 
 private:
 	float sliderScale;
@@ -37,6 +44,9 @@ private:
 	int sliderRenderDistance;
 
 	bool boolWireframe;
+
+	// Camera stuff
+	glm::vec2 lastCamPos = glm::vec2(0, 0);
 };
 
 #endif
