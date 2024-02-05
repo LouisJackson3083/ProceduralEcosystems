@@ -1,6 +1,13 @@
 #ifndef NOISE_CLASS_H
 #define NOISE_CLASS_H
 #include<vector>
+#include "SimplexNoise.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>
+#include <cstdint>
+#include "FastNoiseLite.h"
 
 class Noise {
 public:
@@ -18,7 +25,7 @@ public:
 
 	time_t time_created;
 
-	Noise();
+	FastNoiseLite fastNoiseLite;
 
 	Noise(float input_scale, int input_octaves, float input_persistance, float input_lacunarity, int input_seed);
 

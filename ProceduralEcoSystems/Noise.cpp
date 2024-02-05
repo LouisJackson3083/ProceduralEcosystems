@@ -1,13 +1,5 @@
 #include "Noise.h"
-#include "SimplexNoise.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cmath>
-#include <cstdint>
 
-Noise::Noise() {
-}
 
 Noise::Noise(float input_scale, int input_octaves, float input_persistance, float input_lacunarity, int input_seed) {
     scale = input_scale;
@@ -17,6 +9,9 @@ Noise::Noise(float input_scale, int input_octaves, float input_persistance, floa
     seed = input_seed;
     srand(seed);
     time_created = time(0);
+
+    fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+    fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
 
     float amplitude = 1.0f;
     float frequency = 1;
@@ -28,6 +23,8 @@ Noise::Noise(float input_scale, int input_octaves, float input_persistance, floa
 
         offsets.push_back(rand());
     }
+
+
 
 }
 
@@ -66,7 +63,9 @@ float** Noise::generateNoiseMap(int width, int height, float scale) {
             float sampleX = x / scale;
             float sampleY = y / scale;
 
-            float simplexNoiseValue = SimplexNoise::noise(sampleX, sampleY);
+            //float simplexNoiseValue = SimplexNoise::noise(sampleX, sampleY);
+            float simplexNoiseValue = fastNoiseLite.GetNoise((float)sampleX, (float)sampleY);
+
 
             noiseMap[y][x] = simplexNoiseValue * 255;
         }
@@ -87,7 +86,10 @@ float Noise::get(float x, float y) {
 
         float sampleX = x / scale * frequency + offsets[i];
         float sampleY = y / scale * frequency + offsets[i];
-        float simplexNoiseValue = SimplexNoise::noise(sampleX, sampleY);
+
+        //float simplexNoiseValue = SimplexNoise::noise(sampleX, sampleY);
+        float simplexNoiseValue = fastNoiseLite.GetNoise((float)sampleX, (float)sampleY);
+
         noiseHeight += simplexNoiseValue * amplitude;
 
         maxNoiseEstimate += 1.0f * amplitude;

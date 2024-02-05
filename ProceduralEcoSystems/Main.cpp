@@ -11,7 +11,6 @@ const unsigned int width = 1200;
 const unsigned int height = 800;
 unsigned int samples = 8;
 
-
 float randf()
 {
 	return -1.0f + (rand() / (RAND_MAX / 2.0f));
@@ -52,7 +51,7 @@ int main()
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	Shader terrainShader("default.vert", "default.frag");
+	Shader terrainShader("terrain.vert", "terrain.frag");
 	Shader instancedShader("instanced.vert", "default.frag");
 
 	// Take care of all the light related things
@@ -69,14 +68,16 @@ int main()
 	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(terrainShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-	instancedShader.Activate();
+	/*instancedShader.Activate();
 	glUniform4f(glGetUniformLocation(instancedShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(instancedShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	glUniform3f(glGetUniformLocation(instancedShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);*/
 
 	glEnable(GL_TEXTURE_2D);
 
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
+
+	glDepthFunc(GL_LESS);
 
 	glEnable(GL_MULTISAMPLE);
 
@@ -87,16 +88,16 @@ int main()
 	// Uses counter clock-wise standard
 	glFrontFace(GL_CCW);
 
+
+	Noise noise(0.5f, 6.0f, 2.0f, 0.6f, rand());
+	Terrain terrain(3, 3, 20, 5, &noise);
 	// Creates camera object
-
-
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
-	Noise noise(2.0f, 8.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(2, 1, 1, 8, &noise);
 	GUI GUI(window, &noise, &terrain, &camera);
 
-	Model model("./Resources/Models/windows/scene.gltf");
+	Model model("./Resources/Models/crow/scene.gltf");
+	Model model2("./Resources/Models/windows/scene.gltf");
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -133,30 +134,23 @@ int main()
 			//camera.Inputs(window);
 		}
 
+		GUI.NewFrame();
+
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		GUI.NewFrame();
 
 		// Handles camera inputs (delete this if you have disabled VSync)
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
-		// Draw the normal modelw
-		//terrain.DrawTerrain(shaderProgram, camera);
-		model.Draw(terrainShader, camera);
+		model2.Draw(shaderProgram, camera);
 		terrain.Draw(terrainShader, camera);
 
-		GUI.Update();
-		/*ImGui::Begin("DebugWindow");
-		ImGui::Text("HELLO");
-		ImGui::End();
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+		GUI.Update();
 
 		// Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);

@@ -1,3 +1,4 @@
+
 #version 330 core
 
 // Outputs colors in RGBA
@@ -102,9 +103,33 @@ vec4 spotLight()
 	return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
 }
 
+ 
+float near = 0.001; 
+float far  = 100.0; 
+
+float linearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
+float logisticDepth(float depth, float steepness, float offset)
+{
+	float zVal = linearizeDepth(depth);
+	return (1 / (1 + exp(-steepness * (zVal - offset))));
+}
+
 
 void main()
 {
 	// outputs final color
-	FragColor = direcLight();
+	//FragColor = direcLight();
+	float depth = linearizeDepth(gl_FragCoord.z);
+	FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(0.85f, 0.85f, 0.90f), 1.0f);
+
+
+    //float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
+    //FragColor = 1.0 - vec4(vec3(depth), 1.0) * direcLight();
+
+ 
 }

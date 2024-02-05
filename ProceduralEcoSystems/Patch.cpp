@@ -133,11 +133,10 @@ void Patch::Draw
 	glm::vec3 scale
 ) 
 {
+	// Bind shader to be able to access uniforms
 	shader.Activate();
-	// Exports the camera Position to the Fragment Shader for specular lighting
-	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-	// Export the camMatrix to the Vertex Shader of the pyramid
-	camera.Matrix(shader, "camMatrix");
+	// Bind the VAO so OpenGL knows to use it
+	VAO.Bind();
 
 	// Binds textures so that they appear in the rendering
 	// Keep track of how many of each type of textures we have
@@ -159,17 +158,27 @@ void Patch::Draw
 		textures[i]->Bind();
 	}
 
-	//texture->Bind();
-	// Bind the VAO so OpenGL knows to use it
-	VAO.Bind();
-	// Draw primitives, number of indices, datatype of indices, index of indices
+	// Exports the camera Position to the Fragment Shader for specular lighting
+	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	// Export the camMatrix to the Vertex Shader of the pyramid
+	camera.Matrix(shader, "camMatrix");
 
 	// Initialize matrices
 	glm::mat4 trans = glm::mat4(1.0f);
+	glm::mat4 rot = glm::mat4(1.0f);
+	glm::mat4 sca = glm::mat4(1.0f);
+
 	// Transform the matrices to their correct form
 	trans = glm::translate(trans, offset);
+	rot = glm::mat4_cast(rotation);
+	sca = glm::scale(sca, scale);
+
 	// Push the matrices to the vertex shader
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "translation"), 1, GL_FALSE, glm::value_ptr(trans));
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "rotation"), 1, GL_FALSE, glm::value_ptr(rot));
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "scale"), 1, GL_FALSE, glm::value_ptr(sca));
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(matrix));
+
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }

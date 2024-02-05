@@ -25,9 +25,9 @@ GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain, Camera*
 
 	terrain = input_terrain;
 	sliderPatchSize = terrain->size;
-	sliderPatchSubdivision = terrain->subdivision;
+	sliderPatchSubdivision = terrain->subdivision / 3;
 	sliderPatchAmplitude = terrain->amplitude;
-	sliderRenderDistance = terrain->render_distance / 3;
+	sliderRenderDistance = terrain->render_distance;
 
 	camera = input_camera;
 
@@ -46,12 +46,13 @@ void GUI::Update() {
 	ImGui::Begin("Noise Control");
 
 	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
-	ImGui::Text("Camera Position/Size = %d, %d", lastCamPos[0], lastCamPos[1]);
+	ImGui::Text("Camera Anchor Position = %f, %f", camera->anchorPosition[0], camera->anchorPosition[2]);
+	ImGui::Text("Total Triangles = %d", ((sliderRenderDistance * 8) + 1) * ((int)std::pow(sliderPatchSubdivision * 3, 2) * 2));
 	
-	if ((int)(camera->Position[0] / terrain->size) != lastCamPos[0] or (int)(camera->Position[0] / terrain->size)) {
-		lastCamPos = glm::vec2((int)(camera->Position[0] / terrain->size), (int)(camera->Position[2] / terrain->size));
-		//std::cout << "AAAAA" << std::endl;
-	}
+	//if ((int)(camera->Position[0] / terrain->size) != lastCamPos[0] or (int)(camera->Position[0] / terrain->size)) {
+	//	lastCamPos = glm::vec2((int)(camera->Position[0] / terrain->size), (int)(camera->Position[2] / terrain->size));
+	//	//std::cout << "AAAAA" << std::endl;
+	//}
 
 	ImGui::Image((void*)(intptr_t) texture.ID, ImVec2(256.0f, 256.0f));
 
@@ -104,6 +105,9 @@ void GUI::Update() {
 		texture = Texture(noise, "diffuse", 0);
 	}
 	if (ImGui::Button("Update Patch/Mesh")) {
+
+		camera->anchorPosition = camera->Position;
+		terrain->cameraPosition = glm::vec2(camera->Position[0], camera->Position[2]);
 		terrain->UpdatePatches();
 	}
 	// Wireframe Checkbox

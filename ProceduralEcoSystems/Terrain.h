@@ -11,10 +11,11 @@ public:
 	int size;
 	int subdivision;
 	float amplitude;
+	glm::vec2 cameraPosition;
 	Noise* noise;
 	std::vector<Texture> textures;
 
-	Terrain(int input_render_distance, int input_size, int input_subdivision, float input_amplitude, Noise* input_noise);
+	Terrain(int input_size, int input_subdivision, float input_amplitude, int input_render_distance, Noise* input_noise);
 
 	void UpdateRenderDistance(int input_render_distance);
 
