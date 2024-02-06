@@ -70,11 +70,11 @@ void Patch::UpdateMesh() {
 
 			glm::vec3 position = GetXYZ(i, j, scalar);
 
-			vertices.push_back(Vertex
+			vertices.push_back(PatchVertex
 				{
 					position, // Positions
 					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
-					glm::vec3(0.0f, 0.0f, 0.0f), // Colors
+					glm::vec3(0.0f, 0.0f, 0.0f),
 					glm::vec2(position[0], position[2]) // Tex UV - Needs updating
 				}
 			);

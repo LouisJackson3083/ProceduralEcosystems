@@ -84,21 +84,35 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::Texture(Noise* noise, const char* texType, GLuint slot)
+Texture::Texture(Noise* noise, int type, float steepness_intensity, const char* texType, GLuint slot)
 {
 	const int texSize = 256;
 
 
 	GLfloat checkImage[texSize][texSize];
 
-	for (int i = 0; i < texSize; i++) {
-		for (int j = 0; j < texSize; j++) {
-			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	if (type == 0) {
+		for (int i = 0; i < texSize; i++) {
+			for (int j = 0; j < texSize; j++) {
+				checkImage[i][j] = (GLfloat)noise->get(i, j);
 
-			checkImage[i][j] = (GLfloat) noise->get(i, j);
-
+			}
 		}
 	}
+	if (type == 1) {
+
+		for (int i = 0; i < texSize; i++) {
+			for (int j = 0; j < texSize; j++) {
+
+				float slopeX = noise->get(i + steepness_intensity, j) - noise->get(i - steepness_intensity, j);
+				float slopeZ = noise->get(i, j + steepness_intensity) - noise->get(i, j - steepness_intensity);
+				float steepness = glm::dot(glm::normalize(glm::vec3(slopeX, 1.0f, slopeZ)), glm::vec3(0.0f, 1.0f, 0.0f));
+				checkImage[i][j] = (GLfloat)(glm::acos(steepness) * 2.0f * steepness_intensity);
+				//std::cout << steepness << " , " << checkImage[i][j] << std::endl;
+			}
+		}
+	}
+	
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -111,7 +125,6 @@ Texture::Texture(Noise* noise, const char* texType, GLuint slot)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, texSize, texSize, 0, GL_RED, GL_FLOAT, checkImage);
-
 	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

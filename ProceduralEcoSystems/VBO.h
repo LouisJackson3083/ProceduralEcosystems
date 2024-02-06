@@ -15,6 +15,16 @@ struct Vertex
 	glm::vec2 texUV;
 };
 
+// Structure to standardize the vertices used in the patches
+struct PatchVertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec3 color;
+	glm::vec2 texUV;
+};
+
+
 
 class VBO
 {
@@ -23,6 +33,7 @@ public:
 	GLuint ID;
 	// Constructor that generates a Vertex Buffer Object and links it to vertices
 	VBO(std::vector<Vertex>& vertices);
+	VBO(std::vector<PatchVertex>& vertices);
 	VBO(std::vector<glm::vec3>& vertices);
 	VBO(std::vector<glm::mat4>& mat4s);
 

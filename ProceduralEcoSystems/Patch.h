@@ -18,7 +18,7 @@ public:
 
 	Noise* noise;
 	std::vector<Texture*> textures;
-	std::vector<Vertex> vertices;
+	std::vector<PatchVertex> vertices;
 	std::vector<GLuint> indices;
 	VAO VAO;
 

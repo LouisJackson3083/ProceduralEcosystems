@@ -37,7 +37,7 @@ void main()
 	// Assigns the normal from the Vertex Data to "Normal"
 	Normal = aNormal;
 	// Assigns the colors from the Vertex Data to "color"
-	color = aColor;
+	color = vec3(0.0, 0.0, 0.0);
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
 	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * aTex;
 	

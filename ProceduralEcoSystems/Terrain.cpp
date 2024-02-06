@@ -12,6 +12,7 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 	textures.push_back(Texture("./Resources/Textures/dirtSpec.png", "specular", 1));
 	textures.push_back(Texture("./Resources/Textures/grass.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/grassSpec.png", "specular", 1));
+	textures.push_back(Texture("./Resources/Textures/pop_cat.png", "diffuse", 0));
 
 	int patchIndex = 0;
 	for (int j = 0; j < (render_distance * 8) + 1; j++) {

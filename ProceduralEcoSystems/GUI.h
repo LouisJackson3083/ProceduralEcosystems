@@ -20,13 +20,15 @@ public:
 		Camera* input_camera
 	);
 
+	void NewTextures();
+
 	void NewFrame();
 
 	void Update();
 
 	void CleanUp();
 
-	Texture texture = Texture("./Resources/Textures/pop_cat.png", "diffuse", 0);
+	std::vector<Texture> noiseTextures;
 	Noise* noise;
 	Terrain* terrain;
 	Camera* camera;

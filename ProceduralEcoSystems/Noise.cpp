@@ -10,6 +10,7 @@ Noise::Noise(float input_scale, int input_octaves, float input_persistance, floa
     srand(seed);
     time_created = time(0);
 
+    fastNoiseLite.SetSeed(seed);
     fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
     fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
 
@@ -113,4 +114,6 @@ void Noise::updateSeed(int input_seed) {
     for (int i = 0; i < octaves; i++) {
         offsets.push_back(rand());
     }
+
+    fastNoiseLite.SetSeed(seed);
 }
