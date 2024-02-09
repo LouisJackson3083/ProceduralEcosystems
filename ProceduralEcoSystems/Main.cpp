@@ -89,7 +89,7 @@ int main()
 	glFrontFace(GL_CCW);
 
 
-	Noise noise(0.5f, 6.0f, 2.0f, 0.6f, rand());
+	Noise noise(0.25f, 6.0f, 2.0f, 0.6f, rand());
 	Terrain terrain(3, 3, 20, 5, &noise);
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
@@ -146,7 +146,7 @@ int main()
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
-		model2.Draw(shaderProgram, camera);
+		//model2.Draw(shaderProgram, camera);
 		terrain.Draw(terrainShader, camera);
 
 

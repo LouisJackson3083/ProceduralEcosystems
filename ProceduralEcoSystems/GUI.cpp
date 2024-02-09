@@ -29,6 +29,15 @@ GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain, Camera*
 	sliderPatchAmplitude = terrain->amplitude;
 	sliderRenderDistance = terrain->render_distance;
 
+	// Erosion sliders
+	sliderErosionNumDroplets = noise->numDroplets;
+	sliderErosionLifetime = noise->dropletLifetime;
+	sliderErosionInertia = noise->inertia;
+	sliderErosionDepositSpeed = noise->depositSpeed;
+	sliderErosionErodeSpeed = noise->erodeSpeed;
+	sliderErosionEvaporateSpeed = noise->evaporateSpeed;
+	boolErosion = terrain->useErosion;
+
 	camera = input_camera;
 
 	boolWireframe = false;
@@ -43,8 +52,12 @@ void GUI::NewFrame() {
 }
 
 void GUI::NewTextures() {
+	/*for (int i = 0; i < noiseTextures.size(); i++) {
+		noiseTextures[i].Delete();
+	}*/
 	noiseTextures.clear();
-	noiseTextures.push_back(Texture(noise, 0, 0.0f, "diffuse", 0));
+
+	noiseTextures.push_back(Texture(noise, 0, 0.0f, false, "diffuse", 0));
 
 }
 
@@ -54,26 +67,33 @@ void GUI::Update() {
 	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
 	ImGui::Text("Total Triangles = %d", ((sliderRenderDistance * 8) + 1) * ((int)std::pow(sliderPatchSubdivision * 3, 2) * 2));
 	
-
+	// Image Stuff
 	if (ImGui::TreeNodeEx("Noise Image")) {
 		ImGui::Image((void*)(intptr_t)noiseTextures[0].ID, ImVec2(256.0f, 256.0f));
 
 		if (ImGui::TreeNodeEx("Alternate Images")) {
-			if (noiseTextures.size() <= 1) {
-				noiseTextures.push_back(Texture(noise, 1, sliderScale, "diffuse", 0));
+			if (noiseTextures.size() <= 3) {
+				noiseTextures.push_back(Texture(noise, 1, sliderScale, false, "diffuse", 0));
+				noiseTextures.push_back(Texture(noise, 2, sliderScale, terrain->useErosion, "diffuse", 0));
+				noiseTextures.push_back(Texture(noise, 3, sliderScale, terrain->useErosion, "diffuse", 0));
 			}
 			ImGui::Text("Steepness");
 			ImGui::Image((void*)(intptr_t)noiseTextures[1].ID, ImVec2(256.0f, 256.0f));
+			ImGui::Text("Erosion");
+			ImGui::Image((void*)(intptr_t)noiseTextures[2].ID, ImVec2(256.0f, 256.0f));
+			ImGui::Text("Noise + Erosion Overlay");
+			ImGui::Image((void*)(intptr_t)noiseTextures[3].ID, ImVec2(256.0f, 256.0f));
+
 
 			ImGui::TreePop();
 		}
 		ImGui::TreePop();
 	}
 
-	//Noise Sliders
+	// Noise Sliders
 	if (ImGui::TreeNodeEx("Noise Sliders")) {
-		bool boolScale = ImGui::SliderFloat("Scale", &sliderScale, 0.0f, 5.0f);
-		bool boolOctaves = ImGui::SliderInt("Octaves", &sliderOctaves, 0, 50);
+		bool boolScale = ImGui::SliderFloat("Scale", &sliderScale, 0.00001f, 5.0f);
+		bool boolOctaves = ImGui::SliderInt("Octaves", &sliderOctaves, 1, 50);
 		bool boolPersistance = ImGui::SliderFloat("Persistance", &sliderPersistance, 0.0f, 5.0f);
 		bool boolLacunarity = ImGui::SliderFloat("Lacunarity", &sliderLacunarity, 0.0f, 5.0f);
 
@@ -145,6 +165,57 @@ void GUI::Update() {
 		ImGui::TreePop();
 	}
 
+	// Erosion Sliders
+	if (ImGui::TreeNodeEx("Erosion Sliders")) {
+
+		bool boolErosionNumDroplets = ImGui::SliderInt("Number of Droplets", &sliderErosionNumDroplets, 1, 200);
+		bool boolErosionLifetime = ImGui::SliderInt("Lifetime of Droplets", &sliderErosionLifetime, 1, 50);
+		bool boolErosionInertia = ImGui::SliderFloat("Inertia", &sliderErosionInertia, 0.0f, 1.0f);
+		bool boolErosionDepositSpeed = ImGui::SliderFloat("Deposit Speed", &sliderErosionDepositSpeed, 0.0f, 1.0f);
+		bool boolErosionErodeSpeed = ImGui::SliderFloat("Erosion Speed", &sliderErosionErodeSpeed, 0.0f, 1.0f);
+		bool boolErosionEvaporateSpeed = ImGui::SliderFloat("Evaporation Speed", &sliderErosionEvaporateSpeed, 0.0f, 1.0f);
+
+		// Slider Updates
+		if (boolErosionNumDroplets ||
+			boolErosionLifetime ||
+			boolErosionInertia ||
+			boolErosionDepositSpeed ||
+			boolErosionErodeSpeed ||
+			boolErosionEvaporateSpeed
+			) {
+			noise->updateErosionValues(
+				sliderErosionNumDroplets,
+				sliderErosionLifetime, 
+				sliderErosionInertia, 
+				sliderErosionDepositSpeed,
+				sliderErosionErodeSpeed,
+				sliderErosionEvaporateSpeed
+			);
+		}
+
+		// Buttons
+		if (ImGui::Button("Update Erosion Texture")) {
+			noise->generateErosionMap();
+			NewTextures();
+		}
+
+		// Use Erosion Checkbox
+		ImGui::Checkbox("Toggle Erosion", &boolErosion);
+
+		if (terrain->useErosion != boolErosion) {
+			if (boolErosion) {
+				terrain->useErosion = true;
+				terrain->UpdatePatches();
+			}
+			else {
+				terrain->useErosion = false;
+				terrain->UpdatePatches();
+			}
+		}
+		
+		ImGui::TreePop();
+	}
+
 	// Patch Sliders
 	if (ImGui::TreeNodeEx("Terrain/Patch Sliders")) {
 		bool boolPatchSize = ImGui::SliderInt("Patch Size", &sliderPatchSize, 1, 32);
@@ -184,6 +255,7 @@ void GUI::Update() {
 			sliderPatchSize = 3.0f;
 			sliderPatchSubdivision = 3.0f;
 			sliderPatchAmplitude = 20.0f;
+			sliderRenderDistance = 5.0f;
 
 			noise->updateSeed(rand());
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
@@ -191,7 +263,7 @@ void GUI::Update() {
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = sliderPatchSubdivision * 3;
-
+			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
 		if (ImGui::Button("Mountain")) {
@@ -203,9 +275,10 @@ void GUI::Update() {
 			sliderPersistance = 0.2f;
 			sliderLacunarity = 0.35f;
 
-			sliderPatchSize = 4.0f;
-			sliderPatchSubdivision = 5.0f;
-			sliderPatchAmplitude = 40.0f;
+			sliderPatchSize = 7.0f;
+			sliderPatchSubdivision = 29.0f;
+			sliderPatchAmplitude = 64.0f;
+			sliderRenderDistance = 3;
 
 			noise->updateSeed(rand());
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
@@ -213,7 +286,7 @@ void GUI::Update() {
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = sliderPatchSubdivision * 3;
-
+			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
 		ImGui::TreePop();
@@ -222,8 +295,14 @@ void GUI::Update() {
 	// Buttons
 	if (ImGui::Button("New Noise Seed")) {
 		noise->updateSeed(rand());
+		noise->generateErosionMap();
 		NewTextures();
 	}
+	// Buttons
+	/*if (ImGui::Button("Update Terrain to Current Location")) {
+		noise->updateSeed(rand());
+		NewTextures();
+	}*/
 	if (ImGui::Button("Update Patch/Mesh")) {
 
 		terrain->UpdatePatches();

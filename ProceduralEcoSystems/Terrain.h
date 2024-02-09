@@ -11,6 +11,7 @@ public:
 	int size;
 	int subdivision;
 	float amplitude;
+	bool useErosion;
 	glm::vec2 cameraPosition;
 	Noise* noise;
 	std::vector<Texture> textures;
@@ -18,6 +19,8 @@ public:
 	Terrain(int input_size, int input_subdivision, float input_amplitude, int input_render_distance, Noise* input_noise);
 
 	void UpdateRenderDistance(int input_render_distance);
+
+	void UpdateErosion();
 
 	void UpdatePatches();
 

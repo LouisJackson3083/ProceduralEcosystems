@@ -7,6 +7,7 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 	amplitude = input_amplitude;
 	noise = input_noise;
 	cameraPosition = glm::vec2(0.0f, 0.0f);
+	useErosion = false;
 
 	textures.push_back(Texture("./Resources/Textures/dirt.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/dirtSpec.png", "specular", 1));
@@ -52,6 +53,15 @@ void Terrain::UpdateRenderDistance(int input_render_distance) {
 	}
 }
 
+void Terrain::UpdateErosion() {
+	// Update noise value erosion
+	if (useErosion = false) {
+		noise->erosionMapSize = std::max(256, (3 * subdivision * std::min(render_distance, 3)));
+		noise->generateErosionMap();
+	}
+	UpdatePatches();
+}
+
 void Terrain::UpdatePatches() {
 
 	int patchIndex = 0;
@@ -66,6 +76,7 @@ void Terrain::UpdatePatches() {
 				patches[patchIndex].size = size * std::pow(3, j);
 				patches[patchIndex].textures = { &textures[2], &textures[3] };
 				patches[patchIndex].subdivision = subdivision;
+				patches[patchIndex].useErosion = useErosion;
 				patches[patchIndex].UpdateMesh();
 				patchIndex++;
 			}
@@ -78,7 +89,9 @@ void Terrain::UpdatePatches() {
 	patches[patchIndex].size = size;
 	patches[patchIndex].textures = { &textures[2], &textures[3] };
 	patches[patchIndex].subdivision = subdivision;
+	patches[patchIndex].useErosion = useErosion;
 	patches[patchIndex].UpdateMesh();
+
 }
 void Terrain::Draw
 (

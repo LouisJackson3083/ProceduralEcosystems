@@ -34,12 +34,23 @@ public:
 	Camera* camera;
 
 private:
+	// Noise sliders
 	float sliderScale;
 	float sliderLacunarity;
 	float sliderPersistance;
 	int sliderOctaves;
 
-	// Terrain/Patch stuff
+	// Erosion sliders
+	int sliderErosionNumDroplets;
+	int sliderErosionLifetime;
+	float sliderErosionInertia;
+	float sliderErosionDepositSpeed;
+	float sliderErosionErodeSpeed;
+	float sliderErosionEvaporateSpeed;
+	bool boolErosion;
+
+
+	// Terrain/Patch sliders
 	int sliderPatchSize;
 	int sliderPatchSubdivision;
 	float sliderPatchAmplitude;

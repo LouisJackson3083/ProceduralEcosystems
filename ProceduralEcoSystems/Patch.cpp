@@ -16,13 +16,14 @@ Patch::Patch(
 	amplitude = input_amplitude;
 	noise = input_noise;
 	textures = input_textures;
+	useErosion = false;
 	UpdateMesh();
 }
 
 glm::vec3 Patch::GetXYZ(int i, int j, float scalar) {
 	float x = ((float)i * scalar) - ((float)size / 2);
 	float z = ((float)j * scalar) - ((float)size / 2);
-	float y = noise->get(offset[0] + x, offset[2] + z) * amplitude;
+	float y = noise->get(offset[0] + x, offset[2] + z, useErosion) * amplitude;
 
 	int iRank = i % 3;
 	int jRank = j % 3;
@@ -36,8 +37,8 @@ glm::vec3 Patch::GetXYZ(int i, int j, float scalar) {
 		//  y1
 		float z1 = ((float)(j - jRank) * scalar) - ((float)size / 2);
 		float z2 = ((float)(j + 3 - jRank) * scalar) - ((float)size / 2);
-		float y1 = noise->get(offset[0] + x, offset[2] + z1) * amplitude;
-		float y2 = noise->get(offset[0] + x, offset[2] + z2) * amplitude;
+		float y1 = noise->get(offset[0] + x, offset[2] + z1, useErosion) * amplitude;
+		float y2 = noise->get(offset[0] + x, offset[2] + z2, useErosion) * amplitude;
 
 		y = (1.0f - ((float)jRank / 3.0f)) * y1 + ((float)jRank / 3.0f) * y2;
 	}
@@ -45,8 +46,8 @@ glm::vec3 Patch::GetXYZ(int i, int j, float scalar) {
 	else if ((j == 0 and corner_data[1] == -1.0f) or (j == subdivision and corner_data[1] == 1.0f) and iRank != 0) {
 		float x1 = ((float)(i - iRank) * scalar) - ((float)size / 2);
 		float x2 = ((float)(i + 3 - iRank) * scalar) - ((float)size / 2);
-		float y1 = noise->get(offset[0] + x1, offset[2] + z) * amplitude;
-		float y2 = noise->get(offset[0] + x2, offset[2] + z) * amplitude;
+		float y1 = noise->get(offset[0] + x1, offset[2] + z, useErosion) * amplitude;
+		float y2 = noise->get(offset[0] + x2, offset[2] + z, useErosion) * amplitude;
 
 		y = (1.0f - ((float)iRank / 3.0f)) * y1 + ((float)iRank / 3.0f) * y2;
 	}
