@@ -26,6 +26,11 @@ Noise::Noise(float input_scale, int input_octaves, float input_persistance, floa
     }
 
 
+    erosionMap.resize(erosionMapSize, std::vector<float>(erosionMapSize));
+    std::for_each(erosionMap.begin(), erosionMap.end(), [](std::vector<float>& inner_vec)
+        {
+            std::fill(inner_vec.begin(), inner_vec.end(), 0.0f);
+        });
 
 }
 
@@ -101,14 +106,16 @@ float Noise::get(float x, float y, bool useErosion = false) {
         amplitude *= persistance;
         frequency *= lacunarity;
     }
-
-    if (useErosion && 
-        (x / scale > -(erosionMapSize / 2)) &&
-        (y / scale > -(erosionMapSize / 2)) &&
-        (x / scale < (erosionMapSize / 2)) &&
-        (y / scale < (erosionMapSize / 2))
+    if (useErosion &&
+        x > -erosionMapOffset &&
+        y > -erosionMapOffset &&
+        x < erosionMapOffset  &&
+        y < erosionMapOffset
         ) {
-        return ((noiseHeight - erosionMap[(int)(x/scale)+erosionMapSize/2][(int)(y/scale)+ erosionMapSize/2]) + predictedNoiseMax) / (predictedNoiseMax * 2);
+        int eX = (int)x + erosionMapOffset;
+        int eY = (int)y + erosionMapOffset;
+        float erosionAmount = erosionMap[eX][eY];
+        return (noiseHeight - erosionAmount + predictedNoiseMax) / (predictedNoiseMax * 2);
     }
     else {
         return (noiseHeight + predictedNoiseMax) / (predictedNoiseMax * 2);
@@ -153,6 +160,8 @@ void Noise::generateErosionMap() {
         {
             std::fill(inner_vec.begin(), inner_vec.end(), 0.0f);
         });
+    // Reset the offset
+    erosionMapOffset = erosionMapSize / 2;
 
     // numDroplets = number of water droplets to spawn and simulate
     for (int droplet = 0; droplet < numDroplets; droplet++) {
@@ -268,10 +277,10 @@ glm::vec3 Noise::ErosionGetHeightAndGradients(float x, float y) {
     float offsetY = y - intY;
 
     // Calculate droplet's height and direction of flow with bilinear interpolation of surrounding heights
-    float heightNW = get(intX - 1 - (erosionMapSize / 2), intY - 1 - (erosionMapSize / 2));
-    float heightNE = get(intX + 1 - (erosionMapSize / 2), intY - 1 - (erosionMapSize / 2));
-    float heightSW = get(intX - 1 - (erosionMapSize / 2), intY + 1 - (erosionMapSize / 2));
-    float heightSE = get(intX + 1 - (erosionMapSize / 2), intY + 1 - (erosionMapSize / 2));
+    float heightNW = get(intX - 1 - erosionMapOffset, intY - 1 - erosionMapOffset);
+    float heightNE = get(intX + 1 - erosionMapOffset, intY - 1 - erosionMapOffset);
+    float heightSW = get(intX - 1 - erosionMapOffset, intY + 1 - erosionMapOffset);
+    float heightSE = get(intX + 1 - erosionMapOffset, intY + 1 - erosionMapOffset);
 
     // Calculate droplet's direction of flow with bilinear interpolation of height difference along the edges
     float gradientX = (heightNE - heightNW) * (1 - offsetY) + (heightSE - heightSW) * offsetY;

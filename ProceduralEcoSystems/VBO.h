@@ -24,6 +24,12 @@ struct PatchVertex
 	glm::vec2 texUV;
 };
 
+// Structure to standardize the vertices used in the patches
+struct GrassVertex
+{
+	glm::vec3 position;
+};
+
 
 
 class VBO
@@ -34,6 +40,7 @@ public:
 	// Constructor that generates a Vertex Buffer Object and links it to vertices
 	VBO(std::vector<Vertex>& vertices);
 	VBO(std::vector<PatchVertex>& vertices);
+	VBO(std::vector<GrassVertex>& vertices);
 	VBO(std::vector<glm::vec3>& vertices);
 	VBO(std::vector<glm::mat4>& mat4s);
 

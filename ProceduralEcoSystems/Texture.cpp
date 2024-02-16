@@ -151,6 +151,35 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+Texture::Texture(const char* texType, GLuint slot) {
+	const int texSize = 256;
+	GLfloat plantImage[texSize][texSize];
+
+	if (type == 0) { // A normal noise image
+		for (int i = 0; i < texSize; i++) {
+			for (int j = 0; j < texSize; j++) {
+				plantImage[i][j] = (GLfloat)1.0f;
+
+			}
+		}
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// Generates an OpenGL texture object
+	glGenTextures(1, &ID);
+
+	glBindTexture(GL_TEXTURE_2D, ID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, texSize, texSize, 0, GL_RED, GL_FLOAT, plantImage);
+	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
 	// Gets the location of the uniform

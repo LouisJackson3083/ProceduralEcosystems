@@ -71,7 +71,7 @@ void Terrain::UpdatePatches() {
 			int z = ((i / 3) - 1) * size * std::pow(3, j);
 			if ((x != 0 or z != 0) and patchIndex < render_distance * 8) {
 				patches[patchIndex].corner_data = glm::vec2{ (i % 3) - 1, (i / 3) - 1 };
-				patches[patchIndex].offset = glm::vec3{ x + cameraPosition[0] , -24.0f, z + cameraPosition[1] };
+				patches[patchIndex].offset = glm::vec3{ x + cameraPosition[0] , 0.0f, z + cameraPosition[1] };
 				patches[patchIndex].amplitude = amplitude;
 				patches[patchIndex].size = size * std::pow(3, j);
 				patches[patchIndex].textures = { &textures[2], &textures[3] };
@@ -84,7 +84,7 @@ void Terrain::UpdatePatches() {
 	}
 
 	patches[patchIndex].corner_data = glm::vec2{ 0.0f, 0.0f };
-	patches[patchIndex].offset = glm::vec3{ cameraPosition[0] , -24.0f, cameraPosition[1] };
+	patches[patchIndex].offset = glm::vec3{ cameraPosition[0] , 0.0f, cameraPosition[1] };
 	patches[patchIndex].amplitude = amplitude;
 	patches[patchIndex].size = size;
 	patches[patchIndex].textures = { &textures[2], &textures[3] };

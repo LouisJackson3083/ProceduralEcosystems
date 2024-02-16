@@ -23,6 +23,7 @@ public:
 	float predictedNoiseMax;
 
 	int erosionMapSize = 256;
+	int erosionMapOffset = 128;
 	std::vector<std::vector<float>> erosionMap;
 
 	const int texSize = 256;
@@ -64,11 +65,6 @@ public:
 	void generateErosionMap();
 
 	glm::vec3 ErosionGetHeightAndGradients(float x, float y);
-
-	std::vector<std::vector<float>> Erode();
-
-	std::vector<float> ErosionGetHeightAndGradient(float x, float y);
-
 
 private:
 };

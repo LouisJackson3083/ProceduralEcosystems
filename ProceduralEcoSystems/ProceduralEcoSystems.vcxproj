@@ -159,6 +159,7 @@
     <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Noise.cpp" />
+    <ClCompile Include="Grass.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Patch.cpp" />
@@ -178,6 +179,7 @@
     <None Include="framebuffer.frag" />
     <None Include="framebuffer.vert" />
     <None Include="grass.frag" />
+    <None Include="grass.vert" />
     <None Include="instanced.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
@@ -194,6 +196,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FastNoiseLite.h" />
+    <ClInclude Include="Grass.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

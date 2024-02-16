@@ -10,26 +10,46 @@ GUI::GUI(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain, Camera* input_camera) {
+GUI::GUI(
+	GLFWwindow* window, 
+	Noise* input_noise, 
+	Terrain* input_terrain, 
+	Camera* input_camera,
+	Plant* input_plant
+) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+	// Plant
+	plant = input_plant;
+	sliderPlantPitch = plant->pitch;
+	sliderPlantYaw = plant->yaw;
+	sliderPlantBendStrength = plant->bendStrength;
+	sliderPlantSegments = plant->segments;
+	sliderPlantLeaves = plant->leaves;
+	sliderPlantLeafLength = plant->leafLength;
+	sliderPlantLengthVariance = plant->lengthVariance;
+	sliderPlantPitchVariance = plant->pitchVariance;
+	sliderPlantBendVariance = plant->bendVariance;
+
+	// Noise
 	noise = input_noise;
 	sliderScale = noise->scale;
 	sliderOctaves = noise->octaves;
 	sliderLacunarity = noise->lacunarity;
 	sliderPersistance = noise->persistance;
 
+	// Terrain
 	terrain = input_terrain;
 	sliderPatchSize = terrain->size;
 	sliderPatchSubdivision = terrain->subdivision / 3;
 	sliderPatchAmplitude = terrain->amplitude;
 	sliderRenderDistance = terrain->render_distance;
 
-	// Erosion sliders
+	// Erosion
 	sliderErosionNumDroplets = noise->numDroplets;
 	sliderErosionLifetime = noise->dropletLifetime;
 	sliderErosionInertia = noise->inertia;
@@ -42,7 +62,8 @@ GUI::GUI(GLFWwindow* window, Noise* input_noise, Terrain* input_terrain, Camera*
 
 	boolWireframe = false;
 
-	NewTextures();
+	NewNoiseTextures();
+	NewPlantTextures();
 }
 
 void GUI::NewFrame() {
@@ -51,17 +72,18 @@ void GUI::NewFrame() {
 	ImGui::NewFrame();
 }
 
-void GUI::NewTextures() {
-	/*for (int i = 0; i < noiseTextures.size(); i++) {
-		noiseTextures[i].Delete();
-	}*/
+void GUI::NewNoiseTextures() {
 	noiseTextures.clear();
-
 	noiseTextures.push_back(Texture(noise, 0, 0.0f, false, "diffuse", 0));
+}
 
+void GUI::NewPlantTextures() {
+	plantTextures.clear();
+	plantTextures.push_back(Texture("diffuse", 0));
 }
 
 void GUI::Update() {
+	#pragma region NoiseRegion
 	ImGui::Begin("Noise Control");
 
 	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
@@ -159,7 +181,7 @@ void GUI::Update() {
 			boolOctaves
 			) {
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewTextures();
+			NewNoiseTextures();
 		}
 
 		ImGui::TreePop();
@@ -196,7 +218,7 @@ void GUI::Update() {
 		// Buttons
 		if (ImGui::Button("Update Erosion Texture")) {
 			noise->generateErosionMap();
-			NewTextures();
+			NewNoiseTextures();
 		}
 
 		// Use Erosion Checkbox
@@ -240,7 +262,6 @@ void GUI::Update() {
 		ImGui::TreePop();
 	}
 
-
 	// Presets
 	if (ImGui::TreeNodeEx("Terrain Presets")) {
 		if (ImGui::Button("Plains")) {
@@ -259,7 +280,7 @@ void GUI::Update() {
 
 			noise->updateSeed(rand());
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewTextures();
+			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = sliderPatchSubdivision * 3;
@@ -282,7 +303,7 @@ void GUI::Update() {
 
 			noise->updateSeed(rand());
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewTextures();
+			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = sliderPatchSubdivision * 3;
@@ -296,12 +317,12 @@ void GUI::Update() {
 	if (ImGui::Button("New Noise Seed")) {
 		noise->updateSeed(rand());
 		noise->generateErosionMap();
-		NewTextures();
+		NewNoiseTextures();
 	}
 	// Buttons
 	/*if (ImGui::Button("Update Terrain to Current Location")) {
 		noise->updateSeed(rand());
-		NewTextures();
+		NewNoiseTextures();
 	}*/
 	if (ImGui::Button("Update Patch/Mesh")) {
 
@@ -319,6 +340,57 @@ void GUI::Update() {
 
 
 	ImGui::End();
+	#pragma endregion
+
+	#pragma region NoiseRegion
+	ImGui::Begin("Plant Control");
+
+	if (ImGui::TreeNodeEx("Plant Texture")) {
+		ImGui::Image((void*)(intptr_t)plantTextures[0].ID, ImVec2(256.0f, 256.0f));
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNodeEx("Plant Sliders")) {
+
+		ImGui::Text("Angle Control");
+		bool boolPlantPitch = ImGui::SliderFloat("Pitch", &sliderPlantPitch, -6.0f, 6.0f);
+		bool boolPlantYaw = ImGui::SliderFloat("Yaw", &sliderPlantYaw, -6.0f, 6.0f);
+		bool boolPlantBendStrength = ImGui::SliderFloat("Bend Strength", &sliderPlantBendStrength, -0.5f, 0.5f);
+		ImGui::Text("Leaf Control");
+		bool boolPlantSegments = ImGui::SliderInt("Segments", &sliderPlantSegments, 0, 15);
+		bool boolPlantLeaves = ImGui::SliderInt("Leaves", &sliderPlantLeaves, 0, 15);
+		bool boolPlantLength = ImGui::SliderInt("Leaf Length", &sliderPlantLeafLength, 0, 15);
+		ImGui::Text("Variation Control");
+		bool boolPlantLengthVariance = ImGui::SliderFloat("Length Variance", &sliderPlantLengthVariance, 0.0f, 0.5f);
+		bool boolPlantPitchVariance = ImGui::SliderFloat("Pitch Variance", &sliderPlantPitchVariance, 0.0f, 50.5f);
+		bool boolPlantBendVariance = ImGui::SliderFloat("Bend Variance", &sliderPlantBendVariance, 0.0f, 0.5f);
+
+		// Patch Updates
+		if (boolPlantPitch ||
+			boolPlantYaw ||
+			boolPlantBendStrength ||
+			boolPlantSegments ||
+			boolPlantLeaves ||
+			boolPlantLength ||
+			boolPlantLengthVariance ||
+			boolPlantPitchVariance ||
+			boolPlantBendVariance
+			) {
+			plant->pitch = sliderPlantPitch;
+			plant->yaw = sliderPlantYaw;
+			plant->bendStrength = sliderPlantBendStrength;
+			plant->segments = sliderPlantSegments;
+			plant->leaves = sliderPlantLeaves;
+			plant->leafLength = sliderPlantLeafLength;
+			plant->lengthVariance = sliderPlantLengthVariance;
+			plant->pitchVariance = sliderPlantPitchVariance;
+			plant->bendVariance = sliderPlantBendVariance;
+			plant->GenerateVertices();
+		}
+		ImGui::TreePop();
+	}
+
+	ImGui::End();
+	#pragma endregion
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

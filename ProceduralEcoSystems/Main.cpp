@@ -4,11 +4,12 @@
 #include"Terrain.h"
 #include"Noise.h"
 #include"Terrain.h"
-#include <typeinfo>
+#include"Plant.h"
+#include<typeinfo>
 
 
-const unsigned int width = 1200;
-const unsigned int height = 800;
+const unsigned int width = 1500;
+const unsigned int height = 1200;
 unsigned int samples = 8;
 
 float randf()
@@ -52,6 +53,7 @@ int main()
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
 	Shader terrainShader("terrain.vert", "terrain.frag");
+	Shader grassShader("plant.vert", "plant.frag");
 	Shader instancedShader("instanced.vert", "default.frag");
 
 	// Take care of all the light related things
@@ -63,6 +65,10 @@ int main()
 	shaderProgram.Activate();
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+	grassShader.Activate();
+	glUniform4f(glGetUniformLocation(grassShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(grassShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	terrainShader.Activate();
 	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -82,7 +88,7 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 
 	// Enables Cull Facing
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	// Keeps front faces
 	glCullFace(GL_FRONT);
 	// Uses counter clock-wise standard
@@ -90,14 +96,16 @@ int main()
 
 
 	Noise noise(0.25f, 6.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(3, 3, 20, 5, &noise);
+	Terrain terrain(1, 1, 0.0f, 1, &noise);
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
-	GUI GUI(window, &noise, &terrain, &camera);
-
 	Model model("./Resources/Models/crow/scene.gltf");
 	Model model2("./Resources/Models/windows/scene.gltf");
+	Plant plant(0);
+
+	GUI GUI(window, &noise, &terrain, &camera, &plant);
+
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -148,6 +156,7 @@ int main()
 
 		//model2.Draw(shaderProgram, camera);
 		terrain.Draw(terrainShader, camera);
+		plant.Draw(grassShader, camera);
 
 
 		GUI.Update();
@@ -159,7 +168,7 @@ int main()
 	}
 
 	GUI.CleanUp();
-	
+
 
 	// Delete all the objects we've created
 	shaderProgram.Delete();

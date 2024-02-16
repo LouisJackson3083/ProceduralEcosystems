@@ -6,6 +6,7 @@
 #include"Texture.h"
 #include"Noise.h"
 #include"Terrain.h"
+#include"Plant.h"
 #include<charconv>
 
 class GUI {
@@ -17,10 +18,13 @@ public:
 		GLFWwindow* window, 
 		Noise* input_noise, 
 		Terrain* input_terrain,
-		Camera* input_camera
+		Camera* input_camera,
+		Plant* input_plant
 	);
 
-	void NewTextures();
+	void NewNoiseTextures();
+
+	void NewPlantTextures();
 
 	void NewFrame();
 
@@ -29,11 +33,25 @@ public:
 	void CleanUp();
 
 	std::vector<Texture> noiseTextures;
+	std::vector<Texture> plantTextures;
 	Noise* noise;
 	Terrain* terrain;
 	Camera* camera;
+	Plant* plant;
 
 private:
+	// Plant sliders
+	float sliderPlantPitch;
+	float sliderPlantYaw;
+	float sliderPlantBendStrength;
+	int sliderPlantSegments;
+	int sliderPlantLeaves;
+	int sliderPlantLeafLength;
+	float sliderPlantLengthVariance;
+	float sliderPlantPitchVariance;
+	float sliderPlantBendVariance;
+
+
 	// Noise sliders
 	float sliderScale;
 	float sliderLacunarity;
