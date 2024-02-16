@@ -8,15 +8,14 @@
 #include<typeinfo>
 
 
-const unsigned int width = 1500;
-const unsigned int height = 1200;
+const unsigned int width = 1000;
+const unsigned int height = 700;
 unsigned int samples = 8;
 
 float randf()
 {
 	return -1.0f + (rand() / (RAND_MAX / 2.0f));
 }
-
 
 int main()
 {
@@ -53,8 +52,8 @@ int main()
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
 	Shader terrainShader("terrain.vert", "terrain.frag");
-	Shader grassShader("plant.vert", "plant.frag");
-	Shader instancedShader("instanced.vert", "default.frag");
+	Shader plantShader("plant.vert", "plant.frag");
+	//Shader instancedShader("instanced.vert", "default.frag");
 
 	// Take care of all the light related things
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -66,9 +65,9 @@ int main()
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-	grassShader.Activate();
-	glUniform4f(glGetUniformLocation(grassShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(grassShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	plantShader.Activate();
+	glUniform4f(glGetUniformLocation(plantShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(plantShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	terrainShader.Activate();
 	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -156,8 +155,7 @@ int main()
 
 		//model2.Draw(shaderProgram, camera);
 		terrain.Draw(terrainShader, camera);
-		plant.Draw(grassShader, camera);
-
+		plant.Draw(plantShader, camera);
 
 		GUI.Update();
 
@@ -173,7 +171,8 @@ int main()
 	// Delete all the objects we've created
 	shaderProgram.Delete();
 	terrainShader.Delete();
-	instancedShader.Delete();
+	plantShader.Delete();
+	//instancedShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);
 	// Terminate GLFW before ending the program

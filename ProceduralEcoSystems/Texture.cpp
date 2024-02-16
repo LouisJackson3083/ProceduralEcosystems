@@ -93,7 +93,6 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, 
 		for (int i = 0; i < texSize; i++) {
 			for (int j = 0; j < texSize; j++) {
 				noiseImage[i][j] = (GLfloat)noise->get(i, j, false);
-
 			}
 		}
 	}
@@ -153,31 +152,29 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, 
 
 Texture::Texture(const char* texType, GLuint slot) {
 	const int texSize = 256;
-	GLfloat plantImage[texSize][texSize];
+	GLubyte plantImage[texSize][texSize][4]; // Modify to hold RGBA values
+	int c;
+    for (int i = 0; i < texSize; i++) {
+        for (int j = 0; j < texSize; j++) {
+			c = (((i & 0x8) == 0) ^ ((j & 0x8)) == 0) * 255;
+			plantImage[i][j][0] = (GLubyte)0;
+			plantImage[i][j][1] = (GLubyte)255;
+			plantImage[i][j][2] = (GLubyte)0;
+			plantImage[i][j][3] = (GLubyte)255;
+        }
+    }
 
-	if (type == 0) { // A normal noise image
-		for (int i = 0; i < texSize; i++) {
-			for (int j = 0; j < texSize; j++) {
-				plantImage[i][j] = (GLfloat)1.0f;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glGenTextures(1, &ID);
+    glBindTexture(GL_TEXTURE_2D, ID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, plantImage);
 
-			}
-		}
-	}
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	// Generates an OpenGL texture object
-	glGenTextures(1, &ID);
-
-	glBindTexture(GL_TEXTURE_2D, ID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, texSize, texSize, 0, GL_RED, GL_FLOAT, plantImage);
-	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+    // Unbinds the OpenGL Texture object so that it can't accidentally be modified
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)

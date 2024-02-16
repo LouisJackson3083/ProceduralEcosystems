@@ -1,3 +1,18 @@
 ﻿  Main.cpp
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(98,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  Texture.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(95,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(95,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(103,53): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(103,98): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(104,31): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(104,76): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(120,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(120,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(129,50): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(129,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(132,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(132,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(159,44): warning C4554: '^': check operator precedence for possible error; use parentheses to clarify precedence
+  Generating Code...
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe

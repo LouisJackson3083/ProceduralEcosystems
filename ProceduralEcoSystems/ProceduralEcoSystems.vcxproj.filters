@@ -99,7 +99,7 @@
     <ClCompile Include="Patch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Grass.cpp">
+    <ClCompile Include="Plant.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,7 +127,7 @@
     <None Include="outlining.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="grass.frag">
+    <None Include="plant.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="windows.frag">
@@ -166,7 +166,7 @@
     <None Include="terrain.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="grass.vert">
+    <None Include="plant.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -243,7 +243,7 @@
     <ClInclude Include="FastNoiseLite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Grass.h">
+    <ClInclude Include="Plant.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
