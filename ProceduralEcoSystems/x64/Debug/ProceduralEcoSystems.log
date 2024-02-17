@@ -1,18 +1,14 @@
 ﻿  Main.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(98,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  Texture.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(95,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(95,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(103,53): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(103,98): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(104,31): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(104,76): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(120,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(120,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(129,50): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(129,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(132,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(132,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(159,44): warning C4554: '^': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(99,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  NewPatch.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\NewPatch.cpp(162,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  NewTerrain.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\NewTerrain.cpp(41,10): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\NewTerrain.cpp(42,10): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\NewTerrain.cpp(47,37): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Terrain.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Terrain.cpp(70,10): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Terrain.cpp(71,10): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Terrain.cpp(76,37): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   Generating Code...
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe

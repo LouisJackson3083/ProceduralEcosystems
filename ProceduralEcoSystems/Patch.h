@@ -45,6 +45,8 @@ public:
 	);
 
 	glm::vec3 GetXYZ(int x, int z, float scalar);
+	
+	float getHeight(int x, int z, float scalar);
 
 	void UpdateMesh();
 

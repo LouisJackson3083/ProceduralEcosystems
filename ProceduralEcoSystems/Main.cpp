@@ -6,6 +6,8 @@
 #include"Terrain.h"
 #include"Plant.h"
 #include<typeinfo>
+#include"NewPatch.h"
+#include"NewTerrain.h"
 
 
 const unsigned int width = 1000;
@@ -19,7 +21,7 @@ float randf()
 
 int main()
 {
-	// Initialize GLFW
+	// Initialize GLFWs
 	glfwInit();
 
 	// Tell GLFW what version of OpenGL we are using 
@@ -95,13 +97,25 @@ int main()
 
 
 	Noise noise(0.25f, 6.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(1, 1, 0.0f, 1, &noise);
+	Terrain terrain(1, 4, 0.0f, 1, &noise);
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
 	Model model("./Resources/Models/crow/scene.gltf");
 	Model model2("./Resources/Models/windows/scene.gltf");
 	Plant plant(0);
+	Texture debug("./Resources/Textures/pop_cat.png", "diffuse", 0);
+	/*NewPatch patch(
+		glm::vec2{ 0.0f, 0.0f },
+		glm::vec3{ 0.0f, 0.0f, 0.0f },
+		40,
+		4,
+		0.0f,
+		&noise,
+		{&debug}
+	);*/
+
+	NewTerrain newterrain(1, 4, 0.0f, 1, &noise);
 
 	GUI GUI(window, &noise, &terrain, &camera, &plant);
 
@@ -154,8 +168,9 @@ int main()
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
 		//model2.Draw(shaderProgram, camera);
-		terrain.Draw(terrainShader, camera);
-		plant.Draw(plantShader, camera);
+		//terrain.Draw(terrainShader, camera);
+		//plant.Draw(plantShader, camera);
+		newterrain.Draw(terrainShader, camera);
 
 		GUI.Update();
 

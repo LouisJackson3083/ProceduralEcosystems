@@ -30,6 +30,11 @@ struct GrassVertex
 	glm::vec3 position;
 };
 
+struct StupidVertex 
+{
+	float height;
+};
+
 
 
 class VBO
@@ -41,6 +46,7 @@ public:
 	VBO(std::vector<Vertex>& vertices);
 	VBO(std::vector<PatchVertex>& vertices);
 	VBO(std::vector<GrassVertex>& vertices);
+	VBO(std::vector<StupidVertex>& vertices);
 	VBO(std::vector<glm::vec3>& vertices);
 	VBO(std::vector<glm::mat4>& mat4s);
 
