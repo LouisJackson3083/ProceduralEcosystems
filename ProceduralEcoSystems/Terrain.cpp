@@ -102,6 +102,17 @@ void Terrain::Draw
 		UpdatePatches();
 	}*/
 
+
+	// Bind shader to be able to access uniforms
+	shader.Activate();
+	glUniform1i(glGetUniformLocation(shader.ID, "subdivision"), subdivision);
+
+	// Exports the camera Position to the Fragment Shader for specular lighting
+	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	// Export the camMatrix to the Vertex Shader of the pyramid
+	camera.Matrix(shader, "camMatrix");
+
+
 	for (int i = 0; i < patches.size(); i++) {
 		patches[i].Draw(shader, camera);
 	}

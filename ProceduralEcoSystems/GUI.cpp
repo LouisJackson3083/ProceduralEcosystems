@@ -245,17 +245,10 @@ void GUI::Update() {
 		bool boolPatchAmplitude = ImGui::SliderFloat("Patch Amplitude", &sliderPatchAmplitude, 0.0f, 64.0f);
 		bool boolRenderDistance = ImGui::SliderInt("Render Distance", &sliderRenderDistance, 1, 16);
 
-		// Patch Updates
-		if (boolPatchSize ||
-			boolPatchSubdivision ||
-			boolPatchAmplitude
-			) {
+		if (boolRenderDistance) {
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->amplitude = sliderPatchAmplitude;
-		}
-
-		if (boolRenderDistance) {
 			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
@@ -326,7 +319,9 @@ void GUI::Update() {
 		NewNoiseTextures();
 	}*/
 	if (ImGui::Button("Update Patch/Mesh")) {
-
+		terrain->size = sliderPatchSize;
+		terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
+		terrain->amplitude = sliderPatchAmplitude;
 		terrain->UpdatePatches();
 	}
 	// Wireframe Checkbox
