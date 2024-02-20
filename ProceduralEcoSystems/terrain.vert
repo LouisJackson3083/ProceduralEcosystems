@@ -18,7 +18,7 @@ out vec2 texCoord;
 uniform mat4 camMatrix;
 // Imports the transformation matrices
 uniform mat4 translation;
-
+uniform float scalar;
 uniform int subdivision;
 uniform int size;
 
@@ -30,25 +30,22 @@ float modI(float a,float b) { //  Returns accurate MOD when arguments are approx
 void main()
 {
 	// calculates current position
-	vec3 position = vec3(0.0);
 
 	float xPos = floor(gl_VertexID / subdivision);
 	float zPos = modI(float(gl_VertexID), float(subdivision));
-
-	float scalar = (float(size) / float(subdivision-1));
-
-	position[0] = (xPos * scalar) - (float(size) / 2);
-	position[1] = height;
-	position[2] = (zPos * scalar) - (float(size) / 2);
-
-	crntPos = vec3(translation * vec4(position, 1.0f));
+	
+	float xScaled = xPos * scalar - float(size) * 0.5;
+	float zScaled = zPos * scalar - float(size) * 0.5;
+	
+    vec4 position = vec4(xScaled, height, zScaled, 1.0);
+	crntPos = vec3(translation * position);
 
 	// Assigns the normal from the Vertex Data to "Normal"
 	Normal = vec3(0.0, 1.0, 0.0);
 	// Assigns the colors from the Vertex Data to "color"
 	color = vec3(0.0, 1.0, 0.0);
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
-	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2(xPos / (subdivision-1), zPos / (subdivision-1));
+    texCoord = vec2(xScaled, zScaled);
 	
 	// Outputs the positions/coordinates of all vertices
 	gl_Position = camMatrix * vec4(crntPos, 1.0);

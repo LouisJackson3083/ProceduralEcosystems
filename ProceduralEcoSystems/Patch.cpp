@@ -164,5 +164,8 @@ void Patch::Draw
 	glUniform1i(glGetUniformLocation(shader.ID, "subdivision"), subdivision);
 	glUniform1i(glGetUniformLocation(shader.ID, "size"), size);
 
+	float scalar = (float)size / (float)(subdivision - 1);
+	glUniform1f(glGetUniformLocation(shader.ID, "scalar"), scalar);
+
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }

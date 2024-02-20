@@ -1,12 +1,4 @@
-﻿  GUI.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(272,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(276,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(277,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(279,27): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(296,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(300,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(301,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-  Main.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(96,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  Generating Code...
+﻿  Patch.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Patch.cpp(24,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Patch.cpp(170,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe
