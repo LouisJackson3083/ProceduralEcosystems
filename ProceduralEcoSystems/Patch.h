@@ -18,7 +18,7 @@ public:
 
 	Noise* noise;
 	std::vector<Texture*> textures;
-	std::vector<PatchVertex> vertices;
+	std::vector<StupidVertex> vertices;
 	std::vector<GLuint> indices;
 	VAO VAO;
 
@@ -35,20 +35,18 @@ public:
 	glm::vec2 corner_data;
 
 	Patch(
-		glm::vec2 input_corner_data, 
-		glm::vec3 input_offset, 
-		int input_size, 
-		int input_subdivision, 
-		float input_amplitude, 
-		Noise* input_noise, 
+		glm::vec2 input_corner_data,
+		glm::vec3 input_offset,
+		int input_size,
+		int input_subdivision,
+		float input_amplitude,
+		Noise* input_noise,
 		std::vector<Texture*> input_textures
 	);
 
-	glm::vec3 GetXYZ(int x, int z, float scalar);
-	
-	float getHeight(int x, int z, float scalar);
+	void GenerateVertices();
 
-	void UpdateMesh();
+	float GetHeight(int vertexID, float scalar);
 
 	void Draw(
 		Shader& shader,

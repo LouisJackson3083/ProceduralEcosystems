@@ -251,7 +251,7 @@ void GUI::Update() {
 			boolPatchAmplitude
 			) {
 			terrain->size = sliderPatchSize;
-			terrain->subdivision = sliderPatchSubdivision * 3;
+			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->amplitude = sliderPatchAmplitude;
 		}
 
@@ -274,16 +274,17 @@ void GUI::Update() {
 			sliderLacunarity = 0.6f;
 
 			sliderPatchSize = 3.0f;
-			sliderPatchSubdivision = 3.0f;
+			sliderPatchSubdivision = 4.0f;
 			sliderPatchAmplitude = 20.0f;
 			sliderRenderDistance = 5.0f;
+
 
 			noise->updateSeed(rand());
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
 			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
-			terrain->subdivision = sliderPatchSubdivision * 3;
+			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
@@ -297,7 +298,7 @@ void GUI::Update() {
 			sliderLacunarity = 0.35f;
 
 			sliderPatchSize = 7.0f;
-			sliderPatchSubdivision = 29.0f;
+			sliderPatchSubdivision = 28.0f;
 			sliderPatchAmplitude = 64.0f;
 			sliderRenderDistance = 3;
 
@@ -306,7 +307,7 @@ void GUI::Update() {
 			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
-			terrain->subdivision = sliderPatchSubdivision * 3;
+			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}

@@ -6,8 +6,6 @@
 #include"Terrain.h"
 #include"Plant.h"
 #include<typeinfo>
-#include"NewPatch.h"
-#include"NewTerrain.h"
 
 
 const unsigned int width = 1000;
@@ -89,15 +87,14 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 
 	// Enables Cull Facing
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	// Keeps front faces
 	glCullFace(GL_FRONT);
 	// Uses counter clock-wise standard
 	glFrontFace(GL_CCW);
 
-
-	Noise noise(0.25f, 6.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(1, 4, 0.0f, 1, &noise);
+	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
+	Terrain terrain(4, 1, 10.0f, 3, &noise);
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 
@@ -105,20 +102,8 @@ int main()
 	Model model2("./Resources/Models/windows/scene.gltf");
 	Plant plant(0);
 	Texture debug("./Resources/Textures/pop_cat.png", "diffuse", 0);
-	/*NewPatch patch(
-		glm::vec2{ 0.0f, 0.0f },
-		glm::vec3{ 0.0f, 0.0f, 0.0f },
-		40,
-		4,
-		0.0f,
-		&noise,
-		{&debug}
-	);*/
-
-	NewTerrain newterrain(1, 4, 0.0f, 1, &noise);
 
 	GUI GUI(window, &noise, &terrain, &camera, &plant);
-
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -141,11 +126,11 @@ int main()
 
 		if (timeDiff >= 1.0 / 30.0)
 		{
-			// Creates new title
+			// Creates  title
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = "Terrain - " + FPS + "FPS / " + ms + "ms";
-			glfwSetWindowTitle(window, newTitle.c_str());
+			std::string Title = "Terrain - " + FPS + "FPS / " + ms + "ms";
+			glfwSetWindowTitle(window, Title.c_str());
 
 			// Resets times and counter
 			prevTime = crntTime;
@@ -170,7 +155,7 @@ int main()
 		//model2.Draw(shaderProgram, camera);
 		//terrain.Draw(terrainShader, camera);
 		//plant.Draw(plantShader, camera);
-		newterrain.Draw(terrainShader, camera);
+		terrain.Draw(terrainShader, camera);
 
 		GUI.Update();
 

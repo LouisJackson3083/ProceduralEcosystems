@@ -24,7 +24,7 @@ VBO::VBO(std::vector<GrassVertex>& vertices)
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GrassVertex), vertices.data(), GL_STATIC_DRAW);
 }
 
-// Constructor that generates a Patch Vertex Buffer Object and links it to vertices
+// Constructor that generates a Vertex Buffer Object and links it to vertices
 VBO::VBO(std::vector<StupidVertex>& vertices)
 {
 	glGenBuffers(1, &ID);

@@ -3,7 +3,7 @@
 Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, int input_render_distance, Noise* input_noise) {
 	render_distance = input_render_distance;
 	size = input_size;
-	subdivision = input_subdivision * 3;
+	subdivision = (input_subdivision * 3) + 1;
 	amplitude = input_amplitude;
 	noise = input_noise;
 	cameraPosition = glm::vec2(0.0f, 0.0f);
@@ -15,20 +15,18 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 	textures.push_back(Texture("./Resources/Textures/grassSpec.png", "specular", 1));
 	textures.push_back(Texture("./Resources/Textures/pop_cat.png", "diffuse", 0));
 
-	int patchIndex = 0;
 	for (int j = 0; j < (render_distance * 8) + 1; j++) {
 		patches.push_back(
 			Patch(
-				glm::vec2(0.0f, 0.0f),
+				glm::vec2{ 0.0f, 0.0f },
 				glm::vec3{ 0.0f, 0.0f, 0.0f },
-				size,
-				subdivision,
-				amplitude,
+				40,
+				4,
+				0.0f,
 				noise,
 				{ &textures[0], &textures[1] }
 			)
 		);
-		patchIndex++;
 	}
 
 	UpdatePatches();
@@ -41,7 +39,7 @@ void Terrain::UpdateRenderDistance(int input_render_distance) {
 	for (int j = 0; j < (render_distance * 8) + 1; j++) {
 		patches.push_back(
 			Patch(
-				glm::vec2(0.0f, 0.0f),
+				glm::vec2( 0.0f, 0.0f),
 				glm::vec3{ 0.0f, 0.0f, 0.0f },
 				size,
 				subdivision,
@@ -53,15 +51,6 @@ void Terrain::UpdateRenderDistance(int input_render_distance) {
 	}
 }
 
-void Terrain::UpdateErosion() {
-	// Update noise value erosion
-	if (useErosion = false) {
-		noise->erosionMapSize = std::max(256, (3 * subdivision * std::min(render_distance, 3)));
-		noise->generateErosionMap();
-	}
-	UpdatePatches();
-}
-
 void Terrain::UpdatePatches() {
 
 	int patchIndex = 0;
@@ -69,6 +58,7 @@ void Terrain::UpdatePatches() {
 		for (int i = 0; i < 9; i++) {
 			int x = ((i % 3) - 1) * size * std::pow(3, j);
 			int z = ((i / 3) - 1) * size * std::pow(3, j);
+
 			if ((x != 0 or z != 0) and patchIndex < render_distance * 8) {
 				patches[patchIndex].corner_data = glm::vec2{ (i % 3) - 1, (i / 3) - 1 };
 				patches[patchIndex].offset = glm::vec3{ x + cameraPosition[0] , 0.0f, z + cameraPosition[1] };
@@ -77,7 +67,7 @@ void Terrain::UpdatePatches() {
 				patches[patchIndex].textures = { &textures[2], &textures[3] };
 				patches[patchIndex].subdivision = subdivision;
 				patches[patchIndex].useErosion = useErosion;
-				patches[patchIndex].UpdateMesh();
+				patches[patchIndex].GenerateVertices();
 				patchIndex++;
 			}
 		}
@@ -90,9 +80,9 @@ void Terrain::UpdatePatches() {
 	patches[patchIndex].textures = { &textures[2], &textures[3] };
 	patches[patchIndex].subdivision = subdivision;
 	patches[patchIndex].useErosion = useErosion;
-	patches[patchIndex].UpdateMesh();
-
+	patches[patchIndex].GenerateVertices();
 }
+
 void Terrain::Draw
 (
 	Shader& shader,

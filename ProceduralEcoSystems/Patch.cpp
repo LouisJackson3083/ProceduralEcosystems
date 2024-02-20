@@ -1,12 +1,12 @@
-#include"Patch.h"
+#include "Patch.h"
 
 Patch::Patch(
-	glm::vec2 input_corner_data, 
-	glm::vec3 input_offset, 
-	int input_size, 
-	int input_subdivision, 
+	glm::vec2 input_corner_data,
+	glm::vec3 input_offset,
+	int input_size,
+	int input_subdivision,
 	float input_amplitude,
-	Noise* input_noise, 
+	Noise* input_noise,
 	std::vector<Texture*> input_textures
 ) {
 	corner_data = input_corner_data;
@@ -17,19 +17,23 @@ Patch::Patch(
 	noise = input_noise;
 	textures = input_textures;
 	useErosion = false;
-	UpdateMesh();
+	GenerateVertices();
 }
 
-glm::vec3 Patch::GetXYZ(int i, int j, float scalar) {
+float Patch::GetHeight(int vertexID, float scalar) {
+	int i = floor(vertexID / subdivision);
+	int j = vertexID % subdivision;
+
 	float x = ((float)i * scalar) - ((float)size / 2);
 	float z = ((float)j * scalar) - ((float)size / 2);
+
 	float y = noise->get(offset[0] + x, offset[2] + z, useErosion) * amplitude;
 
 	int iRank = i % 3;
 	int jRank = j % 3;
 
 	// Handle z axis patch seaming 
-	if ((i == 0 and corner_data[0] == -1.0f) or (i == subdivision and corner_data[0] == 1.0f) and jRank != 0) {
+	if ((i == 0 and corner_data[0] == -1.0f) or (i == subdivision-1 and corner_data[0] == 1.0f) and jRank != 0) {
 		// The process is to basically sample at 3 times the current patch size and interpolate between the two points
 		//                    o--------O y2
 		//           ---------^ use this point where y = 1/3 y1 + 2/3 y2
@@ -39,72 +43,55 @@ glm::vec3 Patch::GetXYZ(int i, int j, float scalar) {
 		float z2 = ((float)(j + 3 - jRank) * scalar) - ((float)size / 2);
 		float y1 = noise->get(offset[0] + x, offset[2] + z1, useErosion) * amplitude;
 		float y2 = noise->get(offset[0] + x, offset[2] + z2, useErosion) * amplitude;
-
 		y = (1.0f - ((float)jRank / 3.0f)) * y1 + ((float)jRank / 3.0f) * y2;
 	}
 	// Handle x axis patch seaming 
-	else if ((j == 0 and corner_data[1] == -1.0f) or (j == subdivision and corner_data[1] == 1.0f) and iRank != 0) {
+	else if ((j == 0 and corner_data[1] == -1.0f) or (j == subdivision-1 and corner_data[1] == 1.0f) and iRank != 0) {
 		float x1 = ((float)(i - iRank) * scalar) - ((float)size / 2);
 		float x2 = ((float)(i + 3 - iRank) * scalar) - ((float)size / 2);
 		float y1 = noise->get(offset[0] + x1, offset[2] + z, useErosion) * amplitude;
 		float y2 = noise->get(offset[0] + x2, offset[2] + z, useErosion) * amplitude;
-
 		y = (1.0f - ((float)iRank / 3.0f)) * y1 + ((float)iRank / 3.0f) * y2;
 	}
 
-	return glm::vec3(x, y, z);
+	return y;
 }
 
-void Patch::UpdateMesh() {
+void Patch::GenerateVertices() {
 	// Clear the vertices and indices vectors
 	vertices.clear();
 	indices.clear();
-	
+
+	int num_vertices = subdivision * subdivision;
+	float scalar = (float)size / ((float)subdivision - 1);
+	int max = subdivision - 1;
+
+	//std::cout << num_vertices - 1 << std::endl;
+
 	// Used to keep track of the current vertex so that indice instantiation is correct
-	int vertexIndex = 0;
-	// This is the scalar we times each vertex by so the size does not change as we up the subdivisions
-	float scalar = ((float)size / (float)(subdivision));
-
-	for (int i = 0; i < subdivision + 1; i++) {
-		for (int j = 0; j < subdivision + 1; j++) {
-			// Push the current vertex onto the vector
-
-			glm::vec3 position = GetXYZ(i, j, scalar);
-
-			vertices.push_back(PatchVertex
-				{
-					position, // Positions
-					glm::vec3(0.0f, 1.0f, 0.0f), // Normals
-					glm::vec3(0.0f, 0.0f, 0.0f),
-					glm::vec2(position[0], position[2]) // Tex UV - Needs updating
-				}
-			);
-
-			if (i < subdivision && j < subdivision) {
-				// triangle 1
-				indices.push_back(vertexIndex + subdivision + 1);
-				indices.push_back(vertexIndex + subdivision + 2);
-				indices.push_back(vertexIndex);
-				//std::cout << "Added triangle 1: " << vertexIndex << "," << vertexIndex + size + 1 << "," << vertexIndex + size << std::endl;
-				// triangle 2
-				indices.push_back(vertexIndex + 1);
-				indices.push_back(vertexIndex);
-				indices.push_back(vertexIndex + subdivision + 2);
-				//std::cout << "Added triangle 2: " << vertexIndex + size + 1 << "," << vertexIndex << "," << vertexIndex + 1 << std::endl;
+	for (int i = 0; i < num_vertices; i++) {
+		float y = GetHeight(i, scalar);
+		vertices.push_back(StupidVertex
+			{
+				y
 			}
+		);
+		if (floor(i / subdivision) < max and i % subdivision < max) {
+			indices.push_back(i);
+			indices.push_back(i + subdivision + 1);
+			indices.push_back(i + 1);
 
-			//std::cout << "at index " << vertexIndex << ": " << vertices.size() << ", " << indices.size() << std::endl;
-
-			vertexIndex++;
+			indices.push_back(i);
+			indices.push_back(i + subdivision);
+			indices.push_back(i + subdivision + 1);
 		}
 	}
 
 	VAO.Bind();
-	// Generates Vertex Buffer Object and links it to vertices
+	// Generates GrassVertex Buffer Object and links it to vertices
 	VBO VBO(vertices);
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO(indices);
-
 
 	// arg[1] = Specifies the index of the generic vertex attribute to be modified.
 	// arg[2] = Specifies the number of components per generic vertex attribute.
@@ -113,10 +100,7 @@ void Patch::UpdateMesh() {
 	// attributes are understood to be tightly packed in the array. The initial value is 0.
 	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
 	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 2, 2, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-	VAO.LinkAttrib(VBO, 3, 3, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
+	VAO.LinkAttrib(VBO, 0, 1, GL_FLOAT, sizeof(StupidVertex), (void*)0);
 
 	// Unbind all to prevent accidentally modifying them
 	VAO.Unbind();
@@ -132,7 +116,7 @@ void Patch::Draw
 	glm::vec3 translation,
 	glm::quat rotation,
 	glm::vec3 scale
-) 
+)
 {
 	// Bind shader to be able to access uniforms
 	shader.Activate();
@@ -176,10 +160,9 @@ void Patch::Draw
 
 	// Push the matrices to the vertex shader
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "translation"), 1, GL_FALSE, glm::value_ptr(trans));
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "rotation"), 1, GL_FALSE, glm::value_ptr(rot));
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "scale"), 1, GL_FALSE, glm::value_ptr(sca));
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(matrix));
 
+	glUniform1i(glGetUniformLocation(shader.ID, "subdivision"), subdivision);
+	glUniform1i(glGetUniformLocation(shader.ID, "size"), size);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }

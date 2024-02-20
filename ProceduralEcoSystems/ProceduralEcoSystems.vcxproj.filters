@@ -63,9 +63,6 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Terrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,16 +93,13 @@
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Patch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Plant.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NewPatch.cpp">
+    <ClCompile Include="Patch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NewTerrain.cpp">
+    <ClCompile Include="Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -240,22 +234,16 @@
     <ClInclude Include="GUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Patch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FastNoiseLite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Plant.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NewPatch.h">
+    <ClInclude Include="Patch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NewTerrain.h">
+    <ClInclude Include="Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
