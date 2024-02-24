@@ -97,7 +97,7 @@ int main()
 	// Keeps front faces
 	glCullFace(GL_FRONT);
 	// Uses counter clock-wise standard
-	cglFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);
 
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));

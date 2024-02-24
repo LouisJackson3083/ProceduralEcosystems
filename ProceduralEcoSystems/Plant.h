@@ -33,6 +33,8 @@ public:
 
 	Plant(int id);
 
+	void ChangeTextures(const char* texture, const int type);
+
 	void GenerateVertices();
 
 	void Draw(

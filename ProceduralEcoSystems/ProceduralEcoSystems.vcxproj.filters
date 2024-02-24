@@ -105,6 +105,9 @@
     <ClCompile Include="Grass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImFileDialog.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="geom_default.vert">
@@ -257,6 +260,9 @@
     </ClInclude>
     <ClInclude Include="Grass.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImFileDialog.h">
+      <Filter>Header Files\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

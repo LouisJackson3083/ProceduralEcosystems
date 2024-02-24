@@ -1,17 +1,3 @@
-﻿  GUI.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(280,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(284,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(285,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(287,27): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(305,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(309,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(310,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(381,15): error C2665: 'ImGui::TreeNodeEx': no overloaded function could convert all the argument types
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\imgui\imgui.h(628,29): message : could be 'bool ImGui::TreeNodeEx(const char *,ImGuiTreeNodeFlags)'
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(381,15): message : 'bool ImGui::TreeNodeEx(const char *,ImGuiTreeNodeFlags)': cannot convert argument 1 from 'std::string' to 'const char *'
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(381,26): message : No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(381,15): message : while trying to match the argument list '(std::string)'
-  Main.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(100,2): error C3861: 'cglFrontFace': identifier not found
+﻿  Main.cpp
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(104,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  Generating Code...
+  ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe

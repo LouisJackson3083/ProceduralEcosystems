@@ -1,15 +1,6 @@
 #include"GUI.h"
 
 
-GUI::GUI(GLFWwindow* window) {
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-}
-
 GUI::GUI(
 	GLFWwindow* window, 
 	Noise* input_noise, 
@@ -81,6 +72,29 @@ GUI::GUI(
 
 	NewNoiseTextures();
 	NewPlantTextures();
+
+	// ImFileDialog requires you to set the CreateTexture and DeleteTexture
+	ifd::FileDialog::Instance().CreateTexture = [](uint8_t* data, int w, int h, char fmt) -> void* {
+		GLuint tex;
+
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, (fmt == 0) ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return (void*)tex;
+		};
+	ifd::FileDialog::Instance().DeleteTexture = [](void* tex) {
+		GLuint texID = (GLuint)((uintptr_t)tex);
+		glDeleteTextures(1, &texID);
+		};
+
+
 }
 
 void GUI::NewFrame() {
@@ -375,13 +389,37 @@ void GUI::Update() {
 
 
 		for (int i = 0; i < (*plants).size(); i++) {
-			if (ImGui::TreeNodeEx("Plant %d Control")) {
+			std::string nodeName = std::string("Plant ") + std::to_string(i+1) + std::string(" Control");
+			if (ImGui::TreeNodeEx(nodeName.data())) {
+				if (ImGui::TreeNodeEx("Textures")) {
+					ImGui::Text("Diffuse Texture");
+					ImGui::Image((void*)(intptr_t)(*plants)[i].textures[0].ID, ImVec2(256.0f, 256.0f));
+					if (ImGui::Button("Change Diffuse Texture"))
+						ifd::FileDialog::Instance().Open("DiffuseTextureDialog", "Change Diffuse Texture", ".*", true);
 
-				ImGui::Text("Plant %d Control", i);
+					if (ifd::FileDialog::Instance().IsDone("DiffuseTextureDialog")) {
+						if (ifd::FileDialog::Instance().HasResult()) {
+							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
+							(*plants)[i].ChangeTextures(res.u8string().c_str(), 0);
+						}
+						ifd::FileDialog::Instance().Close();
+					}
 
-				if (ImGui::TreeNodeEx("Texture")) {
-					ImGui::Image((void*)(intptr_t)plantTextures[0].ID, ImVec2(256.0f, 256.0f));
+					ImGui::Text("Specular Texture");
+					ImGui::Image((void*)(intptr_t)(*plants)[i].textures[1].ID, ImVec2(256.0f, 256.0f));
+					if (ImGui::Button("Change Specular Texture"))
+						ifd::FileDialog::Instance().Open("SpecularTextureDialog", "Change Specular Texture", ".*", true);
+
+					if (ifd::FileDialog::Instance().IsDone("SpecularTextureDialog")) {
+						if (ifd::FileDialog::Instance().HasResult()) {
+							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
+							(*plants)[i].ChangeTextures(res.u8string().c_str(), 1);
+						}
+						ifd::FileDialog::Instance().Close();
+					}
+
 					ImGui::TreePop();
+
 				}
 				ImGui::Text("Angle Control");
 				bool boolPlantPitch = ImGui::SliderFloat("Pitch", &plantGUIData[i].sliderPlantPitch, -6.0f, 6.0f);
@@ -444,6 +482,7 @@ void GUI::Update() {
 				}
 			);
 		}
+
 
 		ImGui::TreePop();
 	}

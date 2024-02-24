@@ -20,6 +20,17 @@ Plant::Plant(int id) {
 
 }
 
+void Plant::ChangeTextures(const char* texture, const int type) {
+	std::cout << texture << std::endl;
+	if (type == 0) {
+		textures[type] = Texture(texture, "diffuse", type);
+	}
+	else if (type == 1) {
+		textures[type] = Texture(texture, "specular", type);
+	}
+	
+}
+
 void Plant::GenerateVertices() {
 	// Clear the vertices and indices vectors
 	vertices.clear();

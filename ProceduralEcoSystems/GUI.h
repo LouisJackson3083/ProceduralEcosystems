@@ -10,6 +10,7 @@
 #include"Grass.h"
 #include<charconv>
 #include<string>
+#include"ImFileDialog.h"
 
 struct PlantGUIData
 {
@@ -29,8 +30,6 @@ struct PlantGUIData
 
 class GUI {
 public:
-
-	GUI(GLFWwindow* window);
 
 	GUI(
 		GLFWwindow* window, 

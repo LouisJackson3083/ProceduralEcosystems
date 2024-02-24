@@ -144,6 +144,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="ImFileDialog.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FastNoiseLite.h" />
     <ClInclude Include="Grass.h" />
+    <ClInclude Include="ImFileDialog.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Plant.h" />
