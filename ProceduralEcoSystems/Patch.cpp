@@ -71,7 +71,7 @@ void Patch::GenerateVertices() {
 	// Used to keep track of the current vertex so that indice instantiation is correct
 	for (int i = 0; i < num_vertices; i++) {
 		float y = GetHeight(i, scalar);
-		vertices.push_back(StupidVertex
+		vertices.push_back(TerrainVertex
 			{
 				y
 			}
@@ -100,7 +100,7 @@ void Patch::GenerateVertices() {
 	// attributes are understood to be tightly packed in the array. The initial value is 0.
 	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
 	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
-	VAO.LinkAttrib(VBO, 0, 1, GL_FLOAT, sizeof(StupidVertex), (void*)0);
+	VAO.LinkAttrib(VBO, 0, 1, GL_FLOAT, sizeof(TerrainVertex), (void*)0);
 
 	// Unbind all to prevent accidentally modifying them
 	VAO.Unbind();

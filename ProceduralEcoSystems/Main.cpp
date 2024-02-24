@@ -4,6 +4,7 @@
 #include"Terrain.h"
 #include"Noise.h"
 #include"Terrain.h"
+#include"Grass.h"
 #include"Plant.h"
 #include<typeinfo>
 
@@ -53,6 +54,7 @@ int main()
 	Shader shaderProgram("default.vert", "default.frag");
 	Shader terrainShader("terrain.vert", "terrain.frag");
 	Shader plantShader("plant.vert", "plant.frag");
+	Shader grassShader("grass.vert", "grass.frag");
 	//Shader instancedShader("instanced.vert", "default.frag");
 
 	// Take care of all the light related things
@@ -68,6 +70,10 @@ int main()
 	plantShader.Activate();
 	glUniform4f(glGetUniformLocation(plantShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(plantShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+	grassShader.Activate();
+	glUniform4f(glGetUniformLocation(grassShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(grassShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	terrainShader.Activate();
 	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -91,19 +97,16 @@ int main()
 	// Keeps front faces
 	glCullFace(GL_FRONT);
 	// Uses counter clock-wise standard
-	glFrontFace(GL_CCW);
+	cglFrontFace(GL_CCW);
 
-	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(4, 1, 10.0f, 3, &noise);
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
-
-	Model model("./Resources/Models/crow/scene.gltf");
-	Model model2("./Resources/Models/windows/scene.gltf");
-	Plant plant(0);
-	Texture debug("./Resources/Textures/pop_cat.png", "diffuse", 0);
-
-	GUI GUI(window, &noise, &terrain, &camera, &plant);
+	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
+	Terrain terrain(4, 1, 10.0f, 3, &noise);
+	std::vector<Plant> plants;
+	plants.push_back(0);
+	Grass grass(&noise);
+	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass);
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -147,15 +150,27 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Handles camera inputs (delete this if you have disabled VSync)
+		// Handles camera inputs (delete this if yosu have disabled VSync)
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
-		//model2.Draw(shaderProgram, camera);
-		//terrain.Draw(terrainShader, camera);
-		//plant.Draw(plantShader, camera);
-		terrain.Draw(terrainShader, camera);
+
+		glDisable(GL_CULL_FACE);
+		if (GUI.renderPlants) {
+			for (int i = 0; i < plants.size(); i++) {
+				plants[i].Draw(plantShader, camera);
+			}
+			
+		}
+		if (GUI.renderGrass) {
+			grass.Draw(grassShader, camera);
+		}
+
+		glEnable(GL_CULL_FACE);
+		if (GUI.renderTerrain) {
+			terrain.Draw(terrainShader, camera);
+		}
 
 		GUI.Update();
 
@@ -172,6 +187,7 @@ int main()
 	shaderProgram.Delete();
 	terrainShader.Delete();
 	plantShader.Delete();
+	grassShader.Delete();
 	//instancedShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);

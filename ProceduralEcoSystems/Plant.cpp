@@ -14,7 +14,8 @@ Plant::Plant(int id) {
 	bendVariance = 0.0f;
 
 
-	textures.push_back(Texture("./Resources/Textures/pop_cat.png", "diffuse", 0));
+	textures.push_back(Texture("./Resources/Textures/fern1.png", "diffuse", 0));
+	textures.push_back(Texture("./Resources/Textures/fern1Spec.png", "specular", 1));
 	GenerateVertices();
 
 }
@@ -31,7 +32,7 @@ void Plant::GenerateVertices() {
 	for (int i = 0; i < vertices_per_leaf*leaves; i++) {
 		int currIndex = i % vertices_per_leaf;
 
-		vertices.push_back(GrassVertex
+		vertices.push_back(PlantVertex
 			{
 				glm::vec3(0.0f, i, 0.0f), // Positions
 			}
@@ -42,14 +43,14 @@ void Plant::GenerateVertices() {
 			indices.push_back(i + 1);
 
 			indices.push_back(i);
-			indices.push_back(i + 3);
 			indices.push_back(i + 2);
+			indices.push_back(i + 3);
 			//std::cout << i << " : " << i << ", " << i + 1 << ", " << i + 3 << std::endl;
 		}
 	}
 
 	VAO.Bind();
-	// Generates GrassVertex Buffer Object and links it to vertices
+	// Generates PlantVertex Buffer Object and links it to vertices
 	VBO VBO(vertices);
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO(indices);
@@ -62,7 +63,7 @@ void Plant::GenerateVertices() {
 	// attributes are understood to be tightly packed in the array. The initial value is 0.
 	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
 	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(GrassVertex), (void*)0);
+	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(PlantVertex), (void*)0);
 
 	// Unbind all to prevent accidentally modifying them
 	VAO.Unbind();
@@ -107,7 +108,7 @@ void Plant::Draw
 
 	// Exports the camera Position to the Fragment Shader for specular lighting
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-	// Export the camMatrix to the GrassVertex Shader of the pyramid
+	// Export the camMatrix to the PlantVertex Shader of the pyramid
 	camera.Matrix(shader, "camMatrix");
 
 	float crntTime = glfwGetTime();
@@ -121,6 +122,10 @@ void Plant::Draw
 	glUniform1i(glGetUniformLocation(shader.ID, "segments"), segments);
 	glUniform1i(glGetUniformLocation(shader.ID, "leaves"), leaves);
 	glUniform1i(glGetUniformLocation(shader.ID, "leafLength"), leafLength);
+	glUniform1f(glGetUniformLocation(shader.ID, "pitchVariance"), pitchVariance);
+	glUniform1f(glGetUniformLocation(shader.ID, "bendVariance"), bendVariance);
+	glUniform1f(glGetUniformLocation(shader.ID, "lengthVariance"), lengthVariance);
+
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }

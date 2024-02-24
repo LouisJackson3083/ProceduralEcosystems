@@ -7,7 +7,25 @@
 #include"Noise.h"
 #include"Terrain.h"
 #include"Plant.h"
+#include"Grass.h"
 #include<charconv>
+#include<string>
+
+struct PlantGUIData
+{
+	// Direction Sliders
+	float sliderPlantPitch;
+	float sliderPlantBendStrength;
+	float sliderPlantYaw;
+	float sliderPlantPitchVariance;
+	float sliderPlantBendVariance;
+
+	// Length Sliders
+	int sliderPlantSegments;
+	int sliderPlantLeaves;
+	int sliderPlantLeafLength;
+	float sliderPlantLengthVariance;
+};
 
 class GUI {
 public:
@@ -19,7 +37,8 @@ public:
 		Noise* input_noise, 
 		Terrain* input_terrain,
 		Camera* input_camera,
-		Plant* input_plant
+		std::vector<Plant>* input_plants,
+		Grass* input_grass
 	);
 
 	void NewNoiseTextures();
@@ -37,20 +56,24 @@ public:
 	Noise* noise;
 	Terrain* terrain;
 	Camera* camera;
+
+	std::vector<Plant>* plants;
+	std::vector<PlantGUIData> plantGUIData;
 	Plant* plant;
+	Grass* grass;
+
+	bool renderTerrain;
+	bool renderGrass;
+	bool renderPlants;
+	bool boolWireframe;
 
 private:
-	// Plant sliders
-	float sliderPlantPitch;
-	float sliderPlantYaw;
-	float sliderPlantBendStrength;
-	int sliderPlantSegments;
-	int sliderPlantLeaves;
-	int sliderPlantLeafLength;
-	float sliderPlantLengthVariance;
-	float sliderPlantPitchVariance;
-	float sliderPlantBendVariance;
 
+	// Grass sliders
+	int sliderGrassBlades;
+	float sliderGrassLength;
+	float sliderGrassLengthVariance;
+	float sliderGrassPitchVariance;
 
 	// Noise sliders
 	float sliderScale;
@@ -74,7 +97,6 @@ private:
 	float sliderPatchAmplitude;
 	int sliderRenderDistance;
 
-	bool boolWireframe;
 
 	// Camera stuff
 	glm::vec2 lastCamPos = glm::vec2(0, 0);

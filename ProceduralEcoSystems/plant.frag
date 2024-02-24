@@ -71,6 +71,10 @@ vec4 direcLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
+	vec4 texColor = texture(diffuse0, texCoord);
+	if(texColor.a < 0.1)
+        discard;
+
 	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
 }
 
@@ -105,6 +109,5 @@ vec4 spotLight()
 
 void main()
 {
-	// outputs final color
 	FragColor = direcLight();
 }

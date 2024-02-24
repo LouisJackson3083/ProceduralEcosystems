@@ -24,12 +24,21 @@ VBO::VBO(std::vector<GrassVertex>& vertices)
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GrassVertex), vertices.data(), GL_STATIC_DRAW);
 }
 
-// Constructor that generates a Vertex Buffer Object and links it to vertices
-VBO::VBO(std::vector<StupidVertex>& vertices)
+
+// Constructor that generates a Plant Vertex Buffer Object and links it to vertices
+VBO::VBO(std::vector<PlantVertex>& vertices)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(StupidVertex), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(PlantVertex), vertices.data(), GL_STATIC_DRAW);
+}
+
+// Constructor that generates a Vertex Buffer Object and links it to vertices
+VBO::VBO(std::vector<TerrainVertex>& vertices)
+{
+	glGenBuffers(1, &ID);
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TerrainVertex), vertices.data(), GL_STATIC_DRAW);
 }
 
 VBO::VBO(std::vector<glm::vec3>& vertices)

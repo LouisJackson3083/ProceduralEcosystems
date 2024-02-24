@@ -15,7 +15,8 @@ GUI::GUI(
 	Noise* input_noise, 
 	Terrain* input_terrain, 
 	Camera* input_camera,
-	Plant* input_plant
+	std::vector<Plant>* input_plants,
+	Grass* input_grass
 ) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -24,16 +25,28 @@ GUI::GUI(
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 	// Plant
-	plant = input_plant;
-	sliderPlantPitch = plant->pitch;
-	sliderPlantYaw = plant->yaw;
-	sliderPlantBendStrength = plant->bendStrength;
-	sliderPlantSegments = plant->segments;
-	sliderPlantLeaves = plant->leaves;
-	sliderPlantLeafLength = plant->leafLength;
-	sliderPlantLengthVariance = plant->lengthVariance;
-	sliderPlantPitchVariance = plant->pitchVariance;
-	sliderPlantBendVariance = plant->bendVariance;
+	plants = input_plants;
+	plantGUIData.push_back(PlantGUIData
+		{
+			(*plants)[0].pitch,
+			(*plants)[0].bendStrength,
+			(*plants)[0].yaw,
+			(*plants)[0].pitchVariance,
+			(*plants)[0].bendVariance,
+			(*plants)[0].segments,
+			(*plants)[0].leaves,
+			(*plants)[0].leafLength,
+			(*plants)[0].lengthVariance
+		}
+	);
+
+
+	// Grass
+	grass = input_grass;
+	sliderGrassBlades = grass->blades;
+	sliderGrassLength = grass->length;
+	sliderGrassLengthVariance = grass->lengthVariance;
+	sliderGrassPitchVariance = grass->pitchVariance;
 
 	// Noise
 	noise = input_noise;
@@ -47,6 +60,7 @@ GUI::GUI(
 	sliderPatchSize = terrain->size;
 	sliderPatchSubdivision = terrain->subdivision / 3;
 	sliderPatchAmplitude = terrain->amplitude;
+	grass->amplitude = sliderPatchAmplitude;
 	sliderRenderDistance = terrain->render_distance;
 
 	// Erosion
@@ -60,6 +74,9 @@ GUI::GUI(
 
 	camera = input_camera;
 
+	renderGrass = true;
+	renderTerrain = true;
+	renderPlants = true;
 	boolWireframe = false;
 
 	NewNoiseTextures();
@@ -86,9 +103,6 @@ void GUI::Update() {
 	#pragma region NoiseRegion
 	ImGui::Begin("Noise Control");
 
-	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
-	ImGui::Text("Total Triangles = %d", ((sliderRenderDistance * 8) + 1) * ((int)std::pow(sliderPatchSubdivision * 3, 2) * 2));
-	
 	// Image Stuff
 	if (ImGui::TreeNodeEx("Noise Image")) {
 		ImGui::Image((void*)(intptr_t)noiseTextures[0].ID, ImVec2(256.0f, 256.0f));
@@ -249,6 +263,7 @@ void GUI::Update() {
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->amplitude = sliderPatchAmplitude;
+			grass->amplitude = sliderPatchAmplitude;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
@@ -276,6 +291,7 @@ void GUI::Update() {
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
 			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
+			grass->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
@@ -299,6 +315,7 @@ void GUI::Update() {
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
 			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
+			grass->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
@@ -324,6 +341,18 @@ void GUI::Update() {
 		terrain->amplitude = sliderPatchAmplitude;
 		terrain->UpdatePatches();
 	}
+
+
+
+	ImGui::End();
+	#pragma endregion
+	
+	#pragma region RenderRegion
+	ImGui::Begin("Render Control");
+
+	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
+	ImGui::Text("Total Triangles = %d", ((sliderRenderDistance * 8) + 1)* ((int)std::pow(sliderPatchSubdivision * 3, 2) * 2));
+
 	// Wireframe Checkbox
 	ImGui::Checkbox("Toggle Wireframe", &boolWireframe);
 	if (boolWireframe) {
@@ -332,56 +361,116 @@ void GUI::Update() {
 	else {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  // Disable wireframe mode
 	}
-
-
+	ImGui::Checkbox("Toggle Terrain", &renderTerrain);
+	ImGui::Checkbox("Toggle Grass", &renderGrass);
+	ImGui::Checkbox("Toggle Plants", &renderPlants);
 
 	ImGui::End();
 	#pragma endregion
 
-	#pragma region NoiseRegion
-	ImGui::Begin("Plant Control");
+	#pragma region PlantControl
+	ImGui::Begin("Grass/Plant Control");
 
-	if (ImGui::TreeNodeEx("Plant Texture")) {
-		ImGui::Image((void*)(intptr_t)plantTextures[0].ID, ImVec2(256.0f, 256.0f));
-		ImGui::TreePop();
-	}
 	if (ImGui::TreeNodeEx("Plant Sliders")) {
 
-		ImGui::Text("Angle Control");
-		bool boolPlantPitch = ImGui::SliderFloat("Pitch", &sliderPlantPitch, -6.0f, 6.0f);
-		bool boolPlantYaw = ImGui::SliderFloat("Yaw", &sliderPlantYaw, -6.0f, 6.0f);
-		bool boolPlantBendStrength = ImGui::SliderFloat("Bend Strength", &sliderPlantBendStrength, -0.5f, 0.5f);
-		ImGui::Text("Leaf Control");
-		bool boolPlantSegments = ImGui::SliderInt("Segments", &sliderPlantSegments, 0, 15);
-		bool boolPlantLeaves = ImGui::SliderInt("Leaves", &sliderPlantLeaves, 0, 15);
-		bool boolPlantLength = ImGui::SliderInt("Leaf Length", &sliderPlantLeafLength, 0, 15);
-		ImGui::Text("Variation Control");
-		bool boolPlantLengthVariance = ImGui::SliderFloat("Length Variance", &sliderPlantLengthVariance, 0.0f, 0.5f);
-		bool boolPlantPitchVariance = ImGui::SliderFloat("Pitch Variance", &sliderPlantPitchVariance, 0.0f, 50.5f);
-		bool boolPlantBendVariance = ImGui::SliderFloat("Bend Variance", &sliderPlantBendVariance, 0.0f, 0.5f);
+
+		for (int i = 0; i < (*plants).size(); i++) {
+			if (ImGui::TreeNodeEx("Plant %d Control")) {
+
+				ImGui::Text("Plant %d Control", i);
+
+				if (ImGui::TreeNodeEx("Texture")) {
+					ImGui::Image((void*)(intptr_t)plantTextures[0].ID, ImVec2(256.0f, 256.0f));
+					ImGui::TreePop();
+				}
+				ImGui::Text("Angle Control");
+				bool boolPlantPitch = ImGui::SliderFloat("Pitch", &plantGUIData[i].sliderPlantPitch, -6.0f, 6.0f);
+				bool boolPlantYaw = ImGui::SliderFloat("Yaw", &plantGUIData[i].sliderPlantYaw, -6.0f, 6.0f);
+				bool boolPlantBendStrength = ImGui::SliderFloat("Bend Strength", &plantGUIData[i].sliderPlantBendStrength, -0.5f, 0.5f);
+				ImGui::Text("Leaf Control");
+				bool boolPlantSegments = ImGui::SliderInt("Segments", &plantGUIData[i].sliderPlantSegments, 0, 15);
+				bool boolPlantLeaves = ImGui::SliderInt("Leaves", &plantGUIData[i].sliderPlantLeaves, 0, 15);
+				bool boolPlantLength = ImGui::SliderInt("Leaf Length", &plantGUIData[i].sliderPlantLeafLength, 0, 15);
+				ImGui::Text("Variation Control");
+				bool boolPlantLengthVariance = ImGui::SliderFloat("Length Variance", &plantGUIData[i].sliderPlantLengthVariance, 0.0f, 5.0f);
+				bool boolPlantPitchVariance = ImGui::SliderFloat("Pitch Variance", &plantGUIData[i].sliderPlantPitchVariance, 0.0f, 5.0f);
+				bool boolPlantBendVariance = ImGui::SliderFloat("Bend Variance", &plantGUIData[i].sliderPlantBendVariance, 0.0f, 5.0f);
+				if (boolPlantPitch ||
+					boolPlantYaw ||
+					boolPlantBendStrength ||
+					boolPlantSegments ||
+					boolPlantLeaves ||
+					boolPlantLength ||
+					boolPlantLengthVariance ||
+					boolPlantPitchVariance ||
+					boolPlantBendVariance
+					) {
+					(*plants)[i].pitch = plantGUIData[i].sliderPlantPitch;
+					(*plants)[i].yaw = plantGUIData[i].sliderPlantYaw;
+					(*plants)[i].bendStrength = plantGUIData[i].sliderPlantBendStrength;
+					(*plants)[i].segments = plantGUIData[i].sliderPlantSegments;
+					(*plants)[i].leaves = plantGUIData[i].sliderPlantLeaves;
+					(*plants)[i].leafLength = plantGUIData[i].sliderPlantLeafLength;
+					(*plants)[i].lengthVariance = plantGUIData[i].sliderPlantLengthVariance;
+					(*plants)[i].pitchVariance = plantGUIData[i].sliderPlantPitchVariance;
+					(*plants)[i].bendVariance = plantGUIData[i].sliderPlantBendVariance;
+					(*plants)[i].GenerateVertices();
+				}
+
+				if (ImGui::Button("Delete Plant")) {
+					(*plants).erase((*plants).begin() + i);
+					plantGUIData.erase(plantGUIData.begin() + i);
+				}
+
+				ImGui::TreePop();
+			}
+		}
+
+
+		// Buttons
+		if (ImGui::Button("New Plant")) {
+			(*plants).push_back(0);
+			plantGUIData.push_back(PlantGUIData
+				{
+					(*plants).back().pitch,
+					(*plants).back().bendStrength,
+					(*plants).back().yaw,
+					(*plants).back().pitchVariance,
+					(*plants).back().bendVariance,
+					(*plants).back().segments,
+					(*plants).back().leaves,
+					(*plants).back().leafLength,
+					(*plants).back().lengthVariance
+				}
+			);
+		}
+
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNodeEx("Grass Sliders")) {
+		bool boolGrassBlades = ImGui::SliderInt("Leaves", &sliderGrassBlades, 0, 100);
+		bool boolGrassLength = ImGui::SliderFloat("Leaf Length", &sliderGrassLength, 0.01f, 15.0f);
+		bool boolGrassLengthVariance = ImGui::SliderFloat("Length Variance", &sliderGrassLengthVariance, 0.0f, 5.0f);
+		bool boolGrassPitchVariance = ImGui::SliderFloat("Pitch Variance", &sliderGrassPitchVariance, 0.0f, 5.0f);
 
 		// Patch Updates
-		if (boolPlantPitch ||
-			boolPlantYaw ||
-			boolPlantBendStrength ||
-			boolPlantSegments ||
-			boolPlantLeaves ||
-			boolPlantLength ||
-			boolPlantLengthVariance ||
-			boolPlantPitchVariance ||
-			boolPlantBendVariance
+		if (boolGrassBlades ||
+			boolGrassLength ||
+			boolGrassLengthVariance ||
+			boolGrassPitchVariance
 			) {
-			plant->pitch = sliderPlantPitch;
-			plant->yaw = sliderPlantYaw;
-			plant->bendStrength = sliderPlantBendStrength;
-			plant->segments = sliderPlantSegments;
-			plant->leaves = sliderPlantLeaves;
-			plant->leafLength = sliderPlantLeafLength;
-			plant->lengthVariance = sliderPlantLengthVariance;
-			plant->pitchVariance = sliderPlantPitchVariance;
-			plant->bendVariance = sliderPlantBendVariance;
-			plant->GenerateVertices();
+			grass->blades = sliderGrassBlades;
+			grass->length = sliderGrassLength;
+			grass->lengthVariance = sliderGrassLengthVariance;
+			grass->pitchVariance = sliderGrassPitchVariance;
+			grass->GenerateVertices();
 		}
+		ImGui::TreePop();
+	}
+
+
+	if (ImGui::TreeNodeEx("Distribution Texture")) {
+		ImGui::Image((void*)(intptr_t)plantTextures[0].ID, ImVec2(256.0f, 256.0f));
 		ImGui::TreePop();
 	}
 
@@ -391,6 +480,7 @@ void GUI::Update() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
 
 void GUI::CleanUp() {
 	ImGui_ImplOpenGL3_Shutdown();

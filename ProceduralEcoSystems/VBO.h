@@ -30,7 +30,13 @@ struct GrassVertex
 	glm::vec3 position;
 };
 
-struct StupidVertex 
+// Structure to standardize the vertices used in the patches
+struct PlantVertex
+{
+	glm::vec3 position;
+};
+
+struct TerrainVertex 
 {
 	float height;
 };
@@ -46,7 +52,8 @@ public:
 	VBO(std::vector<Vertex>& vertices);
 	VBO(std::vector<PatchVertex>& vertices);
 	VBO(std::vector<GrassVertex>& vertices);
-	VBO(std::vector<StupidVertex>& vertices);
+	VBO(std::vector<PlantVertex>& vertices);
+	VBO(std::vector<TerrainVertex>& vertices);
 	VBO(std::vector<glm::vec3>& vertices);
 	VBO(std::vector<glm::mat4>& mat4s);
 

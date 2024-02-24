@@ -15,7 +15,7 @@ class Plant {
 public:
 
 	std::vector<Texture> textures;
-	std::vector<GrassVertex> vertices;
+	std::vector<PlantVertex> vertices;
 	std::vector<GLuint> indices;
 	VAO VAO;
 
