@@ -10,18 +10,50 @@
 #include"VBO.h"
 #include"VAO.h"
 #include <random>
+#include<string>
+
+struct PlantGUIData
+{
+	int sliderPlantNumber;
+
+	// Direction Sliders
+	float sliderPlantPitch;
+	float sliderPlantBendStrength;
+	float sliderPlantYaw;
+	float sliderPlantPitchVariance;
+	float sliderPlantBendVariance;
+
+	// Length Sliders
+	int sliderPlantSegments;
+	int sliderPlantLeafLength;
+	float sliderPlantLengthVariance;
+
+	// Scale sliders
+	float sliderPlantScaleVariance;
+	float sliderPlantScale;
+
+	// Leaf Sliders
+	int sliderPlantMaxLeaves;
+	int sliderPlantMinLeaves;
+};
 
 class Plant {
 public:
 
 	std::vector<Texture> textures;
+	std::vector<std::string> plant_texture_filepaths;
 	std::vector<PlantVertex> vertices;
 	std::vector<GLuint> indices;
-	VAO VAO;
+	VAO vao;
+
+	int plantNumber;
 
 	int segments;
-	int leaves;
+	int vertices_per_leaf;
 	int leafLength;
+
+	int maxLeaves;
+	int minLeaves;
 
 	float pitch;
 	float yaw;
@@ -30,20 +62,26 @@ public:
 	float lengthVariance;
 	float pitchVariance;
 	float bendVariance;
+	float scaleVariance;
+	float scale;
+	
+
+	int number_of_leaves;
+	std::vector<int> plant_bin;
 
 	Plant(int id);
 
+	Plant(PlantGUIData plantGuiData, std::string texDiffuse, std::string texSpecular);
+
 	void ChangeTextures(const char* texture, const int type);
+
+	void GeneratePlantBin();
 
 	void GenerateVertices();
 
 	void Draw(
 		Shader& shader,
-		Camera& camera,
-		glm::mat4 matrix = glm::mat4(1.0f),
-		glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-		glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f)
+		Camera& camera
 	);
 };
 

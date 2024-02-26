@@ -96,7 +96,7 @@ int main()
 	glEnable(GL_CULL_FACE);
 	// Keeps front faces
 	glCullFace(GL_FRONT);
-	// Uses counter clock-wise standard
+	// Uses counter clo	ck-wise standard
 	glFrontFace(GL_CCW);
 
 	// Creates camera object
@@ -161,7 +161,6 @@ int main()
 			for (int i = 0; i < plants.size(); i++) {
 				plants[i].Draw(plantShader, camera);
 			}
-			
 		}
 		if (GUI.renderGrass) {
 			grass.Draw(grassShader, camera);

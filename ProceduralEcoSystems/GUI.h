@@ -11,22 +11,10 @@
 #include<charconv>
 #include<string>
 #include"ImFileDialog.h"
+#include <iostream>
+#include <fstream>
 
-struct PlantGUIData
-{
-	// Direction Sliders
-	float sliderPlantPitch;
-	float sliderPlantBendStrength;
-	float sliderPlantYaw;
-	float sliderPlantPitchVariance;
-	float sliderPlantBendVariance;
 
-	// Length Sliders
-	int sliderPlantSegments;
-	int sliderPlantLeaves;
-	int sliderPlantLeafLength;
-	float sliderPlantLengthVariance;
-};
 
 class GUI {
 public:
@@ -49,6 +37,10 @@ public:
 	void Update();
 
 	void CleanUp();
+
+	void SavePlantData(Plant plant, PlantGUIData* plantGUIData, std::string file);
+
+	void LoadPlantData(std::string file);
 
 	std::vector<Texture> noiseTextures;
 	std::vector<Texture> plantTextures;

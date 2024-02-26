@@ -20,11 +20,13 @@ uniform float bendStrength;
 uniform float time;
 uniform int segments;
 uniform int leafLength;
-uniform int leaves;
-
+uniform int maxLeaves;
+uniform int vertices_per_leaf;
 uniform float pitchVariance;
 uniform float bendVariance;
 uniform float lengthVariance;
+uniform float scaleVariance;
+uniform float scale;
 
 float random (vec2 st) {
     return 0.5-fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
@@ -39,7 +41,6 @@ void main()
 {
 	// calculates current position
 	crntPos = vec3(0.0);
-	int vertices_per_leaf = segments*2;
 	int curr_vertex = int(modI(gl_VertexID, vertices_per_leaf));
 	int curr_leaf = int(floor(gl_VertexID / vertices_per_leaf));
 	
@@ -54,7 +55,7 @@ void main()
 	float wind = sin(time_l) - sin(time_l/2) + sin(time_l/4) - sin(time_l/8);
 
 	// Get the pitch and yaw of the leaf
-	float newYaw = yaw + (float(6.28/leaves) * curr_leaf);
+	float newYaw = yaw + (float(6.28/maxLeaves) * rnd * curr_leaf);
 	float bendPitch = (pitch + (pitchVariance*rnd)) - distance * (bendStrength + (bendVariance*rnd)) + wind * 0.04;
 
 	crntPos.x = cos(newYaw) * -width + cos(bendPitch) * distance * sin(newYaw);
@@ -69,5 +70,5 @@ void main()
 	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2( floor((curr_vertex) / 2.0) / segments, width + 0.5 );
 	
 	// Outputs the positions/coordinates of all vertices
-	gl_Position = camMatrix * vec4(crntPos, 1.0);
+	gl_Position = camMatrix * vec4(crntPos*vec3(scale+(rnd*scaleVariance)) + aPos, 1.0);
 }
