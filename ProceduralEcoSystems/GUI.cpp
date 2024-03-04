@@ -56,7 +56,7 @@ GUI::GUI(
 	sliderPatchSize = terrain->size;
 	sliderPatchSubdivision = terrain->subdivision / 3;
 	sliderPatchAmplitude = terrain->amplitude;
-	grass->amplitude = sliderPatchAmplitude;
+	noise->amplitude = sliderPatchAmplitude;
 	sliderRenderDistance = terrain->render_distance;
 
 	// Erosion
@@ -293,7 +293,7 @@ void GUI::Update() {
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->amplitude = sliderPatchAmplitude;
-			grass->amplitude = sliderPatchAmplitude;
+			noise->amplitude = sliderPatchAmplitude;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
@@ -321,7 +321,7 @@ void GUI::Update() {
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
 			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
-			grass->amplitude = sliderPatchAmplitude;
+			noise->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
@@ -345,7 +345,7 @@ void GUI::Update() {
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
 			NewNoiseTextures();
 			terrain->amplitude = sliderPatchAmplitude;
-			grass->amplitude = sliderPatchAmplitude;
+			noise->amplitude = sliderPatchAmplitude;
 			terrain->size = sliderPatchSize;
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->UpdateRenderDistance(sliderRenderDistance);
@@ -369,6 +369,7 @@ void GUI::Update() {
 		terrain->size = sliderPatchSize;
 		terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 		terrain->amplitude = sliderPatchAmplitude;
+		noise->amplitude = sliderPatchAmplitude;
 		terrain->UpdatePatches();
 	}
 
@@ -518,7 +519,7 @@ void GUI::Update() {
 
 		// Buttons
 		if (ImGui::Button("New Plant")) {
-			(*plants).push_back(0);
+			(*plants).push_back(Plant(noise));
 			plantGUIData.push_back(PlantGUIData
 				{
 					(*plants).back().plantNumber,
@@ -598,9 +599,18 @@ void GUI::Update() {
 				ecosystem->layerRadii = sliderPoissonRadii;
 			}
 		}
-		
+
 		if (ImGui::Button("Refresh Texture")) {
 			NewPoissonDiskTexture();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Update Plant Positions")) {
+			ecosystem->GeneratePoissonPositions();
+			(*plants)[0].positions = ecosystem->poissonPositions[0];
+
+			std::cout << ecosystem->poissonPositions[0].size() << std::endl;
+			(*plants)[0].GeneratePlantBin();
+			(*plants)[0].GenerateVertices();
 		}
 		
 		ImGui::TreePop();
@@ -671,7 +681,7 @@ void GUI::LoadPlantData(std::string file) {
 				std::stoi(results[12]),
 			}
 		);
-		(*plants).push_back(Plant(plantGUIData.back(), results[13], results[14]));
+		(*plants).push_back(Plant(plantGUIData.back(), results[13], results[14], noise));
 		myfile.close();
 	}
 }

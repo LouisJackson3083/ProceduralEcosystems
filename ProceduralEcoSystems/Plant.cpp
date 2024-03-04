@@ -1,6 +1,8 @@
 #include"Plant.h"
 
-Plant::Plant(int id) {
+Plant::Plant(Noise* input_noise) {
+	noise = input_noise;
+
 	pitch = 2.09f;
 	yaw = 2.09f;
 	bendStrength = -0.14f;
@@ -27,7 +29,8 @@ Plant::Plant(int id) {
 	GenerateVertices();
 }
 
-Plant::Plant(PlantGUIData plantGUIData, std::string texDiffuse, std::string texSpecular) {
+Plant::Plant(PlantGUIData plantGUIData, std::string texDiffuse, std::string texSpecular, Noise* input_noise) {
+	noise = input_noise;
 	plantNumber = plantGUIData.sliderPlantNumber;
 	pitch = plantGUIData.sliderPlantPitch;
 	yaw = plantGUIData.sliderPlantYaw;
@@ -79,6 +82,8 @@ void Plant::GenerateVertices() {
 	vertices.clear();
 	indices.clear();
 
+	std::cout << positions.size() << std::endl;
+
 	int plant_id = 0;
 	int plant_id_leaf_count = 0;
 	// Used to keep track of the current vertex so that indice instantiation is correct
@@ -96,11 +101,27 @@ void Plant::GenerateVertices() {
 			}
 		}
 
-		vertices.push_back(PlantVertex
-			{
-				glm::vec3(2 * plant_id, 0.0f, 0.0f) // Positions
-			}
-		);
+		if (positions.empty()) {
+			vertices.push_back(PlantVertex
+				{
+					glm::vec3(0.0f, (float)(2 * plant_id), 0.0f) // Positions
+				}
+			);
+		}
+		else {
+			std::cout << "plant " << plant_id << ": " << positions[plant_id][0] << " , " << positions[plant_id][1] << std::endl;
+			vertices.push_back(PlantVertex
+				{
+					glm::vec3( // Positions
+						positions[plant_id][0], 
+						noise->get(positions[plant_id][0], positions[plant_id][1], false) * noise->amplitude, 
+						positions[plant_id][1]
+					)
+				}
+			);
+			std::cout << "vertex " << plant_id << ": " << vertices.back().position[0] << " , " << vertices.back().position[2] << std::endl;
+		}
+
 		if (currIndex % 2 == 0 and currIndex < vertices_per_leaf - 2) {
 			indices.push_back(i);
 			indices.push_back(i + 3);
@@ -126,7 +147,7 @@ void Plant::GenerateVertices() {
 	// attributes are understood to be tightly packed in the array. The initial value is 0.
 	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
 	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
-	vao.LinkAttrib(vbo, 0, 1, GL_FLOAT, sizeof(PlantVertex), (void*)0);
+	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(PlantVertex), (void*)0);
 
 	// Unbind all to prevent accidentally modifying them
 	vao.Unbind();

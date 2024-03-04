@@ -24,7 +24,6 @@ public:
 	float length;
 	float lengthVariance;
 	float pitchVariance;
-	float amplitude;
 
 	Noise* noise;
 

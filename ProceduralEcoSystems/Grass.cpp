@@ -7,7 +7,6 @@ Grass::Grass(Noise* input_noise) {
 	length = 5.0f;
 	lengthVariance = 1.0f;
 	pitchVariance = 0.03f;
-	amplitude = 10.0f;
 
 	textures.push_back(Texture("./Resources/Textures/blade1.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/blade1Spec.png", "specular", 1));
@@ -30,7 +29,7 @@ void Grass::GenerateVertices() {
 		float theta = ((float)rand() / (RAND_MAX)) * 6.283185307179586476925286766559;
 		float x = r * cos(theta);
 		float y = r * sin(theta);
-		glm::vec3 position = glm::vec3(x, noise->get(x, y, false)*amplitude, y);
+		glm::vec3 position = glm::vec3(x, noise->get(x, y, false) * noise->amplitude, y);
 
 		for (int j = 0; j < 4; j++) {
 			vertices.push_back(PlantVertex

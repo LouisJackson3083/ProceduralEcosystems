@@ -177,7 +177,7 @@ Texture::Texture(const char* texType, GLuint slot) {
 }
 
 
-Texture::Texture(const char* texType, GLuint slot, std::vector<float> layer_radii) {
+Texture::Texture(const char* texType, GLuint slot, std::vector<float> layerRadii) {
 	const int texSize = 256;
 	GLubyte plantImage[texSize][texSize][4]; // Modify to hold RGBA values
 	int c;
@@ -195,7 +195,7 @@ Texture::Texture(const char* texType, GLuint slot, std::vector<float> layer_radi
 
 	// Minimal amount of information provided to sampling function.
 	for (int i = 0; i < 3; i++) {
-		const auto samples = thinks::PoissonDiskSampling(layer_radii[i], kXMin, kXMax);
+		const auto samples = thinks::PoissonDiskSampling(layerRadii[i], kXMin, kXMax);
 
 		/*class std::array<float, 2>
 		class std::vector<class std::array<float, 2>, class std::allocator<class std::array<float, 2> > >*/
@@ -209,7 +209,7 @@ Texture::Texture(const char* texType, GLuint slot, std::vector<float> layer_radi
 
 
 	//// Minimal amount of information provided to sampling function.
-	//const auto samples2 = thinks::PoissonDiskSampling(layer_radii[1], kXMin, kXMax);
+	//const auto samples2 = thinks::PoissonDiskSampling(layerRadii[1], kXMin, kXMax);
 
 	//for (const auto& sample : samples2) {
 	//	plantImage[(int)sample[0]][(int)sample[1]][0] = (GLubyte)255;

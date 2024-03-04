@@ -64,14 +64,15 @@ public:
 	float bendVariance;
 	float scaleVariance;
 	float scale;
-	
 
 	int number_of_leaves;
 	std::vector<int> plant_bin;
+	std::vector<glm::vec2> positions;
+	Noise* noise;
 
-	Plant(int id);
+	Plant(Noise* input_noise);
 
-	Plant(PlantGUIData plantGuiData, std::string texDiffuse, std::string texSpecular);
+	Plant(PlantGUIData plantGuiData, std::string texDiffuse, std::string texSpecular, Noise* input_noise);
 
 	void ChangeTextures(const char* texture, const int type);
 

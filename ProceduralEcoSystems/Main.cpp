@@ -105,7 +105,7 @@ int main()
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
 	Terrain terrain(4, 1, 10.0f, 3, &noise);
 	std::vector<Plant> plants;
-	plants.push_back(0);
+	plants.push_back(Plant(&noise));
 	Grass grass(&noise);
 	Ecosystem ecosystem(0);
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass, &ecosystem);

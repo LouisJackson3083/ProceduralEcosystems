@@ -36,6 +36,7 @@ public:
 	float erodeSpeed = 0.3f;
 	float evaporateSpeed = 0.01f;
 
+	float amplitude = 0.0f;
 
 	std::vector<float> offsets;
 
