@@ -13,6 +13,7 @@
 #include"ImFileDialog.h"
 #include <iostream>
 #include <fstream>
+#include"Ecosystem.h"
 
 
 
@@ -20,17 +21,20 @@ class GUI {
 public:
 
 	GUI(
-		GLFWwindow* window, 
-		Noise* input_noise, 
+		GLFWwindow* window,
+		Noise* input_noise,
 		Terrain* input_terrain,
 		Camera* input_camera,
 		std::vector<Plant>* input_plants,
-		Grass* input_grass
+		Grass* input_grass,
+		Ecosystem* input_ecosystem
 	);
 
 	void NewNoiseTextures();
 
 	void NewPlantTextures();
+
+	void NewPoissonDiskTexture();
 
 	void NewFrame();
 
@@ -44,6 +48,7 @@ public:
 
 	std::vector<Texture> noiseTextures;
 	std::vector<Texture> plantTextures;
+	std::vector<Texture> poissonTextures;
 	Noise* noise;
 	Terrain* terrain;
 	Camera* camera;
@@ -52,6 +57,7 @@ public:
 	std::vector<PlantGUIData> plantGUIData;
 	Plant* plant;
 	Grass* grass;
+	Ecosystem* ecosystem;
 
 	bool renderTerrain;
 	bool renderGrass;
@@ -87,6 +93,9 @@ private:
 	int sliderPatchSubdivision;
 	float sliderPatchAmplitude;
 	int sliderRenderDistance;
+
+	// Ecosystem Sliders
+	std::vector<float> sliderPoissonRadii;
 
 
 	// Camera stuff

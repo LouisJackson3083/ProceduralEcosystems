@@ -154,15 +154,68 @@ Texture::Texture(const char* texType, GLuint slot) {
 	const int texSize = 256;
 	GLubyte plantImage[texSize][texSize][4]; // Modify to hold RGBA values
 	int c;
+	for (int i = 0; i < texSize; i++) {
+		for (int j = 0; j < texSize; j++) {
+			plantImage[i][j][0] = (GLubyte)0;
+			plantImage[i][j][1] = (GLubyte)0;
+			plantImage[i][j][2] = (GLubyte)0;
+			plantImage[i][j][3] = (GLubyte)255;
+		}
+	}
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &ID);
+	glBindTexture(GL_TEXTURE_2D, ID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, plantImage);
+
+	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
+Texture::Texture(const char* texType, GLuint slot, std::vector<float> layer_radii) {
+	const int texSize = 256;
+	GLubyte plantImage[texSize][texSize][4]; // Modify to hold RGBA values
+	int c;
     for (int i = 0; i < texSize; i++) {
         for (int j = 0; j < texSize; j++) {
-			c = (((i & 0x8) == 0) ^ ((j & 0x8)) == 0) * 255;
 			plantImage[i][j][0] = (GLubyte)0;
-			plantImage[i][j][1] = (GLubyte)255;
+			plantImage[i][j][1] = (GLubyte)0;
 			plantImage[i][j][2] = (GLubyte)0;
 			plantImage[i][j][3] = (GLubyte)255;
         }
     }
+
+	constexpr auto kXMin = std::array<float, 2>{{0.0f, 0.0f}};
+	constexpr auto kXMax = std::array<float, 2>{{255.0f, 255.0f}};
+
+	// Minimal amount of information provided to sampling function.
+	for (int i = 0; i < 3; i++) {
+		const auto samples = thinks::PoissonDiskSampling(layer_radii[i], kXMin, kXMax);
+
+		/*class std::array<float, 2>
+		class std::vector<class std::array<float, 2>, class std::allocator<class std::array<float, 2> > >*/
+
+
+		for (const auto& sample : samples) {
+			plantImage[(int)sample[0]][(int)sample[1]][i] = (GLubyte)255;
+		}
+	}
+	
+
+
+	//// Minimal amount of information provided to sampling function.
+	//const auto samples2 = thinks::PoissonDiskSampling(layer_radii[1], kXMin, kXMax);
+
+	//for (const auto& sample : samples2) {
+	//	plantImage[(int)sample[0]][(int)sample[1]][0] = (GLubyte)255;
+	//}
+
+
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glGenTextures(1, &ID);

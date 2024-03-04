@@ -6,6 +6,7 @@
 #include"Terrain.h"
 #include"Grass.h"
 #include"Plant.h"
+#include"Ecosystem.h"
 #include<typeinfo>
 
 
@@ -106,7 +107,8 @@ int main()
 	std::vector<Plant> plants;
 	plants.push_back(0);
 	Grass grass(&noise);
-	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass);
+	Ecosystem ecosystem(0);
+	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass, &ecosystem);
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;

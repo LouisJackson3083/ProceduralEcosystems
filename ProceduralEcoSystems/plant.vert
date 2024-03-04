@@ -67,7 +67,7 @@ void main()
 	// Assigns the colors from the Vertex Data to "color"
 	color = vec3(0.0, 0.0, 0.0);
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
-	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2( floor((curr_vertex) / 2.0) / segments, width + 0.5 );
+	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2( floor((curr_vertex) / 2.0) / (segments-1), width + 0.5 );
 	
 	// Outputs the positions/coordinates of all vertices
 	gl_Position = camMatrix * vec4(crntPos*vec3(scale+(rnd*scaleVariance)) + aPos, 1.0);

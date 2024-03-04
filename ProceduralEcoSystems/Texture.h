@@ -6,6 +6,7 @@
 #include<glm/glm.hpp>
 #include"shaderClass.h"
 #include"Noise.h"
+#include"FastPoissonDiskSampling.h"
 
 
 class Texture
@@ -20,6 +21,8 @@ public:
 	Texture(const char* image, const char* texType, GLuint slot);
 
 	Texture(const char* texType, GLuint slot);
+
+	Texture(const char* texType, GLuint slot, std::vector<float> layer_radii);
 
 	Texture(Noise* noise, int type, float steepness_scalar, bool useErode, const char* texType, GLuint slot);
 

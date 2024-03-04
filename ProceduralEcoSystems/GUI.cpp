@@ -7,7 +7,8 @@ GUI::GUI(
 	Terrain* input_terrain, 
 	Camera* input_camera,
 	std::vector<Plant>* input_plants,
-	Grass* input_grass
+	Grass* input_grass,
+	Ecosystem* input_ecosystem
 ) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -67,6 +68,11 @@ GUI::GUI(
 	sliderErosionEvaporateSpeed = noise->evaporateSpeed;
 	boolErosion = terrain->useErosion;
 
+	// Ecosystem stuff
+	ecosystem = input_ecosystem;
+	sliderPoissonRadii = ecosystem->layerRadii;
+
+
 	camera = input_camera;
 
 	renderGrass = true;
@@ -75,6 +81,7 @@ GUI::GUI(
 	boolWireframe = false;
 
 	NewNoiseTextures();
+	
 	NewPlantTextures();
 
 	// ImFileDialog requires you to set the CreateTexture and DeleteTexture
@@ -115,6 +122,11 @@ void GUI::NewNoiseTextures() {
 void GUI::NewPlantTextures() {
 	plantTextures.clear();
 	plantTextures.push_back(Texture("diffuse", 0));
+}
+
+void GUI::NewPoissonDiskTexture() {
+	poissonTextures.clear();
+	poissonTextures.push_back(Texture("diffuse", 0, ecosystem->layerRadii));
 }
 
 void GUI::Update() {
@@ -459,6 +471,7 @@ void GUI::Update() {
 					(*plants)[i].yaw = plantGUIData[i].sliderPlantYaw;
 					(*plants)[i].bendStrength = plantGUIData[i].sliderPlantBendStrength;
 					(*plants)[i].segments = plantGUIData[i].sliderPlantSegments;
+					(*plants)[i].vertices_per_leaf = 2*plantGUIData[i].sliderPlantSegments;
 					(*plants)[i].maxLeaves = plantGUIData[i].sliderPlantMaxLeaves;
 					(*plants)[i].minLeaves = plantGUIData[i].sliderPlantMinLeaves;
 					(*plants)[i].leafLength = plantGUIData[i].sliderPlantLeafLength;
@@ -569,7 +582,35 @@ void GUI::Update() {
 	ImGui::End();
 	#pragma endregion
 
+
+	#pragma region Distribution
+	ImGui::Begin("EcoSystem Control");
+
+	if (ImGui::TreeNodeEx("Poisson Disk Image")) {
+		if (poissonTextures.empty()) { NewPoissonDiskTexture(); }
+		ImGui::Image((void*)(intptr_t)poissonTextures[0].ID, ImVec2(256.0f, 256.0f));
+
+		ImGui::Text("Layer Radii Control");
+		for (int i = 0; i < 3; i++) {
+			std::string nodeName = std::string("Layer ") + std::to_string(i + 1) + std::string(" radius");
+			bool boolPoissonRadii = ImGui::SliderFloat(nodeName.data(), &sliderPoissonRadii[i], 0.0f, 50.0f);
+			if (boolPoissonRadii) {
+				ecosystem->layerRadii = sliderPoissonRadii;
+			}
+		}
+		
+		if (ImGui::Button("Refresh Texture")) {
+			NewPoissonDiskTexture();
+		}
+		
+		ImGui::TreePop();
+	}
+
+	ImGui::End();
+	#pragma endregion
+
 	ImGui::Render();
+
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
