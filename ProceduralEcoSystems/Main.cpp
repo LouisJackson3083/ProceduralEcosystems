@@ -10,8 +10,8 @@
 #include<typeinfo>
 
 
-const unsigned int width = 1000;
-const unsigned int height = 700;
+const unsigned int width = 1700;
+const unsigned int height = 900;
 unsigned int samples = 8;
 
 float randf()
@@ -105,9 +105,10 @@ int main()
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
 	Terrain terrain(4, 1, 10.0f, 3, &noise);
 	std::vector<Plant> plants;
-	plants.push_back(Plant(&noise));
+	plants.push_back(Plant("./Resources/PlantData/fern.plant", &noise));
+	plants.push_back(Plant("./Resources/PlantData/ivy.plant", &noise));
 	Grass grass(&noise);
-	Ecosystem ecosystem(0);
+	Ecosystem ecosystem(&plants);
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass, &ecosystem);
 
 	// Variables to create periodic event for FPS displaying
@@ -117,7 +118,7 @@ int main()
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
 
-	// Use this to disable VSync (not advized)
+	// Use this to disable VSync (not advized)a
 	//glfwSwapInterval(0);
 
 
@@ -143,7 +144,7 @@ int main()
 
 			// Use this if you have disabled VSync
 			//camera.Inputs(window);
-		}
+		}	
 
 		GUI.NewFrame();
 

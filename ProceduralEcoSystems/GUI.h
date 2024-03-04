@@ -44,8 +44,6 @@ public:
 
 	void SavePlantData(Plant plant, PlantGUIData* plantGUIData, std::string file);
 
-	void LoadPlantData(std::string file);
-
 	std::vector<Texture> noiseTextures;
 	std::vector<Texture> plantTextures;
 	std::vector<Texture> poissonTextures;

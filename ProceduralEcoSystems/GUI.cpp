@@ -18,23 +18,26 @@ GUI::GUI(
 	ImGui_ImplOpenGL3_Init("#version 330");
 	// Plant
 	plants = input_plants;
-	plantGUIData.push_back(PlantGUIData
-		{
-			(*plants)[0].plantNumber,
-			(*plants)[0].pitch,
-			(*plants)[0].bendStrength,
-			(*plants)[0].yaw,
-			(*plants)[0].pitchVariance,
-			(*plants)[0].bendVariance,
-			(*plants)[0].segments,
-			(*plants)[0].leafLength,
-			(*plants)[0].lengthVariance,
-			(*plants)[0].scaleVariance,
-			(*plants)[0].scale,
-			(*plants)[0].maxLeaves,
-			(*plants)[0].minLeaves
-		}
-	);
+
+	for (int i = 0; i < plants->size(); i++) {
+		plantGUIData.push_back(PlantGUIData
+			{
+				(*plants)[i].pitch,
+				(*plants)[i].bendStrength,
+				(*plants)[i].yaw,
+				(*plants)[i].pitchVariance,
+				(*plants)[i].bendVariance,
+				(*plants)[i].segments,
+				(*plants)[i].leafLength,
+				(*plants)[i].lengthVariance,
+				(*plants)[i].scaleVariance,
+				(*plants)[i].scale,
+				(*plants)[i].maxLeaves,
+				(*plants)[i].minLeaves,
+				(*plants)[i].layer
+			}
+		);
+	}
 
 
 	// Grass
@@ -438,56 +441,40 @@ void GUI::Update() {
 					ImGui::TreePop();
 
 				}
-				ImGui::Text("Plant/Leaf Control");
-				bool boolPlantNumber = ImGui::SliderInt("Num of Plant", &plantGUIData[i].sliderPlantNumber, 0, 200);
-				bool boolPlantMaxLeaves = ImGui::SliderInt("Max Leaves Per Plant", &plantGUIData[i].sliderPlantMaxLeaves, plantGUIData[i].sliderPlantMinLeaves, 15);
-				bool boolPlantMinLeaves = ImGui::SliderInt("Min Leaves Per Plant", &plantGUIData[i].sliderPlantMinLeaves, 1, plantGUIData[i].sliderPlantMaxLeaves);
-				ImGui::Text("Angles");
-				bool boolPlantPitch = ImGui::SliderFloat("Pitch", &plantGUIData[i].sliderPlantPitch, -6.0f, 6.0f);
-				bool boolPlantYaw = ImGui::SliderFloat("Yaw", &plantGUIData[i].sliderPlantYaw, -6.0f, 6.0f);
-				bool boolPlantBendStrength = ImGui::SliderFloat("Bend Strength", &plantGUIData[i].sliderPlantBendStrength, -0.5f, 0.5f);
-				ImGui::Text("Length/Size Control");
-				bool boolPlantSegments = ImGui::SliderInt("Leaf Segments", &plantGUIData[i].sliderPlantSegments, 0, 15);
-				bool boolPlantLength = ImGui::SliderInt("Leaf Length", &plantGUIData[i].sliderPlantLeafLength, 0, 15);
-				bool boolPlantScale = ImGui::SliderFloat("Scale", &plantGUIData[i].sliderPlantScale, 0.0f, 2.0f);
-				ImGui::Text("Variation Control");
-				bool boolPlantLengthVariance = ImGui::SliderFloat("Length Variance", &plantGUIData[i].sliderPlantLengthVariance, 0.0f, 5.0f);
-				bool boolPlantPitchVariance = ImGui::SliderFloat("Pitch Variance", &plantGUIData[i].sliderPlantPitchVariance, 0.0f, 5.0f);
-				bool boolPlantBendVariance = ImGui::SliderFloat("Bend Variance", &plantGUIData[i].sliderPlantBendVariance, 0.0f, 5.0f);
-				bool boolPlantScaleVariance = ImGui::SliderFloat("Scale Variance", &plantGUIData[i].sliderPlantScaleVariance, 0.0f, 5.0f);
-				if (boolPlantPitch ||
-					boolPlantYaw ||
-					boolPlantBendStrength ||
-					boolPlantSegments ||
-					boolPlantMaxLeaves ||
-					boolPlantMinLeaves ||
-					boolPlantLength ||
-					boolPlantLengthVariance ||
-					boolPlantPitchVariance ||
-					boolPlantBendVariance ||
-					boolPlantScaleVariance ||
-					boolPlantScale
-					) {
-					(*plants)[i].pitch = plantGUIData[i].sliderPlantPitch;
-					(*plants)[i].yaw = plantGUIData[i].sliderPlantYaw;
-					(*plants)[i].bendStrength = plantGUIData[i].sliderPlantBendStrength;
-					(*plants)[i].segments = plantGUIData[i].sliderPlantSegments;
-					(*plants)[i].vertices_per_leaf = 2*plantGUIData[i].sliderPlantSegments;
-					(*plants)[i].maxLeaves = plantGUIData[i].sliderPlantMaxLeaves;
-					(*plants)[i].minLeaves = plantGUIData[i].sliderPlantMinLeaves;
-					(*plants)[i].leafLength = plantGUIData[i].sliderPlantLeafLength;
-					(*plants)[i].lengthVariance = plantGUIData[i].sliderPlantLengthVariance;
-					(*plants)[i].pitchVariance = plantGUIData[i].sliderPlantPitchVariance;
-					(*plants)[i].bendVariance = plantGUIData[i].sliderPlantBendVariance;
-					(*plants)[i].scaleVariance = plantGUIData[i].sliderPlantScaleVariance;
-					(*plants)[i].scale = plantGUIData[i].sliderPlantScale;
-					(*plants)[i].GenerateVertices();
-				}
-
-				if (boolPlantNumber) {
-					(*plants)[i].plantNumber = plantGUIData[i].sliderPlantNumber;
-					(*plants)[i].GeneratePlantBin();
-					(*plants)[i].GenerateVertices();
+				if (ImGui::TreeNodeEx("Appearance Control")) {
+					ImGui::Text("Leaves per Plant");
+					bool boolPlantMaxLeaves = ImGui::SliderInt("Max Leaves Per Plant", &plantGUIData[i].sliderPlantMaxLeaves, plantGUIData[i].sliderPlantMinLeaves, 15);
+					bool boolPlantMinLeaves = ImGui::SliderInt("Min Leaves Per Plant", &plantGUIData[i].sliderPlantMinLeaves, 1, plantGUIData[i].sliderPlantMaxLeaves);
+					ImGui::Text("Angle Control");
+					bool boolPlantPitch = ImGui::SliderFloat("Pitch", &plantGUIData[i].sliderPlantPitch, -6.0f, 6.0f);
+					bool boolPlantYaw = ImGui::SliderFloat("Yaw", &plantGUIData[i].sliderPlantYaw, -6.0f, 6.0f);
+					bool boolPlantBendStrength = ImGui::SliderFloat("Bend Strength", &plantGUIData[i].sliderPlantBendStrength, -0.5f, 0.5f);
+					ImGui::Text("Length/Size Control");
+					bool boolPlantSegments = ImGui::SliderInt("Leaf Segments", &plantGUIData[i].sliderPlantSegments, 0, 15);
+					bool boolPlantLength = ImGui::SliderInt("Leaf Length", &plantGUIData[i].sliderPlantLeafLength, 0, 15);
+					bool boolPlantScale = ImGui::SliderFloat("Scale", &plantGUIData[i].sliderPlantScale, 0.0f, 2.0f);
+					ImGui::Text("Variation Control");
+					bool boolPlantLengthVariance = ImGui::SliderFloat("Length Variance", &plantGUIData[i].sliderPlantLengthVariance, 0.0f, 5.0f);
+					bool boolPlantPitchVariance = ImGui::SliderFloat("Pitch Variance", &plantGUIData[i].sliderPlantPitchVariance, 0.0f, 5.0f);
+					bool boolPlantBendVariance = ImGui::SliderFloat("Bend Variance", &plantGUIData[i].sliderPlantBendVariance, 0.0f, 5.0f);
+					bool boolPlantScaleVariance = ImGui::SliderFloat("Scale Variance", &plantGUIData[i].sliderPlantScaleVariance, 0.0f, 5.0f);
+					if (boolPlantPitch ||
+						boolPlantYaw ||
+						boolPlantBendStrength ||
+						boolPlantSegments ||
+						boolPlantMaxLeaves ||
+						boolPlantMinLeaves ||
+						boolPlantLength ||
+						boolPlantLengthVariance ||
+						boolPlantPitchVariance ||
+						boolPlantBendVariance ||
+						boolPlantScaleVariance ||
+						boolPlantScale
+						) {
+						(*plants)[i].UpdateValues(plantGUIData[i]);
+						(*plants)[i].GenerateVertices();
+					}
+					ImGui::TreePop();
 				}
 
 				if (ImGui::Button("New Seed")) {
@@ -522,7 +509,6 @@ void GUI::Update() {
 			(*plants).push_back(Plant(noise));
 			plantGUIData.push_back(PlantGUIData
 				{
-					(*plants).back().plantNumber,
 					(*plants).back().pitch,
 					(*plants).back().bendStrength,
 					(*plants).back().yaw,
@@ -534,7 +520,8 @@ void GUI::Update() {
 					(*plants).back().scaleVariance,
 					(*plants).back().scale,
 					(*plants).back().maxLeaves,
-					(*plants).back().minLeaves
+					(*plants).back().minLeaves,
+					(*plants).back().layer,
 				}
 			);
 		}
@@ -544,13 +531,30 @@ void GUI::Update() {
 
 		if (ifd::FileDialog::Instance().IsDone("LoadPlantDialog")) {
 			if (ifd::FileDialog::Instance().HasResult()) {
+
 				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
-				LoadPlantData(res);
+
+				(*plants).push_back(Plant(res, noise));
+				plantGUIData.push_back(PlantGUIData
+					{
+						(*plants).back().pitch,
+						(*plants).back().bendStrength,
+						(*plants).back().yaw,
+						(*plants).back().pitchVariance,
+						(*plants).back().bendVariance,
+						(*plants).back().segments,
+						(*plants).back().leafLength,
+						(*plants).back().lengthVariance,
+						(*plants).back().scaleVariance,
+						(*plants).back().scale,
+						(*plants).back().maxLeaves,
+						(*plants).back().minLeaves,
+						(*plants).back().layer
+					}
+				);
 			}
 			ifd::FileDialog::Instance().Close();
 		}
-
-
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNodeEx("Grass Sliders")) {
@@ -571,12 +575,6 @@ void GUI::Update() {
 			grass->pitchVariance = sliderGrassPitchVariance;
 			grass->GenerateVertices();
 		}
-		ImGui::TreePop();
-	}
-
-
-	if (ImGui::TreeNodeEx("Distribution Texture")) {
-		ImGui::Image((void*)(intptr_t)plantTextures[0].ID, ImVec2(256.0f, 256.0f));
 		ImGui::TreePop();
 	}
 
@@ -605,12 +603,16 @@ void GUI::Update() {
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Update Plant Positions")) {
-			ecosystem->GeneratePoissonPositions();
+			float terrainSize = (float)terrain->size * std::pow(3, terrain->render_distance)/2.0f;
+			std::cout << terrainSize << std::endl;
+			ecosystem->GeneratePoissonPositions(terrainSize);
+			ecosystem->DistributePositions();
+			/*ecosystem->GeneratePoissonPositions();
 			(*plants)[0].positions = ecosystem->poissonPositions[0];
 
 			std::cout << ecosystem->poissonPositions[0].size() << std::endl;
 			(*plants)[0].GeneratePlantBin();
-			(*plants)[0].GenerateVertices();
+			(*plants)[0].GenerateVertices();*/
 		}
 		
 		ImGui::TreePop();
@@ -628,7 +630,6 @@ void GUI::Update() {
 void GUI::SavePlantData(Plant plant, PlantGUIData* plantGUIData, std::string file) {
 	std::ofstream myfile;
 	myfile.open(file);
-	myfile << plantGUIData->sliderPlantNumber << ",";
 
 	myfile << plantGUIData->sliderPlantPitch << ",";
 	myfile << plantGUIData->sliderPlantBendStrength << ",";
@@ -644,46 +645,12 @@ void GUI::SavePlantData(Plant plant, PlantGUIData* plantGUIData, std::string fil
 	myfile << plantGUIData->sliderPlantScale << ",";
 	myfile << plantGUIData->sliderPlantMaxLeaves << ",";
 	myfile << plantGUIData->sliderPlantMinLeaves << ",";
+	myfile << plantGUIData->sliderPlantLayer << ",";
 
 	myfile << plant.plant_texture_filepaths[0] << ",";
 	myfile << plant.plant_texture_filepaths[1] << ",";
 	
 	myfile.close();
-}
-
-void GUI::LoadPlantData(std::string file) {
-	std::string line;
-	std::ifstream myfile(file);
-	if (myfile.is_open())
-	{
-		std::getline(myfile, line);
-		std::vector<std::string> results;
-		std::stringstream  ss(line);
-		std::string str;
-		while (getline(ss, str, ',')) {
-			results.push_back(str);
-		}
-
-		plantGUIData.push_back(PlantGUIData
-			{
-				std::stoi(results[0]),
-				std::stof(results[1]),
-				std::stof(results[2]),
-				std::stof(results[3]),
-				std::stof(results[4]),
-				std::stof(results[5]),
-				std::stoi(results[6]),
-				std::stoi(results[7]),
-				std::stof(results[8]),
-				std::stof(results[9]),
-				std::stof(results[10]),
-				std::stoi(results[11]),
-				std::stoi(results[12]),
-			}
-		);
-		(*plants).push_back(Plant(plantGUIData.back(), results[13], results[14], noise));
-		myfile.close();
-	}
 }
 
 void GUI::CleanUp() {

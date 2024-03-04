@@ -555,8 +555,8 @@ namespace thinks {
     >
     auto PoissonDiskSampling(
         FloatT radius,
-        const std::array<FloatT, N>& x_min,
-        const std::array<FloatT, N>& x_max,
+        std::array<FloatT, N>& x_min,
+        std::array<FloatT, N>& x_max,
         std::uint32_t max_sample_attempts = 30,
         std::uint32_t seed = 0
     ) noexcept -> std::vector<VecT> {

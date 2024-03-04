@@ -1,4 +1,5 @@
 #include"Plant.h"
+#include <random>
 
 Plant::Plant(Noise* input_noise) {
 	noise = input_noise;
@@ -7,7 +8,11 @@ Plant::Plant(Noise* input_noise) {
 	yaw = 2.09f;
 	bendStrength = -0.14f;
 
-	plantNumber = 10;
+	for (int i = 0; i < 10; i++) {
+		positions.push_back(glm::vec2(i, 0.0f));
+	}
+
+	layer = 2;
 
 	segments = 7;
 	vertices_per_leaf = segments * 2;
@@ -29,14 +34,75 @@ Plant::Plant(Noise* input_noise) {
 	GenerateVertices();
 }
 
-Plant::Plant(PlantGUIData plantGUIData, std::string texDiffuse, std::string texSpecular, Noise* input_noise) {
+Plant::Plant(std::string file, Noise* input_noise) {
+	std::cout << "LOADING: " << file << std::endl;
 	noise = input_noise;
-	plantNumber = plantGUIData.sliderPlantNumber;
+	for (int i = 0; i < 10; i++) {
+		positions.push_back(glm::vec2(i, 0.0f));
+	}
+	std::string line;
+	std::ifstream myfile(file);
+	if (myfile.is_open())
+	{
+		std::getline(myfile, line);
+		std::vector<std::string> results;
+		std::stringstream  ss(line);
+		std::string str;
+		while (getline(ss, str, ',')) {
+			results.push_back(str);
+		}
+
+		pitch = std::stof(results[0]);
+		bendStrength = std::stof(results[1]);
+		yaw = std::stof(results[2]);
+		pitchVariance = std::stof(results[3]);
+		bendVariance = std::stof(results[4]);
+
+		segments = std::stoi(results[5]);
+		vertices_per_leaf = 2 * segments;
+		leafLength = std::stoi(results[6]);
+		lengthVariance = std::stof(results[7]);
+
+		scaleVariance = std::stof(results[8]);
+		scale = std::stof(results[9]);
+
+		maxLeaves = std::stoi(results[10]);
+		minLeaves = std::stoi(results[11]);
+		layer = std::stoi(results[11]);
+
+		// Length Sliders
+		int sliderPlantSegments;
+		int sliderPlantLeafLength;
+		float sliderPlantLengthVariance;
+
+		// Scale sliders
+		float sliderPlantScaleVariance;
+		float sliderPlantScale;
+
+		// Leaf Sliders
+		int sliderPlantMaxLeaves;
+		int sliderPlantMinLeaves;
+
+		int sliderPlantLayer;
+
+		textures.push_back(Texture(results[13].c_str(), "diffuse", 0));
+		plant_texture_filepaths.push_back(results[13]);
+		textures.push_back(Texture(results[14].c_str(), "specular", 1));
+		plant_texture_filepaths.push_back(results[14]);
+		GeneratePlantBin();
+		GenerateVertices();
+
+		myfile.close();
+	}
+}
+
+
+void Plant::UpdateValues(PlantGUIData plantGUIData) {
 	pitch = plantGUIData.sliderPlantPitch;
 	yaw = plantGUIData.sliderPlantYaw;
 	bendStrength = plantGUIData.sliderPlantBendStrength;
 	segments = plantGUIData.sliderPlantSegments;
-	vertices_per_leaf = segments * 2;
+	vertices_per_leaf = 2 * plantGUIData.sliderPlantSegments;
 	maxLeaves = plantGUIData.sliderPlantMaxLeaves;
 	minLeaves = plantGUIData.sliderPlantMinLeaves;
 	leafLength = plantGUIData.sliderPlantLeafLength;
@@ -45,15 +111,8 @@ Plant::Plant(PlantGUIData plantGUIData, std::string texDiffuse, std::string texS
 	bendVariance = plantGUIData.sliderPlantBendVariance;
 	scaleVariance = plantGUIData.sliderPlantScaleVariance;
 	scale = plantGUIData.sliderPlantScale;
-
-	textures.push_back(Texture(texDiffuse.c_str(), "diffuse", 0));
-	plant_texture_filepaths.push_back(texDiffuse);
-	textures.push_back(Texture(texSpecular.c_str(), "specular", 1));
-	plant_texture_filepaths.push_back(texSpecular);
-	GeneratePlantBin();
-	GenerateVertices();
+	layer = plantGUIData.sliderPlantLayer;
 }
-
 
 void Plant::ChangeTextures(const char* texture, const int type) {
 	if (type == 0) {	
@@ -71,7 +130,7 @@ void Plant::GeneratePlantBin() {
 	plant_bin.clear();
 	number_of_leaves = 0;
 
-	for (int i = 0; i < plantNumber; i++) {
+	for (int i = 0; i < positions.size(); i++) {
 		plant_bin.push_back(rand() % maxLeaves + 1);
 		number_of_leaves = number_of_leaves + plant_bin.back();
 	}
@@ -81,8 +140,6 @@ void Plant::GenerateVertices() {
 	// Clear the vertices and indices vectors
 	vertices.clear();
 	indices.clear();
-
-	std::cout << positions.size() << std::endl;
 
 	int plant_id = 0;
 	int plant_id_leaf_count = 0;
@@ -101,26 +158,15 @@ void Plant::GenerateVertices() {
 			}
 		}
 
-		if (positions.empty()) {
-			vertices.push_back(PlantVertex
-				{
-					glm::vec3(0.0f, (float)(2 * plant_id), 0.0f) // Positions
-				}
-			);
-		}
-		else {
-			std::cout << "plant " << plant_id << ": " << positions[plant_id][0] << " , " << positions[plant_id][1] << std::endl;
-			vertices.push_back(PlantVertex
-				{
-					glm::vec3( // Positions
-						positions[plant_id][0], 
-						noise->get(positions[plant_id][0], positions[plant_id][1], false) * noise->amplitude, 
-						positions[plant_id][1]
-					)
-				}
-			);
-			std::cout << "vertex " << plant_id << ": " << vertices.back().position[0] << " , " << vertices.back().position[2] << std::endl;
-		}
+		vertices.push_back(PlantVertex
+			{
+				glm::vec3( // Positions
+					positions[plant_id][0], 
+					noise->get(positions[plant_id][0], positions[plant_id][1], false) * noise->amplitude, 
+					positions[plant_id][1]
+				)
+			}
+		);
 
 		if (currIndex % 2 == 0 and currIndex < vertices_per_leaf - 2) {
 			indices.push_back(i);

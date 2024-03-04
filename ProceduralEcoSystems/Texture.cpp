@@ -190,8 +190,8 @@ Texture::Texture(const char* texType, GLuint slot, std::vector<float> layerRadii
         }
     }
 
-	constexpr auto kXMin = std::array<float, 2>{{0.0f, 0.0f}};
-	constexpr auto kXMax = std::array<float, 2>{{255.0f, 255.0f}};
+	auto kXMin = std::array<float, 2>{{0.0f, 0.0f}};
+	auto kXMax = std::array<float, 2>{{255.0f, 255.0f}};
 
 	// Minimal amount of information provided to sampling function.
 	for (int i = 0; i < 3; i++) {

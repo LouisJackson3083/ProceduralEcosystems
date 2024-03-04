@@ -14,7 +14,6 @@
 
 struct PlantGUIData
 {
-	int sliderPlantNumber;
 
 	// Direction Sliders
 	float sliderPlantPitch;
@@ -35,6 +34,8 @@ struct PlantGUIData
 	// Leaf Sliders
 	int sliderPlantMaxLeaves;
 	int sliderPlantMinLeaves;
+
+	int sliderPlantLayer;
 };
 
 class Plant {
@@ -45,8 +46,6 @@ public:
 	std::vector<PlantVertex> vertices;
 	std::vector<GLuint> indices;
 	VAO vao;
-
-	int plantNumber;
 
 	int segments;
 	int vertices_per_leaf;
@@ -65,14 +64,18 @@ public:
 	float scaleVariance;
 	float scale;
 
+	int layer;
 	int number_of_leaves;
+
 	std::vector<int> plant_bin;
 	std::vector<glm::vec2> positions;
 	Noise* noise;
 
 	Plant(Noise* input_noise);
 
-	Plant(PlantGUIData plantGuiData, std::string texDiffuse, std::string texSpecular, Noise* input_noise);
+	Plant(std::string file, Noise* input_noise);
+
+	void UpdateValues(PlantGUIData plantGuiData);
 
 	void ChangeTextures(const char* texture, const int type);
 
