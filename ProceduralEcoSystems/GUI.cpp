@@ -63,13 +63,12 @@ GUI::GUI(
 	sliderRenderDistance = terrain->render_distance;
 
 	// Erosion
-	sliderErosionNumDroplets = noise->numDroplets;
+	sliderErosionDropletRadii = noise->dropletRadii;
 	sliderErosionLifetime = noise->dropletLifetime;
 	sliderErosionInertia = noise->inertia;
 	sliderErosionDepositSpeed = noise->depositSpeed;
 	sliderErosionErodeSpeed = noise->erodeSpeed;
 	sliderErosionEvaporateSpeed = noise->evaporateSpeed;
-	boolErosion = terrain->useErosion;
 
 	// Ecosystem stuff
 	ecosystem = input_ecosystem;
@@ -119,7 +118,7 @@ void GUI::NewFrame() {
 
 void GUI::NewNoiseTextures() {
 	noiseTextures.clear();
-	noiseTextures.push_back(Texture(noise, 0, 0.0f, false, "diffuse", 0));
+	noiseTextures.push_back(Texture(noise, 0, 0.0f, "diffuse", 0));
 }
 
 void GUI::NewPlantTextures() {
@@ -140,22 +139,6 @@ void GUI::Update() {
 	if (ImGui::TreeNodeEx("Noise Image")) {
 		ImGui::Image((void*)(intptr_t)noiseTextures[0].ID, ImVec2(256.0f, 256.0f));
 
-		if (ImGui::TreeNodeEx("Alternate Images")) {
-			if (noiseTextures.size() <= 3) {
-				noiseTextures.push_back(Texture(noise, 1, sliderScale, false, "diffuse", 0));
-				noiseTextures.push_back(Texture(noise, 2, sliderScale, terrain->useErosion, "diffuse", 0));
-				noiseTextures.push_back(Texture(noise, 3, sliderScale, terrain->useErosion, "diffuse", 0));
-			}
-			ImGui::Text("Steepness");
-			ImGui::Image((void*)(intptr_t)noiseTextures[1].ID, ImVec2(256.0f, 256.0f));
-			ImGui::Text("Erosion");
-			ImGui::Image((void*)(intptr_t)noiseTextures[2].ID, ImVec2(256.0f, 256.0f));
-			ImGui::Text("Noise + Erosion Overlay");
-			ImGui::Image((void*)(intptr_t)noiseTextures[3].ID, ImVec2(256.0f, 256.0f));
-
-
-			ImGui::TreePop();
-		}
 		ImGui::TreePop();
 	}
 
@@ -237,7 +220,23 @@ void GUI::Update() {
 	// Erosion Sliders
 	if (ImGui::TreeNodeEx("Erosion Sliders")) {
 
-		bool boolErosionNumDroplets = ImGui::SliderInt("Number of Droplets", &sliderErosionNumDroplets, 1, 200);
+		if (ImGui::TreeNodeEx("Erosion Images")) {
+			if (noiseTextures.size() <= 3) {
+				noiseTextures.push_back(Texture(noise, 1, sliderScale, "diffuse", 0));
+				noiseTextures.push_back(Texture(noise, 2, sliderScale, "diffuse", 0));
+				noiseTextures.push_back(Texture(noise, 3, sliderScale, "diffuse", 0));
+			}
+			ImGui::Text("Steepness");
+			ImGui::Image((void*)(intptr_t)noiseTextures[1].ID, ImVec2(256.0f, 256.0f));
+			ImGui::Text("Erosion");
+			ImGui::Image((void*)(intptr_t)noiseTextures[2].ID, ImVec2(256.0f, 256.0f));
+			ImGui::Text("Noise + Erosion Overlay");
+			ImGui::Image((void*)(intptr_t)noiseTextures[3].ID, ImVec2(256.0f, 256.0f));
+
+
+			ImGui::TreePop();
+		}
+		bool boolErosionDropletRadii = ImGui::SliderFloat("Distance between Droplets", &sliderErosionDropletRadii, 0.0f, 10.0f);
 		bool boolErosionLifetime = ImGui::SliderInt("Lifetime of Droplets", &sliderErosionLifetime, 1, 50);
 		bool boolErosionInertia = ImGui::SliderFloat("Inertia", &sliderErosionInertia, 0.0f, 1.0f);
 		bool boolErosionDepositSpeed = ImGui::SliderFloat("Deposit Speed", &sliderErosionDepositSpeed, 0.0f, 1.0f);
@@ -245,7 +244,7 @@ void GUI::Update() {
 		bool boolErosionEvaporateSpeed = ImGui::SliderFloat("Evaporation Speed", &sliderErosionEvaporateSpeed, 0.0f, 1.0f);
 
 		// Slider Updates
-		if (boolErosionNumDroplets ||
+		if (boolErosionDropletRadii ||
 			boolErosionLifetime ||
 			boolErosionInertia ||
 			boolErosionDepositSpeed ||
@@ -253,7 +252,7 @@ void GUI::Update() {
 			boolErosionEvaporateSpeed
 			) {
 			noise->updateErosionValues(
-				sliderErosionNumDroplets,
+				sliderErosionDropletRadii,
 				sliderErosionLifetime, 
 				sliderErosionInertia, 
 				sliderErosionDepositSpeed,
@@ -271,13 +270,16 @@ void GUI::Update() {
 		// Use Erosion Checkbox
 		ImGui::Checkbox("Toggle Erosion", &boolErosion);
 
-		if (terrain->useErosion != boolErosion) {
+		if (noise->useErosion != boolErosion) {
 			if (boolErosion) {
-				terrain->useErosion = true;
+				noise->useErosion = true;
+				noise->terrainSize = (int)terrain->size * std::pow(3, 1) / 2.0f;
+				noise->terrainSubdivision = (int)terrain->subdivision;
+				noise->generateErosionMap();
 				terrain->UpdatePatches();
 			}
 			else {
-				terrain->useErosion = false;
+				noise->useErosion = false;
 				terrain->UpdatePatches();
 			}
 		}
@@ -409,7 +411,7 @@ void GUI::Update() {
 
 
 		for (int i = 0; i < (*plants).size(); i++) {
-			std::string nodeName = std::string("Plant ") + std::to_string(i+1) + std::string(" Control");
+			std::string nodeName = std::string("Plant ") + std::to_string(i + 1) + std::string(" Control");
 			if (ImGui::TreeNodeEx(nodeName.data())) {
 				if (ImGui::TreeNodeEx("Textures")) {
 					ImGui::Text("Diffuse Texture");
@@ -489,12 +491,13 @@ void GUI::Update() {
 				if (ImGui::Button("Delete Plant")) {
 					(*plants).erase((*plants).begin() + i);
 					plantGUIData.erase(plantGUIData.begin() + i);
+					ecosystem->RecalculateLayers();
 				}
 
 				if (ifd::FileDialog::Instance().IsDone("PlantSaveDialog")) {
 					if (ifd::FileDialog::Instance().HasResult()) {
 						std::string res = ifd::FileDialog::Instance().GetResult().u8string();
-						SavePlantData((*plants)[i], &plantGUIData[i], res);
+						(*plants)[i].SavePlantData(&plantGUIData[i], res);
 					}
 					ifd::FileDialog::Instance().Close();
 				}
@@ -507,27 +510,13 @@ void GUI::Update() {
 		// Buttons
 		if (ImGui::Button("New Plant")) {
 			(*plants).push_back(Plant(noise));
-			plantGUIData.push_back(PlantGUIData
-				{
-					(*plants).back().pitch,
-					(*plants).back().bendStrength,
-					(*plants).back().yaw,
-					(*plants).back().pitchVariance,
-					(*plants).back().bendVariance,
-					(*plants).back().segments,
-					(*plants).back().leafLength,
-					(*plants).back().lengthVariance,
-					(*plants).back().scaleVariance,
-					(*plants).back().scale,
-					(*plants).back().maxLeaves,
-					(*plants).back().minLeaves,
-					(*plants).back().layer,
-				}
-			);
+			plantGUIData.push_back((*plants).back().GetGUIData());
+			ecosystem->RecalculateLayers();
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Load Plant"))
+		if (ImGui::Button("Load Plant")) {
 			ifd::FileDialog::Instance().Open("LoadPlantDialog", "Load Plant", "*.plant {.plant}", false, "./Resources/PlantData/");
+		}
 
 		if (ifd::FileDialog::Instance().IsDone("LoadPlantDialog")) {
 			if (ifd::FileDialog::Instance().HasResult()) {
@@ -535,23 +524,8 @@ void GUI::Update() {
 				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 
 				(*plants).push_back(Plant(res, noise));
-				plantGUIData.push_back(PlantGUIData
-					{
-						(*plants).back().pitch,
-						(*plants).back().bendStrength,
-						(*plants).back().yaw,
-						(*plants).back().pitchVariance,
-						(*plants).back().bendVariance,
-						(*plants).back().segments,
-						(*plants).back().leafLength,
-						(*plants).back().lengthVariance,
-						(*plants).back().scaleVariance,
-						(*plants).back().scale,
-						(*plants).back().maxLeaves,
-						(*plants).back().minLeaves,
-						(*plants).back().layer
-					}
-				);
+				plantGUIData.push_back((*plants).back().GetGUIData());
+				ecosystem->RecalculateLayers();
 			}
 			ifd::FileDialog::Instance().Close();
 		}
@@ -581,11 +555,10 @@ void GUI::Update() {
 	ImGui::End();
 	#pragma endregion
 
-
 	#pragma region Distribution
 	ImGui::Begin("EcoSystem Control");
 
-	if (ImGui::TreeNodeEx("Poisson Disk Image")) {
+	if (ImGui::TreeNodeEx("Distribution")) {
 		if (poissonTextures.empty()) { NewPoissonDiskTexture(); }
 		ImGui::Image((void*)(intptr_t)poissonTextures[0].ID, ImVec2(256.0f, 256.0f));
 
@@ -604,7 +577,6 @@ void GUI::Update() {
 		ImGui::SameLine();
 		if (ImGui::Button("Update Plant Positions")) {
 			float terrainSize = (float)terrain->size * std::pow(3, terrain->render_distance)/2.0f;
-			std::cout << terrainSize << std::endl;
 			ecosystem->GeneratePoissonPositions(terrainSize);
 			ecosystem->DistributePositions();
 			/*ecosystem->GeneratePoissonPositions();
@@ -618,39 +590,38 @@ void GUI::Update() {
 		ImGui::TreePop();
 	}
 
+	if (ImGui::TreeNodeEx("Plant Parameters")) {
+		if (ecosystem->layerIndices.empty()) { ecosystem->RecalculateLayers(); }
+		
+		for (int i = 0; i < ecosystem->layerIndices.size(); i++) { // For each layer
+
+			std::string nodeName = std::string("Layer ") + std::to_string(i) + std::string(" Plants");
+			if (ImGui::TreeNodeEx(nodeName.data())) {
+
+				for (int j = 0; j < ecosystem->layerIndices[i].size(); j++) { // For each plant
+					std::string nodeName2 = std::string("Plant ") + std::to_string(j);
+					if (ImGui::TreeNodeEx(nodeName2.data())) {
+						bool boolPlantDominance = ImGui::SliderInt("Dominance", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantDominance, 1, 10);
+						bool boolPlantOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantOxygenUpperLimit, 0.0f, 1.0f);
+						bool boolPlantOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantOxygenLowerLimit, 0.0f, 1.0f);
+						bool boolPlantRootingStrength = ImGui::SliderFloat("Rooting Strength Level", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantRootingStrength, 0.0f, 1.0f);
+						bool boolPlantMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantMoistureRequirement, 0.0f, 1.0f);
+						bool boolPlantInteractionLevel = ImGui::SliderFloat("Interaction Level", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantInteractionLevel, 0.0f, 1.0f);
+						ImGui::TreePop();
+					}
+				}
+				ImGui::TreePop();
+			}
+		}
+		ImGui::TreePop();
+	}
+
 	ImGui::End();
 	#pragma endregion
 
 	ImGui::Render();
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-
-void GUI::SavePlantData(Plant plant, PlantGUIData* plantGUIData, std::string file) {
-	std::ofstream myfile;
-	myfile.open(file);
-
-	myfile << plantGUIData->sliderPlantPitch << ",";
-	myfile << plantGUIData->sliderPlantBendStrength << ",";
-	myfile << plantGUIData->sliderPlantYaw << ",";
-	myfile << plantGUIData->sliderPlantPitchVariance << ",";
-	myfile << plantGUIData->sliderPlantBendVariance << ",";
-
-	myfile << plantGUIData->sliderPlantSegments << ",";
-	myfile << plantGUIData->sliderPlantLeafLength << ",";
-	myfile << plantGUIData->sliderPlantLengthVariance << ",";
-
-	myfile << plantGUIData->sliderPlantScaleVariance << ",";
-	myfile << plantGUIData->sliderPlantScale << ",";
-	myfile << plantGUIData->sliderPlantMaxLeaves << ",";
-	myfile << plantGUIData->sliderPlantMinLeaves << ",";
-	myfile << plantGUIData->sliderPlantLayer << ",";
-
-	myfile << plant.plant_texture_filepaths[0] << ",";
-	myfile << plant.plant_texture_filepaths[1] << ",";
-	
-	myfile.close();
 }
 
 void GUI::CleanUp() {

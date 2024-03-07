@@ -103,10 +103,10 @@ int main()
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(4, 1, 10.0f, 3, &noise);
+	Terrain terrain(4, 14, 10.0f, 1, &noise);
 	std::vector<Plant> plants;
-	plants.push_back(Plant("./Resources/PlantData/fern.plant", &noise));
-	plants.push_back(Plant("./Resources/PlantData/ivy.plant", &noise));
+	/*plants.push_back(Plant("./Resources/PlantData/fern.plant", &noise));
+	plants.push_back(Plant("./Resources/PlantData/ivy.plant", &noise));*/
 	Grass grass(&noise);
 	Ecosystem ecosystem(&plants);
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass, &ecosystem);
@@ -153,7 +153,7 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Handles camera inputs (delete this if yosu have disabled VSync)
+		// Handles camera inputs (delete this if you have disabled VSync)
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);

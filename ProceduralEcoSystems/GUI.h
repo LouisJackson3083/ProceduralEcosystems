@@ -77,7 +77,7 @@ private:
 	int sliderOctaves;
 
 	// Erosion sliders
-	int sliderErosionNumDroplets;
+	float sliderErosionDropletRadii;
 	int sliderErosionLifetime;
 	float sliderErosionInertia;
 	float sliderErosionDepositSpeed;

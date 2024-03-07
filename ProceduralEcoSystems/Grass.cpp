@@ -29,7 +29,7 @@ void Grass::GenerateVertices() {
 		float theta = ((float)rand() / (RAND_MAX)) * 6.283185307179586476925286766559;
 		float x = r * cos(theta);
 		float y = r * sin(theta);
-		glm::vec3 position = glm::vec3(x, noise->get(x, y, false) * noise->amplitude, y);
+		glm::vec3 position = glm::vec3(x, noise->get(x, y) * noise->amplitude, y);
 
 		for (int j = 0; j < 4; j++) {
 			vertices.push_back(PlantVertex

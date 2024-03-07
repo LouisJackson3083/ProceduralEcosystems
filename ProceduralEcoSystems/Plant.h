@@ -14,7 +14,8 @@
 
 struct PlantGUIData
 {
-
+	// ======================================
+	// APPEARANCE STUFF
 	// Direction Sliders
 	float sliderPlantPitch;
 	float sliderPlantBendStrength;
@@ -35,7 +36,16 @@ struct PlantGUIData
 	int sliderPlantMaxLeaves;
 	int sliderPlantMinLeaves;
 
+	// ======================================
+	// ECOSYSTEM STUFF
 	int sliderPlantLayer;
+	int sliderPlantDominance;
+	float sliderPlantOxygenUpperLimit;
+	float sliderPlantOxygenLowerLimit;
+	float sliderPlantRootingStrength;
+	float sliderPlantMoistureRequirement;
+	float sliderPlantInteractionLevel;
+
 };
 
 class Plant {
@@ -47,25 +57,30 @@ public:
 	std::vector<GLuint> indices;
 	VAO vao;
 
+	// Appearance
 	int segments;
 	int vertices_per_leaf;
 	int leafLength;
-
+	int number_of_leaves;
 	int maxLeaves;
 	int minLeaves;
-
 	float pitch;
 	float yaw;
 	float bendStrength;
-
 	float lengthVariance;
 	float pitchVariance;
 	float bendVariance;
 	float scaleVariance;
 	float scale;
 
+	// Ecosystem parameters
 	int layer;
-	int number_of_leaves;
+	int ecosystemDominance;
+	float ecosystemOxygenUpperLimit;
+	float ecosystemOxygenLowerLimit;
+	float ecosystemRootingStrength;
+	float ecosystemMoistureRequirement;
+	float ecosystemInteractionLevel;
 
 	std::vector<int> plant_bin;
 	std::vector<glm::vec2> positions;
@@ -74,6 +89,10 @@ public:
 	Plant(Noise* input_noise);
 
 	Plant(std::string file, Noise* input_noise);
+
+	void SavePlantData(PlantGUIData* plantGUIData, std::string file);
+
+	PlantGUIData GetGUIData();
 
 	void UpdateValues(PlantGUIData plantGuiData);
 

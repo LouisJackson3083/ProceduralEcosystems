@@ -24,7 +24,7 @@ public:
 
 	Texture(const char* texType, GLuint slot, std::vector<float> layer_radii);
 
-	Texture(Noise* noise, int type, float steepness_scalar, bool useErode, const char* texType, GLuint slot);
+	Texture(Noise* noise, int type, float steepness_scalar, const char* texType, GLuint slot);
 
 	// Assigns a texture unit to a texture
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);

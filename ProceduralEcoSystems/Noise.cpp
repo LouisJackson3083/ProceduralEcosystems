@@ -9,6 +9,7 @@ Noise::Noise(float input_scale, int input_octaves, float input_persistance, floa
     seed = input_seed;
     srand(seed);
     time_created = time(0);
+    useErosion = false;
 
     fastNoiseLite.SetSeed(seed);
     fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
@@ -83,7 +84,7 @@ float** Noise::generateNoiseMap(int width, int height, float scale) {
 
 }
 
-float Noise::get(float x, float y, bool useErosion = false) {
+float Noise::get(float x, float y) {
     float amplitude = 1.0f;
     float frequency = 1;
     float noiseHeight = 0;
@@ -107,14 +108,20 @@ float Noise::get(float x, float y, bool useErosion = false) {
         frequency *= lacunarity;
     }
     if (useErosion &&
-        x > -erosionMapOffset &&
-        y > -erosionMapOffset &&
-        x < erosionMapOffset  &&
-        y < erosionMapOffset
+        x > -terrainSize &&
+        y > -terrainSize &&
+        x < terrainSize &&
+        y < terrainSize
         ) {
-        int eX = (int)x + erosionMapOffset;
-        int eY = (int)y + erosionMapOffset;
+        int eX = ((x + terrainSize)/(2*terrainSize)) * 3 * terrainSubdivision;
+        int eY = ((y + terrainSize)/(2*terrainSize)) * 3 * terrainSubdivision;
+        /*std::cout << "eX" << x << " -> " << eX << std::endl;
+        std::cout << erosionMap.size() << std::endl;
+        std::cout << "eY" << y << " -> " << eY << std::endl;
+        std::cout << erosionMap[0].size() << std::endl;*/
+
         float erosionAmount = erosionMap[eX][eY];
+        //std::cout << "Erosion amount at " << eX << " , " << eY << " = " << erosionAmount << std::endl;
         return (noiseHeight - erosionAmount + predictedNoiseMax) / (predictedNoiseMax * 2);
     }
     else {
@@ -137,14 +144,14 @@ void Noise::updateSeed(int input_seed) {
 
 
 void Noise::updateErosionValues(
-    int input_numIterations, 
+    float input_dropletRadii,
     int input_maxLifetime,
     float input_inertia,
     float input_depositSpeed,
     float input_erodeSpeed,
     float input_evaporateSpeed
 ) {
-    numDroplets = input_numIterations;
+    dropletRadii = input_dropletRadii;
     dropletLifetime = input_maxLifetime;
     inertia = input_inertia;
     depositSpeed = input_depositSpeed;
@@ -154,20 +161,39 @@ void Noise::updateErosionValues(
 
 void Noise::generateErosionMap() {
     // Resize the erosion map and reset it
+
+
     erosionMap.clear();
+    erosionMapSize = terrainSubdivision * 3;
+    erosionMapSize = std::max(erosionMapSize, 256);
+    erosionMapHalfSize = erosionMapSize/2.0f;
     erosionMap.resize(erosionMapSize, std::vector<float>(erosionMapSize));
     std::for_each(erosionMap.begin(), erosionMap.end(), [](std::vector<float>& inner_vec)
         {
             std::fill(inner_vec.begin(), inner_vec.end(), 0.0f);
         });
-    // Reset the offset
-    erosionMapOffset = erosionMapSize / 2;
+    std::cout << erosionMap.size() << " ,, " << erosionMap[0].size() << std::endl;
 
+    for (int i = 0; i < erosionMap.size(); i++) {
+        for (int j = 0; j < erosionMap[0].size(); j++) {
+            if (erosionMap[i][j] != 0) {
+                std::cout << " AAAAAAAAAA " << erosionMap[i][j] << std::endl;
+            }
+
+        }
+    }
+    // Get droplets through poisson disk sampling
+    auto kXMin = std::array<float, 2>{{-(float)terrainSize, -(float)terrainSize}};
+    auto kXMax = std::array<float, 2>{{(float)terrainSize, (float)terrainSize}};
+    // Minimal amount of information provided to sampling function.
+    const auto droplets = thinks::PoissonDiskSampling(dropletRadii, kXMin, kXMax);
+
+    int numDroplets = 1;
     // numDroplets = number of water droplets to spawn and simulate
-    for (int droplet = 0; droplet < numDroplets; droplet++) {
+    for (int droplet = 0; droplet < droplets.size(); droplet++) {
         // Create water droplet at random point on erosion map
-        float x = rand() % erosionMapSize;
-        float y = rand() % erosionMapSize;
+        float x = droplets[droplet][0];
+        float y = droplets[droplet][1];
         float directionX = 0; // stores the direction of the droplet in X
         float directionY = 0;
         float speed = 1.0f;
@@ -260,6 +286,17 @@ void Noise::generateErosionMap() {
             water *= (1 - evaporateSpeed);
         }
     }
+
+    std::cout << erosionMap.size() << " , " << erosionMap[0].size() << std::endl;
+
+    for (int i = 0; i < erosionMap.size(); i++) {
+        for (int j = 0; j < erosionMap[0].size(); j++) {
+            if (erosionMap[i][j] != 0) {
+                std::cout <<" AAAAAAAAAA " <<  erosionMap[i][j] << std::endl;
+            }
+           
+        }
+    }
 }
 glm::vec3 Noise::ErosionGetHeightAndGradients(float x, float y) {
     int intX = (int)x;
@@ -277,10 +314,10 @@ glm::vec3 Noise::ErosionGetHeightAndGradients(float x, float y) {
     float offsetY = y - intY;
 
     // Calculate droplet's height and direction of flow with bilinear interpolation of surrounding heights
-    float heightNW = get(intX - 1 - erosionMapOffset, intY - 1 - erosionMapOffset);
-    float heightNE = get(intX + 1 - erosionMapOffset, intY - 1 - erosionMapOffset);
-    float heightSW = get(intX - 1 - erosionMapOffset, intY + 1 - erosionMapOffset);
-    float heightSE = get(intX + 1 - erosionMapOffset, intY + 1 - erosionMapOffset);
+    float heightNW = get(intX - 1 - erosionMapHalfSize, intY - 1 - erosionMapHalfSize);
+    float heightNE = get(intX + 1 - erosionMapHalfSize, intY - 1 - erosionMapHalfSize);
+    float heightSW = get(intX - 1 - erosionMapHalfSize, intY + 1 - erosionMapHalfSize);
+    float heightSE = get(intX + 1 - erosionMapHalfSize, intY + 1 - erosionMapHalfSize);
 
     // Calculate droplet's direction of flow with bilinear interpolation of height difference along the edges
     float gradientX = (heightNE - heightNW) * (1 - offsetY) + (heightSE - heightSW) * offsetY;

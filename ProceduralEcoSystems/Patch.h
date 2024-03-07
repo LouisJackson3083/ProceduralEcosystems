@@ -30,7 +30,6 @@ public:
 	// 3 = 3x3 quad patch ,
 	// 4 = 4x4 quad patch ...
 	float amplitude;
-	bool useErosion;
 	glm::vec3 offset;
 	glm::vec2 corner_data;
 
@@ -45,6 +44,7 @@ public:
 	);
 
 	void GenerateVertices();
+
 
 	float GetHeight(int vertexID, float scalar);
 

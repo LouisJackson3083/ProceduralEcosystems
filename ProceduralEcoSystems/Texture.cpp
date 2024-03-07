@@ -84,7 +84,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, const char* texType, GLuint slot)
+Texture::Texture(Noise* noise, int type, float steepness_scalar, const char* texType, GLuint slot)
 {
 	const int texSize = 256;
 	GLfloat noiseImage[texSize][texSize];
@@ -92,7 +92,7 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, 
 	if (type == 0) { // A normal noise image
 		for (int i = 0; i < texSize; i++) {
 			for (int j = 0; j < texSize; j++) {
-				noiseImage[i][j] = (GLfloat)noise->get(i, j, false);
+				noiseImage[i][j] = (GLfloat)noise->get(i, j);
 			}
 		}
 	}
@@ -100,8 +100,8 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, 
 		GLfloat highest_Value = 0.0f;
 		for (int i = 0; i < texSize; i++) {
 			for (int j = 0; j < texSize; j++) {
-				float slopeX = noise->get(i + steepness_scalar, j, false) - noise->get(i - steepness_scalar, j, false);
-				float slopeZ = noise->get(i, j + steepness_scalar, false) - noise->get(i, j - steepness_scalar, false);
+				float slopeX = noise->get(i + steepness_scalar, j) - noise->get(i - steepness_scalar, j);
+				float slopeZ = noise->get(i, j + steepness_scalar) - noise->get(i, j - steepness_scalar);
 				float steepness = glm::dot(glm::normalize(glm::vec3(slopeX, 1.0f, slopeZ)), glm::vec3(0.0f, 1.0f, 0.0f));
 				noiseImage[i][j] = (GLfloat)(glm::acos(steepness) * 2.0f * steepness_scalar);
 				if (noiseImage[i][j] > highest_Value) {
@@ -111,25 +111,27 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, bool useErode, 
 		}
 	}
 	else if (type == 2) { // An erosion image
+		std::cout << "Erosion map size y" << noise->erosionMap.size() << std::endl;
 		for (int i = 0; i < texSize; i++) {
 			for (int j = 0; j < texSize; j++) {
-				if (useErode) {
-					noiseImage[i][j] = (GLfloat)(noise->erosionMap[i][j] * 255.0f);
+				if (noise->useErosion) {
+					noiseImage[i][j] = (GLfloat)(noise->erosionMap[i][j]) * 10.0f;
 				}
 				else {
-					noiseImage[i][j] = (GLfloat)(noise->get(i, j, false) / 2.0f);
+					noiseImage[i][j] = (GLfloat)(noise->get(i, j) / 2.0f);
 				}
 			}
 		}
 	}
 	else if (type == 3) { // An erosion + noise image
+		GLfloat noiseImage[texSize][texSize];
 		for (int i = 0; i < texSize; i++) {
 			for (int j = 0; j < texSize; j++) {
-				if (useErode) { 
-					noiseImage[i][j] = (GLfloat)((noise->get(i, j, false) / 2.0f) + (noise->erosionMap[i][j] * 255.0f)); 
+				if (noise->useErosion) {
+					noiseImage[i][j] = (GLfloat)((noise->get(i, j) / 2.0f) + (noise->erosionMap[i][j] * 255.0f)); 
 				}
 				else {
-					noiseImage[i][j] = (GLfloat)(noise->get(i, j, false) / 2.0f);
+					noiseImage[i][j] = (GLfloat)(noise->get(i, j) / 2.0f);
 				}
 			}
 		}

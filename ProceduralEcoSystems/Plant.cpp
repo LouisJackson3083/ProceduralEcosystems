@@ -4,22 +4,20 @@
 Plant::Plant(Noise* input_noise) {
 	noise = input_noise;
 
-	pitch = 2.09f;
-	yaw = 2.09f;
-	bendStrength = -0.14f;
 
 	for (int i = 0; i < 10; i++) {
 		positions.push_back(glm::vec2(i, 0.0f));
 	}
 
-	layer = 2;
-
+	//init appearance variables
+	pitch = 2.09f;
+	yaw = 2.09f;
+	bendStrength = -0.14f;
 	segments = 7;
 	vertices_per_leaf = segments * 2;
 	maxLeaves = 3;
 	minLeaves = 1;
 	leafLength = 5;
-
 	lengthVariance = 0.0f;
 	pitchVariance = 0.0f;
 	bendVariance = 0.0f;
@@ -30,16 +28,26 @@ Plant::Plant(Noise* input_noise) {
 	plant_texture_filepaths.push_back(std::string("./Resources/Textures/fern1.png"));
 	textures.push_back(Texture("./Resources/Textures/fern1Spec.png", "specular", 1));
 	plant_texture_filepaths.push_back(std::string("./Resources/Textures/fern1Spec.png"));
+
+	//init ecosystem variables
+	layer = 2;
+	ecosystemDominance = 1;
+	ecosystemOxygenUpperLimit = 1.0f;
+	ecosystemOxygenLowerLimit = 0.0f;
+	ecosystemRootingStrength = 0.5f;
+	ecosystemMoistureRequirement = 0.0f;
+	ecosystemInteractionLevel = 0.0f;
+
 	GeneratePlantBin();
 	GenerateVertices();
 }
 
 Plant::Plant(std::string file, Noise* input_noise) {
-	std::cout << "LOADING: " << file << std::endl;
 	noise = input_noise;
 	for (int i = 0; i < 10; i++) {
 		positions.push_back(glm::vec2(i, 0.0f));
 	}
+
 	std::string line;
 	std::ifstream myfile(file);
 	if (myfile.is_open())
@@ -52,6 +60,7 @@ Plant::Plant(std::string file, Noise* input_noise) {
 			results.push_back(str);
 		}
 
+		//region appearance
 		pitch = std::stof(results[0]);
 		bendStrength = std::stof(results[1]);
 		yaw = std::stof(results[2]);
@@ -68,32 +77,81 @@ Plant::Plant(std::string file, Noise* input_noise) {
 
 		maxLeaves = std::stoi(results[10]);
 		minLeaves = std::stoi(results[11]);
-		layer = std::stoi(results[11]);
 
-		// Length Sliders
-		int sliderPlantSegments;
-		int sliderPlantLeafLength;
-		float sliderPlantLengthVariance;
-
-		// Scale sliders
-		float sliderPlantScaleVariance;
-		float sliderPlantScale;
-
-		// Leaf Sliders
-		int sliderPlantMaxLeaves;
-		int sliderPlantMinLeaves;
-
-		int sliderPlantLayer;
-
-		textures.push_back(Texture(results[13].c_str(), "diffuse", 0));
+		textures.push_back(Texture(results[12].c_str(), "diffuse", 0));
+		plant_texture_filepaths.push_back(results[12]);
+		textures.push_back(Texture(results[13].c_str(), "specular", 1));
 		plant_texture_filepaths.push_back(results[13]);
-		textures.push_back(Texture(results[14].c_str(), "specular", 1));
-		plant_texture_filepaths.push_back(results[14]);
+		
+		// Ecosystem parameters
+		layer = std::stoi(results[14]);
+		ecosystemDominance = std::stoi(results[15]);
+		ecosystemOxygenUpperLimit = std::stof(results[16]);
+		ecosystemOxygenLowerLimit = std::stof(results[17]);
+		ecosystemRootingStrength = std::stof(results[18]);
+		ecosystemMoistureRequirement = std::stof(results[19]);
+		ecosystemInteractionLevel = std::stof(results[20]);
+
 		GeneratePlantBin();
 		GenerateVertices();
 
 		myfile.close();
 	}
+}
+
+PlantGUIData Plant::GetGUIData() {
+	return PlantGUIData
+	{
+		pitch,
+		bendStrength,
+		yaw,
+		pitchVariance,
+		bendVariance,
+		segments,
+		leafLength,
+		lengthVariance,
+		scaleVariance,
+		scale,
+		maxLeaves,
+		minLeaves,
+		layer,
+		ecosystemDominance,
+	};
+}
+
+void Plant::SavePlantData(PlantGUIData* plantGUIData, std::string file) {
+	std::ofstream myfile;
+	myfile.open(file);
+
+	// Save appearance variables
+	myfile << plantGUIData->sliderPlantPitch << ",";
+	myfile << plantGUIData->sliderPlantBendStrength << ",";
+	myfile << plantGUIData->sliderPlantYaw << ",";
+	myfile << plantGUIData->sliderPlantPitchVariance << ",";
+	myfile << plantGUIData->sliderPlantBendVariance << ",";
+
+	myfile << plantGUIData->sliderPlantSegments << ",";
+	myfile << plantGUIData->sliderPlantLeafLength << ",";
+	myfile << plantGUIData->sliderPlantLengthVariance << ",";
+
+	myfile << plantGUIData->sliderPlantScaleVariance << ",";
+	myfile << plantGUIData->sliderPlantScale << ",";
+	myfile << plantGUIData->sliderPlantMaxLeaves << ",";
+	myfile << plantGUIData->sliderPlantMinLeaves << ",";
+
+	myfile << plant_texture_filepaths[0] << ",";
+	myfile << plant_texture_filepaths[1] << ",";
+
+	// Save ecosystem variables
+	myfile << plantGUIData->sliderPlantLayer << ",";
+	myfile << plantGUIData->sliderPlantDominance << ",";
+	myfile << plantGUIData->sliderPlantOxygenUpperLimit << ",";
+	myfile << plantGUIData->sliderPlantOxygenLowerLimit << ",";
+	myfile << plantGUIData->sliderPlantRootingStrength << ",";
+	myfile << plantGUIData->sliderPlantMoistureRequirement << ",";
+	myfile << plantGUIData->sliderPlantInteractionLevel << ",";
+
+	myfile.close();
 }
 
 
@@ -112,6 +170,12 @@ void Plant::UpdateValues(PlantGUIData plantGUIData) {
 	scaleVariance = plantGUIData.sliderPlantScaleVariance;
 	scale = plantGUIData.sliderPlantScale;
 	layer = plantGUIData.sliderPlantLayer;
+	ecosystemDominance = plantGUIData.sliderPlantDominance;
+	ecosystemOxygenUpperLimit = plantGUIData.sliderPlantOxygenUpperLimit;
+	ecosystemOxygenLowerLimit = plantGUIData.sliderPlantOxygenLowerLimit;
+	ecosystemRootingStrength = plantGUIData.sliderPlantRootingStrength;
+	ecosystemMoistureRequirement = plantGUIData.sliderPlantMoistureRequirement;
+	ecosystemInteractionLevel = plantGUIData.sliderPlantInteractionLevel;
 }
 
 void Plant::ChangeTextures(const char* texture, const int type) {
@@ -162,7 +226,7 @@ void Plant::GenerateVertices() {
 			{
 				glm::vec3( // Positions
 					positions[plant_id][0], 
-					noise->get(positions[plant_id][0], positions[plant_id][1], false) * noise->amplitude, 
+					noise->get(positions[plant_id][0], positions[plant_id][1]) * noise->amplitude, 
 					positions[plant_id][1]
 				)
 			}

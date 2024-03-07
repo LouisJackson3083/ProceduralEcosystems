@@ -1,6 +1,6 @@
 #ifndef NOISE_CLASS_H
 #define NOISE_CLASS_H
-#include<vector>
+#include <vector>
 #include "SimplexNoise.h"
 #include <iostream>
 #include <fstream>
@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdint>
 #include "FastNoiseLite.h"
+#include "FastPoissonDiskSampling.h"	
 #include <glad/glad.h>
 #include <algorithm>
 #include <glm/glm.hpp>
@@ -22,12 +23,15 @@ public:
 	float lacunarity;
 	float predictedNoiseMax;
 
+	int terrainSize;
 	int erosionMapSize = 256;
-	int erosionMapOffset = 128;
+	int erosionMapHalfSize = 128;
+	int terrainSubdivision = 2;
 	std::vector<std::vector<float>> erosionMap;
+	bool useErosion = false;
 
 	const int texSize = 256;
-	int numDroplets = 5;
+	float dropletRadii = 5;
 	int dropletLifetime = 30;
 	float sedimentCapacityFactor = 4; // Multiplier for how much sediment a droplet can carry
 	float minSedimentCapacity = 0.01f; // Used to prevent carry capacity getting too close to zero on flatter terrain
@@ -52,10 +56,10 @@ public:
 
 	float** generateNoiseMap(int width, int height, float scale);
 
-	float get(float x, float y, bool useErosion);
+	float get(float x, float y);
 
 	void updateErosionValues(
-		int input_numIterations,
+		float input_dropletRadii,
 		int input_maxLifetime,
 		float input_inertia,
 		float input_depositSpeed,

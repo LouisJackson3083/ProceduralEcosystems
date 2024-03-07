@@ -11,7 +11,6 @@ public:
 	int size;
 	int subdivision;
 	float amplitude;
-	bool useErosion;
 	glm::vec2 cameraPosition;
 	Noise* noise;
 	std::vector<Texture> textures;
