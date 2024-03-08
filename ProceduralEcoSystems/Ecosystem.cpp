@@ -68,8 +68,8 @@ void Ecosystem::DistributePositions() {
 			for (int j = 0; j < layerIndices[i].size(); j++) {
 				if ((*plants)[layerIndices[i][j]].ecosystemRootingStrength < heightAndGradient[2] ||
 					(*plants)[layerIndices[i][j]].ecosystemRootingStrength < heightAndGradient[1] ||
-					(*plants)[layerIndices[i][j]].ecosystemOxygenLowerLimit > heightAndGradient[0] / terrain->amplitude ||
-					(*plants)[layerIndices[i][j]].ecosystemOxygenUpperLimit < heightAndGradient[0] / terrain->amplitude
+					(*plants)[layerIndices[i][j]].ecosystemOxygenLowerLimit > heightAndGradient[0] ||
+					(*plants)[layerIndices[i][j]].ecosystemOxygenUpperLimit < heightAndGradient[0]
 					) {
 					continue;
 				}

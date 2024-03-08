@@ -12,17 +12,17 @@ class Skybox
 public:
 	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	unsigned int cubemapTexture;
+	float width;
+	float height;
 
 	// Initializes the skybox
-	Skybox();
+	Skybox(float input_width, float input_height);
 
 	// Draws the skybox
 	void Draw
 	(
 		Shader& shader,
-		Camera& camera,
-		float width,
-		float height
+		Camera& camera
 	);
 };
 

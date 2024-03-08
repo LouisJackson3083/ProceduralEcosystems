@@ -1,7 +1,10 @@
 #include "Skybox.h"
 
-Skybox::Skybox()
+Skybox::Skybox(float input_width, float input_height)
 {
+	width = input_width;
+	height = input_height;
+
 	float skyboxVertices[] =
 	{
 		//   Coordinates
@@ -108,9 +111,7 @@ Skybox::Skybox()
 void Skybox::Draw
 (
 	Shader& shader,
-	Camera& camera,
-	float width,
-	float height
+	Camera& camera
 )
 {
 	glm::mat4 view = glm::mat4(1.0f);
@@ -129,5 +130,4 @@ void Skybox::Draw
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-
 }
