@@ -71,6 +71,8 @@ public:
 
 	glm::vec3 ErosionGetHeightAndGradients(float x, float y);
 
+	glm::vec3 EcosystemGetHeightAndGradients(float x, float y, float scalar, float amplitude);
+
 private:
 };
 

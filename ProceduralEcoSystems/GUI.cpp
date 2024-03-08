@@ -474,18 +474,20 @@ void GUI::Update() {
 						boolPlantScale
 						) {
 						(*plants)[i].UpdateValues(plantGUIData[i]);
+						(*plants)[i].GeneratePlantBin();
 						(*plants)[i].GenerateVertices();
 					}
 					ImGui::TreePop();
 				}
 
+				std::string savePlantString = std::string("SavePlant") + std::to_string(i + 1) + std::string("Dialog");
 				if (ImGui::Button("New Seed")) {
 					(*plants)[i].GeneratePlantBin();
 					(*plants)[i].GenerateVertices();
 				}
 				ImGui::SameLine();
 				if (ImGui::Button("Save Plant")) {
-					ifd::FileDialog::Instance().Save("PlantSaveDialog", "Save a plant", "*.plant {.plant}", "./Resources/PlantData/");
+					ifd::FileDialog::Instance().Save(savePlantString.data(), "Save a plant", "*.plant {.plant}", "./Resources/PlantData/");
 				}
 				ImGui::SameLine();
 				if (ImGui::Button("Delete Plant")) {
@@ -494,7 +496,7 @@ void GUI::Update() {
 					ecosystem->RecalculateLayers();
 				}
 
-				if (ifd::FileDialog::Instance().IsDone("PlantSaveDialog")) {
+				if (ifd::FileDialog::Instance().IsDone(savePlantString.data())) {
 					if (ifd::FileDialog::Instance().HasResult()) {
 						std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 						(*plants)[i].SavePlantData(&plantGUIData[i], res);
@@ -601,12 +603,27 @@ void GUI::Update() {
 				for (int j = 0; j < ecosystem->layerIndices[i].size(); j++) { // For each plant
 					std::string nodeName2 = std::string("Plant ") + std::to_string(j);
 					if (ImGui::TreeNodeEx(nodeName2.data())) {
-						bool boolPlantDominance = ImGui::SliderInt("Dominance", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantDominance, 1, 10);
-						bool boolPlantOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantOxygenUpperLimit, 0.0f, 1.0f);
-						bool boolPlantOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantOxygenLowerLimit, 0.0f, 1.0f);
-						bool boolPlantRootingStrength = ImGui::SliderFloat("Rooting Strength Level", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantRootingStrength, 0.0f, 1.0f);
-						bool boolPlantMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantMoistureRequirement, 0.0f, 1.0f);
-						bool boolPlantInteractionLevel = ImGui::SliderFloat("Interaction Level", &plantGUIData[ecosystem->layerIndices[i][j]].sliderPlantInteractionLevel, 0.0f, 1.0f);
+						int index = ecosystem->layerIndices[i][j];
+						bool boolPlantDominance = ImGui::SliderInt("Dominance", &plantGUIData[index].sliderPlantDominance, 1, 10);
+						bool boolPlantOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &plantGUIData[index].sliderPlantOxygenUpperLimit, 0.0f, 1.0f);
+						bool boolPlantOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &plantGUIData[index].sliderPlantOxygenLowerLimit, 0.0f, 1.0f);
+						bool boolPlantRootingStrength = ImGui::SliderFloat("Rooting Strength Level", &plantGUIData[index].sliderPlantRootingStrength, 0.0f, 1.0f);
+						bool boolPlantMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &plantGUIData[index].sliderPlantMoistureRequirement, 0.0f, 1.0f);
+						bool boolPlantInteractionLevel = ImGui::SliderFloat("Interaction Level", &plantGUIData[index].sliderPlantInteractionLevel, 0.0f, 1.0f);
+						
+						if (boolPlantDominance ||
+							boolPlantOxygenUpperLimit ||
+							boolPlantOxygenLowerLimit ||
+							boolPlantRootingStrength ||
+							boolPlantMoistureRequirement ||
+							boolPlantInteractionLevel
+							)
+						{
+							(*plants)[index].UpdateValues(plantGUIData[index]);
+							(*plants)[index].GeneratePlantBin();
+							(*plants)[index].GenerateVertices();
+						}
+
 						ImGui::TreePop();
 					}
 				}

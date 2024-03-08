@@ -8,7 +8,7 @@ C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(340,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(344,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(345,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(579,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(581,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Main.cpp
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(105,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Noise.cpp
@@ -37,20 +37,5 @@ C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Noise.cpp(319,35): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Noise.cpp(320,66): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Noise.cpp(320,35): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  Texture.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(95,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(95,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(103,53): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(103,91): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(104,31): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(104,69): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(121,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(121,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(131,50): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(131,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(134,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(134,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(158,6): warning C4101: 'c': unreferenced local variable
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Texture.cpp(185,6): warning C4101: 'c': unreferenced local variable
   Generating Code...
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe

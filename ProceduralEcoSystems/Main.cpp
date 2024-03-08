@@ -105,10 +105,9 @@ int main()
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
 	Terrain terrain(4, 14, 10.0f, 1, &noise);
 	std::vector<Plant> plants;
-	/*plants.push_back(Plant("./Resources/PlantData/fern.plant", &noise));
-	plants.push_back(Plant("./Resources/PlantData/ivy.plant", &noise));*/
 	Grass grass(&noise);
-	Ecosystem ecosystem(&plants);
+	Ecosystem ecosystem(&plants, &noise, &terrain);
+	ecosystem.DistributePositions();
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass, &ecosystem);
 
 	// Variables to create periodic event for FPS displaying

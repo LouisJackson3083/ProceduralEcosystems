@@ -116,6 +116,11 @@ PlantGUIData Plant::GetGUIData() {
 		minLeaves,
 		layer,
 		ecosystemDominance,
+		ecosystemOxygenUpperLimit,
+		ecosystemOxygenLowerLimit,
+		ecosystemRootingStrength,
+		ecosystemMoistureRequirement,
+		ecosystemInteractionLevel
 	};
 }
 

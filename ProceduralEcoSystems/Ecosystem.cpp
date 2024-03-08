@@ -1,12 +1,9 @@
 #include "Ecosystem.h"
 
-struct PlantEcosystemParameters
-{
-
-};
-
-Ecosystem::Ecosystem(std::vector<Plant>* input_plants) {
+Ecosystem::Ecosystem(std::vector<Plant>* input_plants, Noise* input_noise, Terrain* input_terrain) {
 	plants = input_plants;
+	noise = input_noise;
+	terrain = input_terrain;
 	layerRadii = { 30.0f, 20.0f, 15.0f };
 }
 
@@ -59,13 +56,31 @@ void Ecosystem::RecalculateLayers() {
 }
 
 void Ecosystem::DistributePositions() {
+	float terrainScalar = (float)terrain->size / ((float)terrain->subdivision - 1);
+	std::cout << "TerrainScalar " << terrainScalar << std::endl;
+
 	for (int i = 0; i < poissonPositions.size(); i++) {
-		std::cout << "Curr layer " << i << std::endl;
 		if (layerIndices[i].size() == 0) { continue; }
-		std::cout << "Evaluating layer " << i << " with " << layerIndices[i].size() << " plants and " << poissonPositions[i].size() << " positions" << std::endl;
 		for (int p = 0; p < poissonPositions[i].size(); p++) {
-			int selection = layerIndices[i][rand() % layerIndices[i].size()];
-			(*plants)[selection].positions.push_back(poissonPositions[i][p]);
+			glm::vec3 heightAndGradient = noise->EcosystemGetHeightAndGradients(poissonPositions[i][p][0], poissonPositions[i][p][1], terrainScalar, terrain->amplitude);
+			std::vector<int> potential_plants;
+
+			for (int j = 0; j < layerIndices[i].size(); j++) {
+				if ((*plants)[layerIndices[i][j]].ecosystemRootingStrength < heightAndGradient[2] ||
+					(*plants)[layerIndices[i][j]].ecosystemRootingStrength < heightAndGradient[1] ||
+					(*plants)[layerIndices[i][j]].ecosystemOxygenLowerLimit > heightAndGradient[0] / terrain->amplitude ||
+					(*plants)[layerIndices[i][j]].ecosystemOxygenUpperLimit < heightAndGradient[0] / terrain->amplitude
+					) {
+					continue;
+				}
+				potential_plants.push_back(layerIndices[i][j]);
+			}
+
+			if (!potential_plants.empty()) {
+				int selection = potential_plants[rand() % potential_plants.size()];
+				(*plants)[selection].positions.push_back(poissonPositions[i][p]);
+			}
+			
 		}
 	}
 

@@ -332,3 +332,23 @@ glm::vec3 Noise::ErosionGetHeightAndGradients(float x, float y) {
 
     return glm::vec3(height, gradientX, gradientY);
 }
+
+glm::vec3 Noise::EcosystemGetHeightAndGradients(float x, float y, float scalar, float amplitude) {
+    // Calculate droplet's height and direction of flow with bilinear interpolation of surrounding heights
+    float gradientX = 0.0f;
+    float gradientZ = 0.0f;
+    for (int i = 1; i < 6; i++) {
+        float heightN = get(x, y + (scalar / (float)i)) * amplitude;
+        float heightS = get(x, y - (scalar / (float)i)) * amplitude;
+        float heightW = get(x - (scalar / (float)i), y) * amplitude;
+        float heightE = get(x + (scalar / (float)i), y) * amplitude;
+        // Calculate droplet's direction of flow with bilinear interpolation of height difference along the edges
+        gradientX += abs(heightN - heightS) / 2 * (scalar / (float)i) / (float)i;
+        gradientZ += abs(heightE - heightW) / 2 * (scalar / (float)i) / (float)i;
+    }
+
+    // Calculate height with bilinear interpolation of the heights of the nodes of the cell
+    float height = get(x, y);
+
+    return glm::vec3(height, gradientX*6, gradientZ*6);
+}
