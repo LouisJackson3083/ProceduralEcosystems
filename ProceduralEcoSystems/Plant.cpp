@@ -30,7 +30,7 @@ Plant::Plant(Noise* input_noise) {
 	plant_texture_filepaths.push_back(std::string("./Resources/Textures/fern1Spec.png"));
 
 	//init ecosystem variables
-	layer = 2;
+	layer = 1;
 	ecosystemDominance = 1;
 	ecosystemOxygenUpperLimit = 1.0f;
 	ecosystemOxygenLowerLimit = 0.0f;

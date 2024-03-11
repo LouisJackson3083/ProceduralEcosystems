@@ -2,11 +2,12 @@
 
 
 GUI::GUI(
-	GLFWwindow* window, 
-	Noise* input_noise, 
-	Terrain* input_terrain, 
+	GLFWwindow* window,
+	Noise* input_noise,
+	Terrain* input_terrain,
 	Camera* input_camera,
 	std::vector<Plant>* input_plants,
+	std::vector<Tree>* input_trees,
 	Grass* input_grass,
 	Ecosystem* input_ecosystem
 ) {
@@ -16,8 +17,10 @@ GUI::GUI(
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-	// Plant
+
+	// Plant/Tree
 	plants = input_plants;
+	trees = input_trees;
 
 	for (int i = 0; i < plants->size(); i++) {
 		plantGUIData.push_back(PlantGUIData
@@ -34,7 +37,32 @@ GUI::GUI(
 				(*plants)[i].scale,
 				(*plants)[i].maxLeaves,
 				(*plants)[i].minLeaves,
-				(*plants)[i].layer
+				(*plants)[i].layer,
+				(*plants)[i].ecosystemDominance,
+				(*plants)[i].ecosystemOxygenUpperLimit,
+				(*plants)[i].ecosystemOxygenLowerLimit,
+				(*plants)[i].ecosystemRootingStrength,
+				(*plants)[i].ecosystemMoistureRequirement,
+				(*plants)[i].ecosystemInteractionLevel,
+			}
+		);
+	}
+	for (int i = 0; i < trees->size(); i++) {
+		treeGUIData.push_back(TreeGUIData
+			{
+				(*trees)[i].resolution / 2,
+				(*trees)[i].segments,
+				(*trees)[i].height,
+				(*trees)[i].radius,
+				(*trees)[i].radiusFalloff,
+				(*trees)[i].radiusFalloffRate,
+				(*trees)[i].layer,
+				(*trees)[i].ecosystemDominance,
+				(*trees)[i].ecosystemOxygenUpperLimit,
+				(*trees)[i].ecosystemOxygenLowerLimit,
+				(*trees)[i].ecosystemRootingStrength,
+				(*trees)[i].ecosystemMoistureRequirement,
+				(*trees)[i].ecosystemInteractionLevel,
 			}
 		);
 	}
@@ -80,6 +108,7 @@ GUI::GUI(
 	renderGrass = true;
 	renderTerrain = true;
 	renderPlants = true;
+	renderTrees = true;
 	boolWireframe = false;
 
 	NewNoiseTextures();
@@ -400,13 +429,123 @@ void GUI::Update() {
 	ImGui::Checkbox("Toggle Terrain", &renderTerrain);
 	ImGui::Checkbox("Toggle Grass", &renderGrass);
 	ImGui::Checkbox("Toggle Plants", &renderPlants);
+	ImGui::Checkbox("Toggle Trees", &renderTrees);
 
 	ImGui::End();
 	#pragma endregion
 
 	#pragma region PlantControl
-	ImGui::Begin("Grass/Plant Control");
+	ImGui::Begin("Grass/Plant/Tree Control");
+	if (ImGui::TreeNodeEx("Tree Sliders")) {
 
+
+		for (int i = 0; i < (*trees).size(); i++) {
+			std::string nodeName = std::string("Tree ") + std::to_string(i + 1) + std::string(" Control");
+			if (ImGui::TreeNodeEx(nodeName.data())) {
+				if (ImGui::TreeNodeEx("Textures")) {
+					ImGui::Text("Diffuse Texture");
+					ImGui::Image((void*)(intptr_t)(*trees)[i].textures[0].ID, ImVec2(256.0f, 256.0f));
+					if (ImGui::Button("Change Diffuse Texture"))
+						ifd::FileDialog::Instance().Open("DiffuseTextureDialog", "Change Diffuse Texture", ".*", false, "./Resources/Textures/");
+
+					if (ifd::FileDialog::Instance().IsDone("DiffuseTextureDialog")) {
+						if (ifd::FileDialog::Instance().HasResult()) {
+							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
+							(*trees)[i].ChangeTextures(res.u8string().c_str(), 0);
+						}
+						ifd::FileDialog::Instance().Close();
+					}
+
+					ImGui::Text("Specular Texture");
+					ImGui::Image((void*)(intptr_t)(*trees)[i].textures[1].ID, ImVec2(256.0f, 256.0f));
+					if (ImGui::Button("Change Specular Texture"))
+						ifd::FileDialog::Instance().Open("SpecularTextureDialog", "Change Specular Texture", ".*", false, "./Resources/Textures/");
+
+					if (ifd::FileDialog::Instance().IsDone("SpecularTextureDialog")) {
+						if (ifd::FileDialog::Instance().HasResult()) {
+							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
+							(*trees)[i].ChangeTextures(res.u8string().c_str(), 1);
+						}
+						ifd::FileDialog::Instance().Close();
+					}
+
+					ImGui::TreePop();
+
+				}
+				if (ImGui::TreeNodeEx("Appearance Control")) {
+					bool boolTreeResolution = ImGui::SliderInt("Trunk Resolution", &treeGUIData[i].sliderTreeResolution, 3, 32);
+					bool boolTreeSegments = ImGui::SliderInt("Tree Segments", &treeGUIData[i].sliderTreeSegments, 2, 15);
+					bool boolTreeHeight = ImGui::SliderFloat("Tree Height", &treeGUIData[i].sliderTreeHeight, 1.0f, 100.0f);
+					bool boolTreeRadius = ImGui::SliderFloat("Trunk Radius", &treeGUIData[i].sliderTreeRadius, 0.0f, 1.0f);
+					bool boolTreeRadiusFalloff = ImGui::SliderFloat("Trunk Radius Falloff", &treeGUIData[i].sliderTreeRadiusFalloff, 0.0f, 2.0f);
+					bool boolTreeRadiusFalloffRate = ImGui::SliderFloat("Trunk Radius FalloffRate", &treeGUIData[i].sliderTreeRadiusFalloffRate, 0.0f, 2.0f);
+
+					if (boolTreeResolution ||
+						boolTreeSegments ||
+						boolTreeHeight ||
+						boolTreeRadius ||
+						boolTreeRadiusFalloff ||
+						boolTreeRadiusFalloffRate
+						) {
+						(*trees)[i].UpdateValues(treeGUIData[i]);
+						(*trees)[i].GenerateVertices();
+					}
+					ImGui::TreePop();
+				}
+
+				std::string saveTreeString = std::string("SaveTree") + std::to_string(i + 1) + std::string("Dialog");
+				if (ImGui::Button("New Seed")) {
+					(*trees)[i].GenerateVertices();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Save Tree")) {
+					ifd::FileDialog::Instance().Save(saveTreeString.data(), "Save a tree", "*.tree {.tree}", "./Resources/PlantData/");
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Delete Tree")) {
+					(*trees).erase((*trees).begin() + i);
+					std::cout << treeGUIData.size() << std::endl;
+					treeGUIData.erase(treeGUIData.begin() + i);
+					ecosystem->RecalculateLayers();
+				}
+
+				if (ifd::FileDialog::Instance().IsDone(saveTreeString.data())) {
+					if (ifd::FileDialog::Instance().HasResult()) {
+						std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+						(*trees)[i].SaveTreeData(&treeGUIData[i], res);
+					}
+					ifd::FileDialog::Instance().Close();
+				}
+
+				ImGui::TreePop();
+			}
+		}
+
+
+		// Buttons
+		if (ImGui::Button("New Tree")) {
+			(*trees).push_back(Tree(noise));
+			treeGUIData.push_back((*trees).back().GetGUIData());
+			ecosystem->RecalculateLayers();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Load Tree")) {
+			ifd::FileDialog::Instance().Open("LoadTreeDialog", "Load Tree", "*.tree {.tree}", false, "./Resources/PlantData/");
+		}
+
+		if (ifd::FileDialog::Instance().IsDone("LoadTreeDialog")) {
+			if (ifd::FileDialog::Instance().HasResult()) {
+
+				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+
+				(*trees).push_back(Tree(res, noise));
+				treeGUIData.push_back((*trees).back().GetGUIData());
+				ecosystem->RecalculateLayers();
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+		ImGui::TreePop();
+	}
 	if (ImGui::TreeNodeEx("Plant Sliders")) {
 
 
@@ -594,8 +733,39 @@ void GUI::Update() {
 
 	if (ImGui::TreeNodeEx("Plant Parameters")) {
 		if (ecosystem->layerIndices.empty()) { ecosystem->RecalculateLayers(); }
-		
-		for (int i = 0; i < ecosystem->layerIndices.size(); i++) { // For each layer
+
+		if (ImGui::TreeNodeEx("Layer 0 Trees")) {
+			for (int j = 0; j < ecosystem->layerIndices[0].size(); j++) { // For each plant
+				std::string nodeName2 = std::string("Tree ") + std::to_string(j);
+				if (ImGui::TreeNodeEx(nodeName2.data())) {
+					int index = ecosystem->layerIndices[0][j];
+					bool boolTreeDominance = ImGui::SliderInt("Dominance", &treeGUIData[index].sliderTreeDominance, 1, 10);
+					bool boolTreeOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &treeGUIData[index].sliderTreeOxygenUpperLimit, 0.0f, 1.0f);
+					bool boolTreeOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &treeGUIData[index].sliderTreeOxygenLowerLimit, 0.0f, 1.0f);
+					bool boolTreeRootingStrength = ImGui::SliderFloat("Rooting Strength Level", &treeGUIData[index].sliderTreeRootingStrength, 0.0f, 1.0f);
+					bool boolTreeMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &treeGUIData[index].sliderTreeMoistureRequirement, 0.0f, 1.0f);
+					bool boolTreeInteractionLevel = ImGui::SliderFloat("Interaction Level", &treeGUIData[index].sliderTreeInteractionLevel, 0.0f, 1.0f);
+
+					if (boolTreeDominance ||
+						boolTreeOxygenUpperLimit ||
+						boolTreeOxygenLowerLimit ||
+						boolTreeRootingStrength ||
+						boolTreeMoistureRequirement ||
+						boolTreeInteractionLevel
+						)
+					{
+						(*trees)[index].UpdateValues(treeGUIData[index]);
+						(*trees)[index].GenerateVertices();
+					}
+
+					ImGui::TreePop();
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		// For the plant and small plant layers
+		for (int i = 1; i < ecosystem->layerIndices.size(); i++) { // For each layer
 
 			std::string nodeName = std::string("Layer ") + std::to_string(i) + std::string(" Plants");
 			if (ImGui::TreeNodeEx(nodeName.data())) {

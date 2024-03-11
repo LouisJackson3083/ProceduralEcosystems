@@ -1,7 +1,8 @@
 #include "Ecosystem.h"
 
-Ecosystem::Ecosystem(std::vector<Plant>* input_plants, Noise* input_noise, Terrain* input_terrain) {
+Ecosystem::Ecosystem(std::vector<Plant>* input_plants, std::vector<Tree>* input_trees, Noise* input_noise, Terrain* input_terrain) {
 	plants = input_plants;
+	trees = input_trees;
 	noise = input_noise;
 	terrain = input_terrain;
 	layerRadii = { 30.0f, 20.0f, 15.0f };
@@ -39,17 +40,20 @@ void Ecosystem::RecalculateLayers() {
 	for (int i = 0; i < plants->size(); i++) {
 		(*plants)[i].positions.clear();
 		switch ((*plants)[i].layer) {
-			case 0:
-				layer0Indices.push_back(i);
-				break;
-			case 1:
-				layer1Indices.push_back(i);
-				break;
-			default:
-				layer2Indices.push_back(i);
-				break;
+		case 1:
+			layer1Indices.push_back(i);
+			break;
+		default:
+			layer2Indices.push_back(i);
+			break;
 		}
 	}
+
+	for (int i = 0; i < trees->size(); i++) {
+		(*trees)[i].positions.clear();
+		layer0Indices.push_back(i);
+	}
+
 	layerIndices.push_back(layer0Indices);
 	layerIndices.push_back(layer1Indices);
 	layerIndices.push_back(layer2Indices);
@@ -57,9 +61,35 @@ void Ecosystem::RecalculateLayers() {
 
 void Ecosystem::DistributePositions() {
 	float terrainScalar = (float)terrain->size / ((float)terrain->subdivision - 1);
-	std::cout << "TerrainScalar " << terrainScalar << std::endl;
 
-	for (int i = 0; i < poissonPositions.size(); i++) {
+	// Handle tree distribution
+	if (layerIndices[0].size() != 0) {
+		for (int p = 0; p < poissonPositions[0].size(); p++) {
+			glm::vec3 heightAndGradient = noise->EcosystemGetHeightAndGradients(poissonPositions[0][p][0], poissonPositions[0][p][1], terrainScalar, terrain->amplitude);
+			std::vector<int> potential_trees;
+
+			for (int j = 0; j < layerIndices[0].size(); j++) {
+				if ((*trees)[layerIndices[0][j]].ecosystemRootingStrength < heightAndGradient[2] ||
+					(*trees)[layerIndices[0][j]].ecosystemRootingStrength < heightAndGradient[1] ||
+					(*trees)[layerIndices[0][j]].ecosystemOxygenLowerLimit > heightAndGradient[0] ||
+					(*trees)[layerIndices[0][j]].ecosystemOxygenUpperLimit < heightAndGradient[0]
+					) {
+					continue;
+				}
+
+				for (int d = 0; d < (*trees)[layerIndices[0][j]].ecosystemDominance; d++) {
+					potential_trees.push_back(layerIndices[0][j]);
+				}
+			}
+			if (!potential_trees.empty()) {
+				int selection = potential_trees[rand() % potential_trees.size()];
+				(*trees)[selection].positions.push_back(poissonPositions[0][p]);
+			}
+		}
+	}
+
+	// Handle plants and small plant distribution
+	for (int i = 1; i < poissonPositions.size(); i++) {
 		if (layerIndices[i].size() == 0) { continue; }
 		for (int p = 0; p < poissonPositions[i].size(); p++) {
 			glm::vec3 heightAndGradient = noise->EcosystemGetHeightAndGradients(poissonPositions[i][p][0], poissonPositions[i][p][1], terrainScalar, terrain->amplitude);
@@ -73,7 +103,10 @@ void Ecosystem::DistributePositions() {
 					) {
 					continue;
 				}
-				potential_plants.push_back(layerIndices[i][j]);
+				for (int d = 0; d < (*plants)[layerIndices[i][j]].ecosystemDominance; d++) {
+					potential_plants.push_back(layerIndices[i][j]);
+				}
+				
 			}
 
 			if (!potential_plants.empty()) {
@@ -87,5 +120,9 @@ void Ecosystem::DistributePositions() {
 	for (int i = 0; i < plants->size(); i++) {
 		(*plants)[i].GeneratePlantBin();
 		(*plants)[i].GenerateVertices();
+	}
+
+	for (int i = 0; i < trees->size(); i++) {
+		(*trees)[i].GenerateVertices();
 	}
 }

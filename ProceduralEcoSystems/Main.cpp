@@ -7,6 +7,7 @@
 #include"Grass.h"
 #include"Plant.h"
 #include"Ecosystem.h"
+#include"Tree.h"
 #include<typeinfo>
 
 
@@ -93,6 +94,7 @@ int main()
 	Shader shaderProgram("default.vert", "default.frag");
 	Shader terrainShader("terrain.vert", "terrain.frag");
 	Shader plantShader("plant.vert", "plant.frag");
+	Shader trunkShader("tree.vert", "tree.frag");
 	Shader grassShader("grass.vert", "grass.frag");
 	Shader skyboxShader("skybox.vert", "skybox.frag");
 	//Shader instancedShader("instanced.vert", "default.frag");
@@ -110,6 +112,10 @@ int main()
 	plantShader.Activate();
 	glUniform4f(glGetUniformLocation(plantShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(plantShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+	trunkShader.Activate();
+	glUniform4f(glGetUniformLocation(trunkShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(trunkShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	grassShader.Activate();
 	glUniform4f(glGetUniformLocation(grassShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -148,10 +154,16 @@ int main()
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
 	Terrain terrain(4, 14, 10.0f, 1, &noise);
 	std::vector<Plant> plants;
+	std::vector<Tree> trees;
+	trees.push_back(&noise);
 	Grass grass(&noise);
-	Ecosystem ecosystem(&plants, &noise, &terrain);
+	Ecosystem ecosystem(&plants, &trees, &noise, &terrain);
+
+	ecosystem.GeneratePoissonPositions((float)terrain.size * std::pow(3, terrain.render_distance) / 2.0f);
 	ecosystem.DistributePositions();
-	GUI GUI(window, &noise, &terrain, &camera, &plants, &grass, &ecosystem);
+
+	GUI GUI(window, &noise, &terrain, &camera, &plants, &trees, &grass, &ecosystem);
+
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -286,7 +298,16 @@ int main()
 			grass.Draw(grassShader, camera);
 		}
 
+
+
 		glEnable(GL_CULL_FACE);
+
+		if (GUI.renderTrees) {
+			for (int i = 0; i < trees.size(); i++) {
+				trees[i].Draw(trunkShader, trunkShader, camera);
+			}
+		}
+
 		if (GUI.renderTerrain) {
 			terrain.Draw(terrainShader, camera);
 		}

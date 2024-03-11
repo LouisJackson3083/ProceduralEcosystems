@@ -7,6 +7,7 @@
 #include"Noise.h"
 #include"Terrain.h"
 #include"Plant.h"
+#include"Tree.h"
 #include"Grass.h"
 #include<charconv>
 #include<string>
@@ -26,6 +27,7 @@ public:
 		Terrain* input_terrain,
 		Camera* input_camera,
 		std::vector<Plant>* input_plants,
+		std::vector<Tree>* input_trees,
 		Grass* input_grass,
 		Ecosystem* input_ecosystem
 	);
@@ -52,13 +54,16 @@ public:
 	Camera* camera;
 
 	std::vector<Plant>* plants;
+	std::vector<Tree>* trees;
 	std::vector<PlantGUIData> plantGUIData;
+	std::vector<TreeGUIData> treeGUIData;
 	Plant* plant;
 	Grass* grass;
 	Ecosystem* ecosystem;
 
 	bool renderTerrain;
 	bool renderGrass;
+	bool renderTrees;
 	bool renderPlants;
 	bool boolWireframe;
 

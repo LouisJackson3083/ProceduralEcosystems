@@ -6,13 +6,14 @@
 #include<glm/glm.hpp>
 #include"FastPoissonDiskSampling.h"	
 #include"Plant.h"
+#include"Tree.h"
 #include"Noise.h"
 #include"Terrain.h"
 
 class Ecosystem
 {
 public:
-	Ecosystem(std::vector<Plant>* input_plants, Noise* input_noise, Terrain* input_terrain);
+	Ecosystem(std::vector<Plant>* input_plants, std::vector<Tree>* input_trees, Noise* input_noise, Terrain* input_terrain);
 
 	void GeneratePoissonPositions(float terrainSize);
 
@@ -21,6 +22,7 @@ public:
 	void DistributePositions();
 
 	std::vector<Plant>* plants;
+	std::vector<Tree>* trees;
 	std::vector<std::vector<int>> layerIndices;
 	std::vector<float> layerRadii;
 	std::vector<std::vector<glm::vec2>> poissonPositions;

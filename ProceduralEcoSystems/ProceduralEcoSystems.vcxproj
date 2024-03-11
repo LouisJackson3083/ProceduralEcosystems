@@ -162,11 +162,11 @@
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="SimplexNoise.cpp" />
-    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Noise.cpp" />
     <ClCompile Include="Plant.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Tree.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
@@ -195,6 +195,8 @@
     <None Include="skybox.vert" />
     <None Include="terrain.frag" />
     <None Include="terrain.vert" />
+    <None Include="tree.frag" />
+    <None Include="tree.vert" />
     <None Include="windows.frag" />
   </ItemGroup>
   <ItemGroup>
@@ -223,8 +225,8 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="shaderClass.h" />
-    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Tree.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>
