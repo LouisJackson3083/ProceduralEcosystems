@@ -175,6 +175,8 @@
     <Text Include="normals.frag" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="branch.frag" />
+    <None Include="branch.vert" />
     <None Include="default.frag" />
     <None Include="default.vert" />
     <None Include="geom_default.frag" />

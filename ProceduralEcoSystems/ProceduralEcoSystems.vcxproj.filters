@@ -190,6 +190,12 @@
     <None Include="tree.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="branch.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="branch.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderClass.h">

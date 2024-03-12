@@ -123,6 +123,7 @@ void Ecosystem::DistributePositions() {
 	}
 
 	for (int i = 0; i < trees->size(); i++) {
+		(*trees)[i].GenerateBranchBin();
 		(*trees)[i].GenerateVertices();
 	}
 }

@@ -200,7 +200,7 @@ void Plant::GeneratePlantBin() {
 	number_of_leaves = 0;
 
 	for (int i = 0; i < positions.size(); i++) {
-		plant_bin.push_back(rand() % maxLeaves + 1);
+		plant_bin.push_back(std::max(rand() % maxLeaves + 1, minLeaves));
 		number_of_leaves = number_of_leaves + plant_bin.back();
 	}
 }

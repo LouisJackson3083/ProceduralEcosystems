@@ -55,7 +55,7 @@ void main()
 	float wind = sin(time_l) - sin(time_l/2) + sin(time_l/4) - sin(time_l/8);
 
 	// Get the pitch and yaw of the leaf
-	float newYaw = yaw + (float(6.28/maxLeaves) * rnd * curr_leaf);
+	float newYaw = yaw + (float(6.28/maxLeaves) * curr_leaf) + rnd;
 	float bendPitch = (pitch + (pitchVariance*rnd)) - distance * (bendStrength + (bendVariance*rnd)) + wind * 0.04;
 
 	crntPos.x = cos(newYaw) * -width + cos(bendPitch) * distance * sin(newYaw);

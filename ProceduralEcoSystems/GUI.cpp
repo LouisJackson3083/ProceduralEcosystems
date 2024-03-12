@@ -56,6 +56,17 @@ GUI::GUI(
 				(*trees)[i].radius,
 				(*trees)[i].radiusFalloff,
 				(*trees)[i].radiusFalloffRate,
+				(*trees)[i].pitch,
+				(*trees)[i].branchSegments,
+				(*trees)[i].maxBranches,
+				(*trees)[i].minBranches,
+				(*trees)[i].branchLength,
+				(*trees)[i].bendStrength,
+				(*trees)[i].pitchVariance,
+				(*trees)[i].bendVariance,
+				(*trees)[i].lengthVariance,
+				(*trees)[i].scaleVariance,
+				(*trees)[i].scale,
 				(*trees)[i].layer,
 				(*trees)[i].ecosystemDominance,
 				(*trees)[i].ecosystemOxygenUpperLimit,
@@ -431,6 +442,60 @@ void GUI::Update() {
 	ImGui::Checkbox("Toggle Plants", &renderPlants);
 	ImGui::Checkbox("Toggle Trees", &renderTrees);
 
+	// Presets
+	if (ImGui::TreeNodeEx("Presets")) {
+		if (ImGui::Button("Plains")) {
+			noise->fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+			noise->fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
+
+			sliderScale = 0.5f;
+			sliderOctaves = 6.0f;
+			sliderPersistance = 2.0f;
+			sliderLacunarity = 0.6f;
+
+			sliderPatchSize = 3.0f;
+			sliderPatchSubdivision = 4.0f;
+			sliderPatchAmplitude = 20.0f;
+			sliderRenderDistance = 5.0f;
+
+
+			noise->updateSeed(rand());
+			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
+			NewNoiseTextures();
+			terrain->amplitude = sliderPatchAmplitude;
+			noise->amplitude = sliderPatchAmplitude;
+			terrain->size = sliderPatchSize;
+			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
+			terrain->UpdateRenderDistance(sliderRenderDistance);
+			terrain->UpdatePatches();
+		}
+		if (ImGui::Button("Mountain")) {
+			noise->fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
+			noise->fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
+
+			sliderScale = 0.45f;
+			sliderOctaves = 5.0f;
+			sliderPersistance = 0.2f;
+			sliderLacunarity = 0.35f;
+
+			sliderPatchSize = 7.0f;
+			sliderPatchSubdivision = 28.0f;
+			sliderPatchAmplitude = 64.0f;
+			sliderRenderDistance = 3;
+
+			noise->updateSeed(rand());
+			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
+			NewNoiseTextures();
+			terrain->amplitude = sliderPatchAmplitude;
+			noise->amplitude = sliderPatchAmplitude;
+			terrain->size = sliderPatchSize;
+			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
+			terrain->UpdateRenderDistance(sliderRenderDistance);
+			terrain->UpdatePatches();
+		}
+		ImGui::TreePop();
+	}
+
 	ImGui::End();
 	#pragma endregion
 
@@ -442,7 +507,7 @@ void GUI::Update() {
 		for (int i = 0; i < (*trees).size(); i++) {
 			std::string nodeName = std::string("Tree ") + std::to_string(i + 1) + std::string(" Control");
 			if (ImGui::TreeNodeEx(nodeName.data())) {
-				if (ImGui::TreeNodeEx("Textures")) {
+				if (ImGui::TreeNodeEx("Trunk Textures")) {
 					ImGui::Text("Diffuse Texture");
 					ImGui::Image((void*)(intptr_t)(*trees)[i].textures[0].ID, ImVec2(256.0f, 256.0f));
 					if (ImGui::Button("Change Diffuse Texture"))
@@ -451,7 +516,7 @@ void GUI::Update() {
 					if (ifd::FileDialog::Instance().IsDone("DiffuseTextureDialog")) {
 						if (ifd::FileDialog::Instance().HasResult()) {
 							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
-							(*trees)[i].ChangeTextures(res.u8string().c_str(), 0);
+							(*trees)[i].ChangeTreeTextures(res.u8string().c_str(), 0);
 						}
 						ifd::FileDialog::Instance().Close();
 					}
@@ -464,7 +529,7 @@ void GUI::Update() {
 					if (ifd::FileDialog::Instance().IsDone("SpecularTextureDialog")) {
 						if (ifd::FileDialog::Instance().HasResult()) {
 							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
-							(*trees)[i].ChangeTextures(res.u8string().c_str(), 1);
+							(*trees)[i].ChangeTreeTextures(res.u8string().c_str(), 1);
 						}
 						ifd::FileDialog::Instance().Close();
 					}
@@ -472,22 +537,80 @@ void GUI::Update() {
 					ImGui::TreePop();
 
 				}
+				if (ImGui::TreeNodeEx("Branch Textures")) {
+					ImGui::Text("Diffuse Texture");
+					ImGui::Image((void*)(intptr_t)(*trees)[i].branchTextures[0].ID, ImVec2(256.0f, 256.0f));
+					if (ImGui::Button("Change Diffuse Texture"))
+						ifd::FileDialog::Instance().Open("DiffuseTextureDialog", "Change Diffuse Texture", ".*", false, "./Resources/Textures/");
+
+					if (ifd::FileDialog::Instance().IsDone("DiffuseTextureDialog")) {
+						if (ifd::FileDialog::Instance().HasResult()) {
+							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
+							(*trees)[i].ChangeBranchTextures(res.u8string().c_str(), 0);
+						}
+						ifd::FileDialog::Instance().Close();
+					}
+
+					ImGui::Text("Specular Texture");
+					ImGui::Image((void*)(intptr_t)(*trees)[i].branchTextures[1].ID, ImVec2(256.0f, 256.0f));
+					if (ImGui::Button("Change Specular Texture"))
+						ifd::FileDialog::Instance().Open("SpecularTextureDialog", "Change Specular Texture", ".*", false, "./Resources/Textures/");
+
+					if (ifd::FileDialog::Instance().IsDone("SpecularTextureDialog")) {
+						if (ifd::FileDialog::Instance().HasResult()) {
+							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
+							(*trees)[i].ChangeBranchTextures(res.u8string().c_str(), 1);
+						}
+						ifd::FileDialog::Instance().Close();
+					}
+
+					ImGui::TreePop();
+
+				}
+
 				if (ImGui::TreeNodeEx("Appearance Control")) {
+					ImGui::Text("Trunk Parameters");
 					bool boolTreeResolution = ImGui::SliderInt("Trunk Resolution", &treeGUIData[i].sliderTreeResolution, 3, 32);
 					bool boolTreeSegments = ImGui::SliderInt("Tree Segments", &treeGUIData[i].sliderTreeSegments, 2, 15);
 					bool boolTreeHeight = ImGui::SliderFloat("Tree Height", &treeGUIData[i].sliderTreeHeight, 1.0f, 100.0f);
 					bool boolTreeRadius = ImGui::SliderFloat("Trunk Radius", &treeGUIData[i].sliderTreeRadius, 0.0f, 1.0f);
 					bool boolTreeRadiusFalloff = ImGui::SliderFloat("Trunk Radius Falloff", &treeGUIData[i].sliderTreeRadiusFalloff, 0.0f, 2.0f);
 					bool boolTreeRadiusFalloffRate = ImGui::SliderFloat("Trunk Radius FalloffRate", &treeGUIData[i].sliderTreeRadiusFalloffRate, 0.0f, 2.0f);
+					ImGui::Text("Branch Parameters");
+					bool boolBranchPitch = ImGui::SliderFloat("Branch Pitch", &treeGUIData[i].sliderBranchPitch, 0.0f, 6.0f);
+					bool boolBranchMinHeight = ImGui::SliderFloat("Min Start Height", &treeGUIData[i].sliderBranchMinHeight, 0.0f, treeGUIData[i].sliderTreeHeight);
+					bool boolBranchSegments = ImGui::SliderInt("Branch Segments", &treeGUIData[i].sliderBranchSegments, 2, 16);
+					bool boolMaxBranches = ImGui::SliderInt("Max num of Branches", &treeGUIData[i].sliderMaxBranches, treeGUIData[i].sliderMinBranches, 24);
+					bool boolMinBranches = ImGui::SliderInt("Min num of Branches", &treeGUIData[i].sliderMinBranches, 1, treeGUIData[i].sliderMaxBranches);
+					bool boolBranchLength = ImGui::SliderInt("Branch Length", &treeGUIData[i].sliderBranchLength, 1, 20);
+					bool boolBendStrength = ImGui::SliderFloat("Bend Strength", &treeGUIData[i].sliderBendStrength, 0.0f, 5.0f);
+					bool boolPitchVariance = ImGui::SliderFloat("Pitch Variance", &treeGUIData[i].sliderPitchVariance, 0.0f, 5.0f);
+					bool boolBendVariance = ImGui::SliderFloat("Bend Variance", &treeGUIData[i].sliderBendVariance, 0.0f, 5.0f);
+					bool boolLengthVariance = ImGui::SliderFloat("Length Variance", &treeGUIData[i].sliderLengthVariance, 0.0f, 5.0f);
+					bool boolScaleVariance = ImGui::SliderFloat("Scale Variance", &treeGUIData[i].sliderScaleVariance, 0.0f, 5.0f);
+					bool boolScale = ImGui::SliderFloat("Scale", &treeGUIData[i].sliderScale, 0.0f, 5.0f);
 
-					if (boolTreeResolution ||
+					if (boolBranchMinHeight ||
+						boolTreeResolution ||
 						boolTreeSegments ||
 						boolTreeHeight ||
 						boolTreeRadius ||
 						boolTreeRadiusFalloff ||
-						boolTreeRadiusFalloffRate
+						boolTreeRadiusFalloffRate ||
+						boolBranchPitch ||
+						boolBranchSegments ||
+						boolMaxBranches ||
+						boolMinBranches ||
+						boolBranchLength ||
+						boolBendStrength ||
+						boolPitchVariance ||
+						boolBendVariance ||
+						boolLengthVariance ||
+						boolScaleVariance ||
+						boolScale
 						) {
 						(*trees)[i].UpdateValues(treeGUIData[i]);
+						(*trees)[i].GenerateBranchBin();
 						(*trees)[i].GenerateVertices();
 					}
 					ImGui::TreePop();
@@ -495,6 +618,7 @@ void GUI::Update() {
 
 				std::string saveTreeString = std::string("SaveTree") + std::to_string(i + 1) + std::string("Dialog");
 				if (ImGui::Button("New Seed")) {
+					(*trees)[i].GenerateBranchBin();
 					(*trees)[i].GenerateVertices();
 				}
 				ImGui::SameLine();

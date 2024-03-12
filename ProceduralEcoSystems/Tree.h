@@ -20,6 +20,20 @@ struct TreeGUIData
 	float sliderTreeRadiusFalloffRate;
 
 	// ======================================
+	// BRANCH STUFF
+	float sliderBranchPitch;
+	int sliderBranchSegments;
+	int sliderMaxBranches;
+	int sliderMinBranches;
+	int sliderBranchLength;
+	float sliderBendStrength;
+	float sliderPitchVariance;
+	float sliderBendVariance;
+	float sliderLengthVariance;
+	float sliderScaleVariance;
+	float sliderScale;
+
+	// ======================================
 	// ECOSYSTEM STUFF
 	int sliderTreeLayer;
 	int sliderTreeDominance;
@@ -28,6 +42,8 @@ struct TreeGUIData
 	float sliderTreeRootingStrength;
 	float sliderTreeMoistureRequirement;
 	float sliderTreeInteractionLevel;
+
+	float sliderBranchMinHeight;
 
 };
 
@@ -39,9 +55,18 @@ public:
 	std::vector<GLuint> indices;
 	VAO vao;
 
+	std::vector<Texture> branchTextures;
+	std::vector<std::string> branch_texture_filepaths;
+	std::vector<PlantVertex> branchVertices;
+	std::vector<GLuint> branchIndices;
+	VAO vaoBranch;
+
+
 	std::vector<glm::vec2> positions;
 
 	Noise* noise;
+
+	// Trunk Parameters
 	int resolution;
 	int vertices_per_trunk;
 	int segments;
@@ -49,6 +74,22 @@ public:
 	float radius;
 	float radiusFalloff;
 	float radiusFalloffRate;
+
+	// Branch parameters
+	float pitch;
+	int branchSegments;
+	int maxBranches;
+	int minBranches;
+	int branchLength;
+	float bendStrength;
+	float pitchVariance;
+	float bendVariance;
+	float lengthVariance;
+	float scaleVariance;
+	float scale;
+	// vvvvv does not need to be stored in file
+	int vertices_per_branch;
+	int number_of_branches;
 
 	// Ecosystem parameters
 	int layer;
@@ -58,6 +99,11 @@ public:
 	float ecosystemRootingStrength;
 	float ecosystemMoistureRequirement;
 	float ecosystemInteractionLevel;
+
+	float branchMinHeight;
+
+
+	std::vector<int> branch_bin;
 
 	Tree(Noise* input_noise);
 
@@ -69,12 +115,19 @@ public:
 
 	void UpdateValues(TreeGUIData treeGUIData);
 
-	void ChangeTextures(const char* texture, const int type);
+	void ChangeTreeTextures(const char* texture, const int type);
+	void ChangeBranchTextures(const char* texture, const int type);
+
+	void GenerateBranchBin();
 
 	void GenerateVertices();
 
-	void Draw(
+	void DrawTrunks(
 		Shader& trunkShader,
+		Camera& camera
+	);
+
+	void DrawBranches(
 		Shader& branchShader,
 		Camera& camera
 	);

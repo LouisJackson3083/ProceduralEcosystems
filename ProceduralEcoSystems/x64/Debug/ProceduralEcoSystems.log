@@ -1,8 +1,23 @@
-﻿  Main.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(154,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(162,96): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Tree.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(283,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(294,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+﻿  GUI.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(143,10): warning C4312: 'type cast': conversion from 'GLuint' to 'void *' of greater size
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(316,62): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(355,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(359,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(360,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(362,27): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(380,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(384,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(385,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(452,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(456,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(457,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(459,27): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(477,20): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(481,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(482,29): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(844,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Main.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(159,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(167,96): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Generating Code...
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe

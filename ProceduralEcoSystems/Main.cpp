@@ -95,6 +95,7 @@ int main()
 	Shader terrainShader("terrain.vert", "terrain.frag");
 	Shader plantShader("plant.vert", "plant.frag");
 	Shader trunkShader("tree.vert", "tree.frag");
+	Shader branchShader("branch.vert", "branch.frag");
 	Shader grassShader("grass.vert", "grass.frag");
 	Shader skyboxShader("skybox.vert", "skybox.frag");
 	//Shader instancedShader("instanced.vert", "default.frag");
@@ -116,6 +117,10 @@ int main()
 	trunkShader.Activate();
 	glUniform4f(glGetUniformLocation(trunkShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(trunkShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
+	branchShader.Activate();
+	glUniform4f(glGetUniformLocation(branchShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(branchShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	grassShader.Activate();
 	glUniform4f(glGetUniformLocation(grassShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -300,13 +305,19 @@ int main()
 
 
 
-		glEnable(GL_CULL_FACE);
-
 		if (GUI.renderTrees) {
+			// Branches are not rendered with face culling
 			for (int i = 0; i < trees.size(); i++) {
-				trees[i].Draw(trunkShader, trunkShader, camera);
+				trees[i].DrawBranches(branchShader, camera);
+			}
+			// trunks are!
+			glEnable(GL_CULL_FACE);
+			for (int i = 0; i < trees.size(); i++) {
+				trees[i].DrawTrunks(trunkShader, camera);
 			}
 		}
+
+		glEnable(GL_CULL_FACE);
 
 		if (GUI.renderTerrain) {
 			terrain.Draw(terrainShader, camera);
