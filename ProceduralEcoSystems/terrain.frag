@@ -13,11 +13,13 @@ in vec3 color;
 // Imports the texture coordinates from the Vertex Shader
 in vec2 texCoord;
 
-
-
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
+uniform sampler2D diffuse1;
+uniform sampler2D specular1;
+uniform sampler2D diffuse2;
+uniform sampler2D specular2;
 // Gets the color of the light from the main function
 uniform vec4 lightColor;
 // Gets the position of the light from the main function
@@ -71,6 +73,14 @@ vec4 direcLight()
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
+
+	float pitch = asin(-normal.y) / 1.57079632679;
+
+	//vec4 diffuse_tex = mix(texture(diffuse0, texCoord), texture(diffuse1, texCoord), pitch);
+	//if ( pitch > -0.75 )
+		//diffuse_tex = texture(diffuse0, texCoord);
+    //else 
+		//diffuse_tex = texture(diffuse1, texCoord);
 
 	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
 }

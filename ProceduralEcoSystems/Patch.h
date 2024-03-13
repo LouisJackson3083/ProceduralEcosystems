@@ -32,6 +32,7 @@ public:
 	float amplitude;
 	glm::vec3 offset;
 	glm::vec2 corner_data;
+	float normalOffset;
 
 	Patch(
 		glm::vec2 input_corner_data,
@@ -46,7 +47,7 @@ public:
 	void GenerateVertices();
 
 
-	float GetHeight(int vertexID, float scalar);
+	std::tuple<float, glm::vec3> GetHeight(int vertexID, float scalar);
 
 	void Draw(
 		Shader& shader,

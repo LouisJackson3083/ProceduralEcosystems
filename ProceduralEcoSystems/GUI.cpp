@@ -442,6 +442,7 @@ void GUI::Update() {
 	ImGui::Checkbox("Toggle Plants", &renderPlants);
 	ImGui::Checkbox("Toggle Trees", &renderTrees);
 
+
 	// Presets
 	if (ImGui::TreeNodeEx("Presets")) {
 		if (ImGui::Button("Plains")) {
@@ -511,9 +512,9 @@ void GUI::Update() {
 					ImGui::Text("Diffuse Texture");
 					ImGui::Image((void*)(intptr_t)(*trees)[i].textures[0].ID, ImVec2(256.0f, 256.0f));
 					if (ImGui::Button("Change Diffuse Texture"))
-						ifd::FileDialog::Instance().Open("DiffuseTextureDialog", "Change Diffuse Texture", ".*", false, "./Resources/Textures/");
+						ifd::FileDialog::Instance().Open("DiffuseTrunkTextureDialog", "Change Diffuse Texture", ".*", false, "./Resources/Textures/");
 
-					if (ifd::FileDialog::Instance().IsDone("DiffuseTextureDialog")) {
+					if (ifd::FileDialog::Instance().IsDone("DiffuseTrunkTextureDialog")) {
 						if (ifd::FileDialog::Instance().HasResult()) {
 							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
 							(*trees)[i].ChangeTreeTextures(res.u8string().c_str(), 0);
@@ -524,9 +525,9 @@ void GUI::Update() {
 					ImGui::Text("Specular Texture");
 					ImGui::Image((void*)(intptr_t)(*trees)[i].textures[1].ID, ImVec2(256.0f, 256.0f));
 					if (ImGui::Button("Change Specular Texture"))
-						ifd::FileDialog::Instance().Open("SpecularTextureDialog", "Change Specular Texture", ".*", false, "./Resources/Textures/");
+						ifd::FileDialog::Instance().Open("SpecularTrunkTextureDialog", "Change Specular Texture", ".*", false, "./Resources/Textures/");
 
-					if (ifd::FileDialog::Instance().IsDone("SpecularTextureDialog")) {
+					if (ifd::FileDialog::Instance().IsDone("SpecularTrunkTextureDialog")) {
 						if (ifd::FileDialog::Instance().HasResult()) {
 							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
 							(*trees)[i].ChangeTreeTextures(res.u8string().c_str(), 1);
@@ -541,9 +542,9 @@ void GUI::Update() {
 					ImGui::Text("Diffuse Texture");
 					ImGui::Image((void*)(intptr_t)(*trees)[i].branchTextures[0].ID, ImVec2(256.0f, 256.0f));
 					if (ImGui::Button("Change Diffuse Texture"))
-						ifd::FileDialog::Instance().Open("DiffuseTextureDialog", "Change Diffuse Texture", ".*", false, "./Resources/Textures/");
+						ifd::FileDialog::Instance().Open("DiffuseBranchTextureDialog", "Change Diffuse Texture", ".*", false, "./Resources/Textures/");
 
-					if (ifd::FileDialog::Instance().IsDone("DiffuseTextureDialog")) {
+					if (ifd::FileDialog::Instance().IsDone("DiffuseBranchTextureDialog")) {
 						if (ifd::FileDialog::Instance().HasResult()) {
 							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
 							(*trees)[i].ChangeBranchTextures(res.u8string().c_str(), 0);
@@ -554,9 +555,9 @@ void GUI::Update() {
 					ImGui::Text("Specular Texture");
 					ImGui::Image((void*)(intptr_t)(*trees)[i].branchTextures[1].ID, ImVec2(256.0f, 256.0f));
 					if (ImGui::Button("Change Specular Texture"))
-						ifd::FileDialog::Instance().Open("SpecularTextureDialog", "Change Specular Texture", ".*", false, "./Resources/Textures/");
+						ifd::FileDialog::Instance().Open("SpecularBranchTextureDialog", "Change Specular Texture", ".*", false, "./Resources/Textures/");
 
-					if (ifd::FileDialog::Instance().IsDone("SpecularTextureDialog")) {
+					if (ifd::FileDialog::Instance().IsDone("SpecularBranchTextureDialog")) {
 						if (ifd::FileDialog::Instance().HasResult()) {
 							const std::filesystem::path res = ifd::FileDialog::Instance().GetResult();
 							(*trees)[i].ChangeBranchTextures(res.u8string().c_str(), 1);

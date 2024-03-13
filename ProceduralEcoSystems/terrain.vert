@@ -2,6 +2,7 @@
 
 // Positions/Coordinates
 layout (location = 0) in float height;
+layout (location = 1) in vec3 normal;
 
 // Outputs the current position for the Fragment Shader
 out vec3 crntPos;
@@ -41,7 +42,7 @@ void main()
 	crntPos = vec3(translation * position);
 
 	// Assigns the normal from the Vertex Data to "Normal"
-	Normal = vec3(0.0, 1.0, 0.0);
+	Normal = normal;
 	// Assigns the colors from the Vertex Data to "color"
 	color = vec3(0.0, 1.0, 0.0);
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"

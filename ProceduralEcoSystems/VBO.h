@@ -39,6 +39,7 @@ struct PlantVertex
 struct TerrainVertex 
 {
 	float height;
+	glm::vec3 normal;
 };
 
 

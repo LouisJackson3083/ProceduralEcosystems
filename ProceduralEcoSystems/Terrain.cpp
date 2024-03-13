@@ -10,9 +10,8 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 
 	textures.push_back(Texture("./Resources/Textures/dirt.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/dirtSpec.png", "specular", 1));
-	textures.push_back(Texture("./Resources/Textures/grass.png", "diffuse", 0));
-	textures.push_back(Texture("./Resources/Textures/grassSpec.png", "specular", 1));
-	textures.push_back(Texture("./Resources/Textures/pop_cat.png", "diffuse", 0));
+	textures.push_back(Texture("./Resources/Textures/pop_cat.png", "diffuse", 2));
+	textures.push_back(Texture("./Resources/Textures/rockSpec.png", "specular", 3));
 
 	for (int j = 0; j < (render_distance * 8) + 1; j++) {
 		patches.push_back(
@@ -23,7 +22,7 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 				4,
 				0.0f,
 				noise,
-				{ &textures[0], &textures[1] }
+				{ &textures[0], &textures[1], &textures[2], &textures[3] }
 			)
 		);
 	}
@@ -44,7 +43,7 @@ void Terrain::UpdateRenderDistance(int input_render_distance) {
 				subdivision,
 				amplitude,
 				noise,
-				{ &textures[0], &textures[1] }
+				{ &textures[0], &textures[1], &textures[2], &textures[3] }
 			)
 		);
 	}
@@ -63,7 +62,7 @@ void Terrain::UpdatePatches() {
 				patches[patchIndex].offset = glm::vec3{ x + cameraPosition[0] , 0.0f, z + cameraPosition[1] };
 				patches[patchIndex].amplitude = amplitude;
 				patches[patchIndex].size = size * std::pow(3, j);
-				patches[patchIndex].textures = { &textures[2], &textures[3] };
+				patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3] };
 				patches[patchIndex].subdivision = subdivision;
 				patches[patchIndex].GenerateVertices();
 				patchIndex++;
@@ -75,7 +74,7 @@ void Terrain::UpdatePatches() {
 	patches[patchIndex].offset = glm::vec3{ cameraPosition[0] , 0.0f, cameraPosition[1] };
 	patches[patchIndex].amplitude = amplitude;
 	patches[patchIndex].size = size;
-	patches[patchIndex].textures = { &textures[2], &textures[3] };
+	patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3] };
 	patches[patchIndex].subdivision = subdivision;
 	patches[patchIndex].GenerateVertices();
 }

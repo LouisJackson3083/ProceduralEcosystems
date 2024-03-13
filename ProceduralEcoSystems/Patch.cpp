@@ -16,10 +16,13 @@ Patch::Patch(
 	amplitude = input_amplitude;
 	noise = input_noise;
 	textures = input_textures;
+	normalOffset = 1.0f;
+	
+
 	GenerateVertices();
 }
 
-float Patch::GetHeight(int vertexID, float scalar) {
+std::tuple<float, glm::vec3> Patch::GetHeight(int vertexID, float scalar) {
 	int i = floor(vertexID / subdivision);
 	int j = vertexID % subdivision;
 
@@ -27,6 +30,15 @@ float Patch::GetHeight(int vertexID, float scalar) {
 	float z = ((float)j * scalar) - ((float)size / 2);
 
 	float y = noise->get(offset[0] + x, offset[2] + z) * amplitude;
+	
+	// calculate pitch/yaw
+	normalOffset = scalar * size;
+	float hL = noise->get(offset[0] + x, offset[2] + z - normalOffset) * amplitude;
+	float hR = noise->get(offset[0] + x, offset[2] + z + normalOffset) * amplitude;
+	float hD = noise->get(offset[0] + x - normalOffset, offset[2] + z) * amplitude;
+	float hU = noise->get(offset[0] + x + normalOffset, offset[2] + z) * amplitude;
+	glm::vec3 normal(hD - hU, 2.0, hL - hR);
+	normal = glm::normalize(normal);
 
 	int iRank = i % 3;
 	int jRank = j % 3;
@@ -53,7 +65,7 @@ float Patch::GetHeight(int vertexID, float scalar) {
 		y = (1.0f - ((float)iRank / 3.0f)) * y1 + ((float)iRank / 3.0f) * y2;
 	}
 
-	return y;
+	return std::make_tuple(y, normal);
 }
 
 void Patch::GenerateVertices() {
@@ -69,10 +81,14 @@ void Patch::GenerateVertices() {
 
 	// Used to keep track of the current vertex so that indice instantiation is correct
 	for (int i = 0; i < num_vertices; i++) {
-		float y = GetHeight(i, scalar);
+		float y;
+		glm::vec3 normal;
+		std::tie(y, normal) = GetHeight(i, scalar);
+
 		vertices.push_back(TerrainVertex
 			{
-				y
+				y,
+				normal,
 			}
 		);
 		if (floor(i / subdivision) < max and i % subdivision < max) {
@@ -100,6 +116,7 @@ void Patch::GenerateVertices() {
 	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
 	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
 	VAO.LinkAttrib(VBO, 0, 1, GL_FLOAT, sizeof(TerrainVertex), (void*)0);
+	VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(TerrainVertex), (void*)(sizeof(float)));
 
 	// Unbind all to prevent accidentally modifying them
 	VAO.Unbind();
@@ -135,6 +152,8 @@ void Patch::Draw
 			num = std::to_string(numSpecular++);
 		}
 		textures[i]->texUnit(shader, (type + num).c_str(), i);
+		//std::cout << (type + num).c_str() << std::endl;
+
 		textures[i]->Bind();
 	}
 
