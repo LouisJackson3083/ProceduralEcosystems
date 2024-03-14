@@ -74,6 +74,8 @@ GUI::GUI(
 				(*trees)[i].ecosystemRootingStrength,
 				(*trees)[i].ecosystemMoistureRequirement,
 				(*trees)[i].ecosystemInteractionLevel,
+				(*trees)[i].branchMinHeight,
+				(*trees)[i].branchMaxHeight,
 			}
 		);
 	}
@@ -81,10 +83,11 @@ GUI::GUI(
 
 	// Grass
 	grass = input_grass;
-	sliderGrassBlades = grass->blades;
 	sliderGrassLength = grass->length;
 	sliderGrassLengthVariance = grass->lengthVariance;
 	sliderGrassPitchVariance = grass->pitchVariance;
+	sliderGrassScale = grass->scale;
+	sliderGrassScaleVariance = grass->scaleVariance;
 
 	// Noise
 	noise = input_noise;
@@ -170,6 +173,135 @@ void GUI::NewPoissonDiskTexture() {
 	poissonTextures.clear();
 	poissonTextures.push_back(Texture("diffuse", 0, ecosystem->layerRadii));
 }
+
+void GUI::SaveEcosystem(std::string file) {
+	std::string fileCut = file;
+	fileCut.erase(fileCut.end() - 4, fileCut.end());
+
+	std::ofstream myfile;
+	myfile.open(file);
+
+
+	myfile << (*trees).size() << ",";
+	myfile << (*plants).size() << ",";
+
+	myfile << ecosystem->layerRadii[0] << ",";
+	myfile << ecosystem->layerRadii[1] << ",";
+	myfile << ecosystem->layerRadii[2] << ",";
+	myfile << ecosystem->layerRadii[3] << ",";
+
+	std::string terrainFile = fileCut + std::string("Terrain.terrain");
+	terrain->SaveTerrain(terrainFile);
+	myfile << terrainFile << ","; // 5
+	
+	myfile << grass->length << ","; // 6
+	myfile << grass->lengthVariance << ",";
+	myfile << grass->pitchVariance << ",";
+	myfile << grass->scale << ",";
+	myfile << grass->scaleVariance << ",";
+
+	myfile << grass->ecosystemDominance << ","; // 11
+	myfile << grass->ecosystemOxygenUpperLimit << ",";
+	myfile << grass->ecosystemOxygenLowerLimit << ",";
+	myfile << grass->ecosystemRootingStrength << ",";
+	myfile << grass->ecosystemMoistureRequirement << ",";
+	myfile << grass->ecosystemInteractionLevel << ",";
+
+	//17
+
+	for (int i = 0; i < (*trees).size(); i++) {
+		std::string treeFile = fileCut + std::to_string(i) + std::string("Tree.tree");
+		TreeGUIData treeData = (*trees)[i].GetGUIData();
+		(*trees)[i].SaveTreeData(&treeData, treeFile);
+		myfile << treeFile << ",";
+	}
+
+	for (int i = 0; i < (*plants).size(); i++) {
+		std::string plantFile = fileCut + std::to_string(i) + std::string("Plant.plant");
+		PlantGUIData plantData = (*plants)[i].GetGUIData();
+		(*plants)[i].SavePlantData(&plantData, plantFile);
+		myfile << plantFile << ",";
+	}
+	std::cout << "SAVED TO " << file << std::endl;
+
+	myfile.close();
+}
+
+
+void GUI::LoadEcosystem(std::string file) {
+
+	std::string line;
+	std::ifstream myfile(file);
+	if (myfile.is_open())
+	{
+		std::getline(myfile, line);
+		std::vector<std::string> results;
+		std::stringstream  ss(line);
+		std::string str;
+		while (getline(ss, str, ',')) {
+			results.push_back(str);
+		}
+
+		int numTrees = std::stoi(results[0]);
+		int numPlants = std::stoi(results[1]);
+
+		(*trees).clear();
+		treeGUIData.clear();
+		(*plants).clear();
+		plantGUIData.clear();
+		grass->positions.clear();
+
+		grass->length = std::stof(results[7]);
+		grass->lengthVariance = std::stof(results[8]);
+		grass->pitchVariance = std::stof(results[9]);
+		grass->scale = std::stof(results[10]);
+		grass->scaleVariance = std::stof(results[11]);
+
+		grass->ecosystemDominance = std::stoi(results[12]);
+		grass->ecosystemOxygenUpperLimit = std::stof(results[13]);
+		grass->ecosystemOxygenLowerLimit = std::stof(results[14]);
+		grass->ecosystemRootingStrength = std::stof(results[15]);
+		grass->ecosystemMoistureRequirement = std::stof(results[16]);
+		grass->ecosystemInteractionLevel = std::stof(results[17]);
+
+		for (int i = 0; i < numTrees; i++) {
+			(*trees).push_back(Tree(results[18 + i], noise));
+			treeGUIData.push_back((*trees).back().GetGUIData());
+		}
+		for (int i = 0; i < numPlants; i++) {
+			(*plants).push_back(Plant(results[18 + numTrees + i], noise));
+			plantGUIData.push_back((*plants).back().GetGUIData());
+		}
+
+		terrain->LoadTerrainData(results[6]);
+		sliderScale = noise->scale;
+		sliderOctaves = noise->octaves;
+		sliderLacunarity = noise->lacunarity;
+		sliderPersistance = noise->persistance;
+		sliderPatchSize = terrain->size;
+		sliderPatchSubdivision = terrain->subdivision / 3;
+		sliderPatchAmplitude = terrain->amplitude;
+		noise->amplitude = sliderPatchAmplitude;
+		sliderRenderDistance = terrain->render_distance;
+		NewNoiseTextures();
+
+		float terrainSize = (float)terrain->size * std::pow(3, terrain->render_distance) / 2.0f;
+		ecosystem->layerRadii[0] = std::stof(results[2]);
+		ecosystem->layerRadii[1] = std::stof(results[3]);
+		ecosystem->layerRadii[2] = std::stof(results[4]);
+		ecosystem->layerRadii[3] = std::stof(results[5]);
+		sliderPoissonRadii = ecosystem->layerRadii;
+
+		ecosystem->RecalculateLayers();
+		ecosystem->GeneratePoissonPositions(terrainSize);
+		ecosystem->DistributePositions();
+
+		myfile.close();
+
+		std::cout << "LOADED FROM " << file << std::endl;
+	}
+}
+
 
 void GUI::Update() {
 	#pragma region NoiseRegion
@@ -345,56 +477,105 @@ void GUI::Update() {
 		ImGui::TreePop();
 	}
 
+	if (ImGui::TreeNodeEx("Terrain Texturing")) {
+		bool boolSnowHeight = ImGui::SliderFloat("Snow Height", &terrain->snowStartHeight, 0.0f, 64.0f);
+		bool boolSnowDist = ImGui::SliderFloat("Snow Blend Distance", &terrain->snowBlendDistance, 0.0f, 64.0f);
+		bool boolRockHeight = ImGui::SliderFloat("Rock Height", &terrain->rockStartHeight, 0.0f, 64.0f);
+		bool boolRockDist = ImGui::SliderFloat("Rock Blend Distance", &terrain->rockBlendDistance, 0.0f, 64.0f);
+		bool boolSlopeAmount = ImGui::SliderFloat("Slope Rock Amount", &terrain->slopeAmount, 0.0f, 1.0f);
+		bool boolSlopeDist = ImGui::SliderFloat("Slope Blend Distance", &terrain->slopeBlendDist, 0.0f, 1.0f);
+
+		if (boolSnowHeight ||
+			boolSnowDist ||
+			boolRockHeight ||
+			boolRockDist ||
+			boolSlopeAmount ||
+			boolSlopeDist
+			) {
+			terrain->UpdateTextureValues();
+		}
+		ImGui::TreePop();
+	}
+
 	// Presets
 	if (ImGui::TreeNodeEx("Terrain Presets")) {
-		if (ImGui::Button("Plains")) {
-			noise->fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-			noise->fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
+		if (ImGui::Button("Save Terrain"))
+			ifd::FileDialog::Instance().Save("SaveTerrainDialog", "Save Terrain", "*.terrain {.terrain}", "./Resources/PlantData/");
 
-			sliderScale = 0.5f;
-			sliderOctaves = 6.0f;
-			sliderPersistance = 2.0f;
-			sliderLacunarity = 0.6f;
+		if (ifd::FileDialog::Instance().IsDone("SaveTerrainDialog")) {
+			if (ifd::FileDialog::Instance().HasResult()) {
+				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 
-			sliderPatchSize = 3.0f;
-			sliderPatchSubdivision = 4.0f;
-			sliderPatchAmplitude = 20.0f;
-			sliderRenderDistance = 5.0f;
-
-
-			noise->updateSeed(rand());
-			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewNoiseTextures();
-			terrain->amplitude = sliderPatchAmplitude;
-			noise->amplitude = sliderPatchAmplitude;
-			terrain->size = sliderPatchSize;
-			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
-			terrain->UpdateRenderDistance(sliderRenderDistance);
-			terrain->UpdatePatches();
+				noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
+				terrain->amplitude = sliderPatchAmplitude;
+				noise->amplitude = sliderPatchAmplitude;
+				terrain->size = sliderPatchSize;
+				terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
+				terrain->SaveTerrain(res);
+			}
+			ifd::FileDialog::Instance().Close();
 		}
-		if (ImGui::Button("Mountain")) {
-			noise->fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
-			noise->fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
 
-			sliderScale = 0.45f;
-			sliderOctaves = 5.0f;
-			sliderPersistance = 0.2f;
-			sliderLacunarity = 0.35f;
+		ImGui::SameLine();
+		if (ImGui::Button("Load Terrain")) {
+			ifd::FileDialog::Instance().Open("LoadTerrainDialog", "Load Terrain", "*.terrain {.terrain}", false, "./Resources/PlantData/");
 
-			sliderPatchSize = 7.0f;
-			sliderPatchSubdivision = 28.0f;
-			sliderPatchAmplitude = 64.0f;
-			sliderRenderDistance = 3;
+		}
 
-			noise->updateSeed(rand());
-			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewNoiseTextures();
-			terrain->amplitude = sliderPatchAmplitude;
+		if (ifd::FileDialog::Instance().IsDone("LoadTerrainDialog")) {
+			if (ifd::FileDialog::Instance().HasResult()) {
+				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+				terrain->LoadTerrainData(res);
+
+				sliderScale = noise->scale;
+				sliderOctaves = noise->octaves;
+				sliderLacunarity = noise->lacunarity;
+				sliderPersistance = noise->persistance;
+
+				sliderPatchSize = terrain->size;
+				sliderPatchSubdivision = terrain->subdivision / 3;
+				sliderPatchAmplitude = terrain->amplitude;
+				noise->amplitude = sliderPatchAmplitude;
+				sliderRenderDistance = terrain->render_distance;
+
+				NewNoiseTextures();
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+
+
+		if (ImGui::Button("Plains")) {
+			terrain->LoadTerrainData(std::string("./Resources/PlantData/plains.terrain"));
+
+			sliderScale = noise->scale;
+			sliderOctaves = noise->octaves;
+			sliderLacunarity = noise->lacunarity;
+			sliderPersistance = noise->persistance;
+
+			sliderPatchSize = terrain->size;
+			sliderPatchSubdivision = terrain->subdivision / 3;
+			sliderPatchAmplitude = terrain->amplitude;
 			noise->amplitude = sliderPatchAmplitude;
-			terrain->size = sliderPatchSize;
-			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
-			terrain->UpdateRenderDistance(sliderRenderDistance);
-			terrain->UpdatePatches();
+			sliderRenderDistance = terrain->render_distance;
+
+			NewNoiseTextures();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Mountain")) {
+			terrain->LoadTerrainData(std::string("./Resources/PlantData/mountain.terrain"));
+
+			sliderScale = noise->scale;
+			sliderOctaves = noise->octaves;
+			sliderLacunarity = noise->lacunarity;
+			sliderPersistance = noise->persistance;
+
+			sliderPatchSize = terrain->size;
+			sliderPatchSubdivision = terrain->subdivision / 3;
+			sliderPatchAmplitude = terrain->amplitude;
+			noise->amplitude = sliderPatchAmplitude;
+			sliderRenderDistance = terrain->render_distance;
+
+			NewNoiseTextures();
 		}
 		ImGui::TreePop();
 	}
@@ -442,57 +623,41 @@ void GUI::Update() {
 	ImGui::Checkbox("Toggle Plants", &renderPlants);
 	ImGui::Checkbox("Toggle Trees", &renderTrees);
 
-
 	// Presets
 	if (ImGui::TreeNodeEx("Presets")) {
-		if (ImGui::Button("Plains")) {
-			noise->fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-			noise->fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
 
-			sliderScale = 0.5f;
-			sliderOctaves = 6.0f;
-			sliderPersistance = 2.0f;
-			sliderLacunarity = 0.6f;
+		if (ImGui::Button("Save Ecosystem"))
+			ifd::FileDialog::Instance().Save("SaveEcosystemDialog", "Save Ecosystem", "*.eco {.eco}", "./Resources/PlantData/");
 
-			sliderPatchSize = 3.0f;
-			sliderPatchSubdivision = 4.0f;
-			sliderPatchAmplitude = 20.0f;
-			sliderRenderDistance = 5.0f;
-
-
-			noise->updateSeed(rand());
-			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewNoiseTextures();
-			terrain->amplitude = sliderPatchAmplitude;
-			noise->amplitude = sliderPatchAmplitude;
-			terrain->size = sliderPatchSize;
-			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
-			terrain->UpdateRenderDistance(sliderRenderDistance);
-			terrain->UpdatePatches();
+		if (ifd::FileDialog::Instance().IsDone("SaveEcosystemDialog")) {
+			if (ifd::FileDialog::Instance().HasResult()) {
+				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+				SaveEcosystem(res);
+			}
+			ifd::FileDialog::Instance().Close();
 		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Load Ecosystem")) {
+			ifd::FileDialog::Instance().Open("LoadEcosystemDialog", "Load Ecosystem", "*.eco {.eco}", false, "./Resources/PlantData/");
+
+		}
+
+		if (ifd::FileDialog::Instance().IsDone("LoadEcosystemDialog")) {
+			if (ifd::FileDialog::Instance().HasResult()) {
+				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
+				LoadEcosystem(std::string(res));
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+
+
+		if (ImGui::Button("Plains")) {
+			LoadEcosystem(std::string("./Resources/PlantData/plains.eco"));
+		}
+		ImGui::SameLine();
 		if (ImGui::Button("Mountain")) {
-			noise->fastNoiseLite.SetNoiseType(FastNoiseLite::NoiseType_Cellular);
-			noise->fastNoiseLite.SetFractalType(FastNoiseLite::FractalType_Ridged);
-
-			sliderScale = 0.45f;
-			sliderOctaves = 5.0f;
-			sliderPersistance = 0.2f;
-			sliderLacunarity = 0.35f;
-
-			sliderPatchSize = 7.0f;
-			sliderPatchSubdivision = 28.0f;
-			sliderPatchAmplitude = 64.0f;
-			sliderRenderDistance = 3;
-
-			noise->updateSeed(rand());
-			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
-			NewNoiseTextures();
-			terrain->amplitude = sliderPatchAmplitude;
-			noise->amplitude = sliderPatchAmplitude;
-			terrain->size = sliderPatchSize;
-			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
-			terrain->UpdateRenderDistance(sliderRenderDistance);
-			terrain->UpdatePatches();
+			LoadEcosystem(std::string("./Resources/PlantData/mountain.eco"));
 		}
 		ImGui::TreePop();
 	}
@@ -578,8 +743,9 @@ void GUI::Update() {
 					bool boolTreeRadiusFalloff = ImGui::SliderFloat("Trunk Radius Falloff", &treeGUIData[i].sliderTreeRadiusFalloff, 0.0f, 2.0f);
 					bool boolTreeRadiusFalloffRate = ImGui::SliderFloat("Trunk Radius FalloffRate", &treeGUIData[i].sliderTreeRadiusFalloffRate, 0.0f, 2.0f);
 					ImGui::Text("Branch Parameters");
+					bool boolBranchMinHeight = ImGui::SliderFloat("Min Start Height", &treeGUIData[i].sliderBranchMinHeight, 0.0f, treeGUIData[i].sliderBranchMaxHeight - 0.01f);
+					bool boolBranchMaxHeight = ImGui::SliderFloat("Max Start Height", &treeGUIData[i].sliderBranchMaxHeight, treeGUIData[i].sliderBranchMinHeight, (treeGUIData[i].sliderTreeHeight*2.0f));
 					bool boolBranchPitch = ImGui::SliderFloat("Branch Pitch", &treeGUIData[i].sliderBranchPitch, 0.0f, 6.0f);
-					bool boolBranchMinHeight = ImGui::SliderFloat("Min Start Height", &treeGUIData[i].sliderBranchMinHeight, 0.0f, treeGUIData[i].sliderTreeHeight);
 					bool boolBranchSegments = ImGui::SliderInt("Branch Segments", &treeGUIData[i].sliderBranchSegments, 2, 16);
 					bool boolMaxBranches = ImGui::SliderInt("Max num of Branches", &treeGUIData[i].sliderMaxBranches, treeGUIData[i].sliderMinBranches, 24);
 					bool boolMinBranches = ImGui::SliderInt("Min num of Branches", &treeGUIData[i].sliderMinBranches, 1, treeGUIData[i].sliderMaxBranches);
@@ -592,6 +758,7 @@ void GUI::Update() {
 					bool boolScale = ImGui::SliderFloat("Scale", &treeGUIData[i].sliderScale, 0.0f, 5.0f);
 
 					if (boolBranchMinHeight ||
+						boolBranchMaxHeight ||
 						boolTreeResolution ||
 						boolTreeSegments ||
 						boolTreeHeight ||
@@ -629,7 +796,6 @@ void GUI::Update() {
 				ImGui::SameLine();
 				if (ImGui::Button("Delete Tree")) {
 					(*trees).erase((*trees).begin() + i);
-					std::cout << treeGUIData.size() << std::endl;
 					treeGUIData.erase(treeGUIData.begin() + i);
 					ecosystem->RecalculateLayers();
 				}
@@ -798,21 +964,24 @@ void GUI::Update() {
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNodeEx("Grass Sliders")) {
-		bool boolGrassBlades = ImGui::SliderInt("Leaves", &sliderGrassBlades, 0, 100);
 		bool boolGrassLength = ImGui::SliderFloat("Leaf Length", &sliderGrassLength, 0.01f, 15.0f);
 		bool boolGrassLengthVariance = ImGui::SliderFloat("Length Variance", &sliderGrassLengthVariance, 0.0f, 5.0f);
 		bool boolGrassPitchVariance = ImGui::SliderFloat("Pitch Variance", &sliderGrassPitchVariance, 0.0f, 5.0f);
+		bool boolGrassScale = ImGui::SliderFloat("Scale", &sliderGrassScale, 0.0f, 5.0f);
+		bool boolGrassScaleVariance = ImGui::SliderFloat("Scale Variance", &sliderGrassScaleVariance, 0.0f, 5.0f);
 
 		// Patch Updates
-		if (boolGrassBlades ||
-			boolGrassLength ||
+		if (boolGrassLength ||
 			boolGrassLengthVariance ||
-			boolGrassPitchVariance
+			boolGrassPitchVariance ||
+			boolGrassScale ||
+			boolGrassScaleVariance
 			) {
-			grass->blades = sliderGrassBlades;
 			grass->length = sliderGrassLength;
 			grass->lengthVariance = sliderGrassLengthVariance;
 			grass->pitchVariance = sliderGrassPitchVariance;
+			grass->scale = sliderGrassScale;
+			grass->scaleVariance = sliderGrassScaleVariance;
 			grass->GenerateVertices();
 		}
 		ImGui::TreePop();
@@ -829,12 +998,16 @@ void GUI::Update() {
 		ImGui::Image((void*)(intptr_t)poissonTextures[0].ID, ImVec2(256.0f, 256.0f));
 
 		ImGui::Text("Layer Radii Control");
-		for (int i = 0; i < 3; i++) {
-			std::string nodeName = std::string("Layer ") + std::to_string(i + 1) + std::string(" radius");
-			bool boolPoissonRadii = ImGui::SliderFloat(nodeName.data(), &sliderPoissonRadii[i], 0.0f, 50.0f);
-			if (boolPoissonRadii) {
-				ecosystem->layerRadii = sliderPoissonRadii;
-			}
+		bool boolTreeRadii = ImGui::SliderFloat("Tree Radius", &sliderPoissonRadii[0], 0.0f, 10.0f);
+		bool boolPlants1Radii = ImGui::SliderFloat("Plants 1 Radius", &sliderPoissonRadii[1], 0.0f, 5.0f);
+		bool boolPlants2Radii = ImGui::SliderFloat("Plants 2 Radius", &sliderPoissonRadii[2], 0.0f, 5.0f);
+		bool boolGrassRadii = ImGui::SliderFloat("Grass Radius", &sliderPoissonRadii[3], 0.0f, 1.0f);
+		if (boolTreeRadii ||
+			boolPlants1Radii ||
+			boolPlants2Radii ||
+			boolGrassRadii
+			) {
+			ecosystem->layerRadii = sliderPoissonRadii;
 		}
 
 		if (ImGui::Button("Refresh Texture")) {
@@ -859,7 +1032,7 @@ void GUI::Update() {
 	if (ImGui::TreeNodeEx("Plant Parameters")) {
 		if (ecosystem->layerIndices.empty()) { ecosystem->RecalculateLayers(); }
 
-		if (ImGui::TreeNodeEx("Layer 0 Trees")) {
+		if (ImGui::TreeNodeEx("Trees")) {
 			for (int j = 0; j < ecosystem->layerIndices[0].size(); j++) { // For each plant
 				std::string nodeName2 = std::string("Tree ") + std::to_string(j);
 				if (ImGui::TreeNodeEx(nodeName2.data())) {
@@ -867,7 +1040,7 @@ void GUI::Update() {
 					bool boolTreeDominance = ImGui::SliderInt("Dominance", &treeGUIData[index].sliderTreeDominance, 1, 10);
 					bool boolTreeOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &treeGUIData[index].sliderTreeOxygenUpperLimit, 0.0f, 1.0f);
 					bool boolTreeOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &treeGUIData[index].sliderTreeOxygenLowerLimit, 0.0f, 1.0f);
-					bool boolTreeRootingStrength = ImGui::SliderFloat("Rooting Strength Level", &treeGUIData[index].sliderTreeRootingStrength, 0.0f, 1.0f);
+					bool boolTreeRootingStrength = ImGui::SliderFloat("Rooting Requirement", &treeGUIData[index].sliderTreeRootingStrength, 0.0f, 1.0f);
 					bool boolTreeMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &treeGUIData[index].sliderTreeMoistureRequirement, 0.0f, 1.0f);
 					bool boolTreeInteractionLevel = ImGui::SliderFloat("Interaction Level", &treeGUIData[index].sliderTreeInteractionLevel, 0.0f, 1.0f);
 
@@ -925,6 +1098,28 @@ void GUI::Update() {
 				ImGui::TreePop();
 			}
 		}
+
+		if (ImGui::TreeNodeEx("Grass")) {
+				bool boolGrassDominance = ImGui::SliderInt("Dominance", &grass->ecosystemDominance, 1, 10);
+				bool boolGrassOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &grass->ecosystemOxygenUpperLimit, 0.0f, 1.0f);
+				bool boolGrassOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &grass->ecosystemOxygenLowerLimit, 0.0f, 1.0f);
+				bool boolGrassRootingStrength = ImGui::SliderFloat("Rooting Requirement", &grass->ecosystemRootingStrength, 0.0f, 1.0f);
+				bool boolGrassMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &grass->ecosystemMoistureRequirement, 0.0f, 1.0f);
+				bool boolGrassInteractionLevel = ImGui::SliderFloat("Interaction Level", &grass->ecosystemInteractionLevel, 0.0f, 1.0f);
+
+				if (boolGrassDominance ||
+					boolGrassOxygenUpperLimit ||
+					boolGrassOxygenLowerLimit ||
+					boolGrassRootingStrength ||
+					boolGrassMoistureRequirement ||
+					boolGrassInteractionLevel
+					)
+				{
+					grass->GenerateVertices();
+				}
+			ImGui::TreePop();
+		}
+
 		ImGui::TreePop();
 	}
 

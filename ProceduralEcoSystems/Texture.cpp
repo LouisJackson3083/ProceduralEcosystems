@@ -178,7 +178,6 @@ Texture::Texture(const char* texType, GLuint slot) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
 Texture::Texture(const char* texType, GLuint slot, std::vector<float> layerRadii) {
 	const int texSize = 256;
 	GLubyte plantImage[texSize][texSize][4]; // Modify to hold RGBA values

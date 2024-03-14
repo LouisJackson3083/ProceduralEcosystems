@@ -165,6 +165,11 @@ public:
         UpdateTransformType3D();
     }
 
+    NoiseType GetNoiseType()
+    {
+        return mNoiseType;
+    }
+
     /// <summary>
     /// Sets domain rotation type for 3D Noise and 3D DomainWarp.
     /// Can aid in reducing directional artifacts when sampling a 2D plane in 3D
@@ -187,6 +192,10 @@ public:
     /// Note: FractalType_DomainWarp... only affects DomainWarp(...)
     /// </remarks>
     void SetFractalType(FractalType fractalType) { mFractalType = fractalType; }
+
+    FractalType GetFractalType() {
+        return mFractalType;
+    }
 
     /// <summary>
     /// Sets octave count for all fractal noise types 

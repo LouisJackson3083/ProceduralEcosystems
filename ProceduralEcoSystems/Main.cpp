@@ -129,7 +129,6 @@ int main()
 	terrainShader.Activate();
 	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(terrainShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	glUniform1f(glGetUniformLocation(terrainShader.ID, "texThreshold"), 0.5f);
 
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
@@ -158,17 +157,14 @@ int main()
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(4, 14, 10.0f, 1, &noise);
+	Terrain terrain(4, 14, 10.0f, 1, &noise, &terrainShader);
 	std::vector<Plant> plants;
 	std::vector<Tree> trees;
 	trees.push_back(&noise);
 	Grass grass(&noise);
-	Ecosystem ecosystem(&plants, &trees, &noise, &terrain);
-
-	ecosystem.GeneratePoissonPositions((float)terrain.size * std::pow(3, terrain.render_distance) / 2.0f);
-	ecosystem.DistributePositions();
-
+	Ecosystem ecosystem(&grass, &plants, &trees, &noise, &terrain);
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &trees, &grass, &ecosystem);
+	GUI.LoadEcosystem("./Resources/PlantData/default.eco");
 
 
 	// Variables to create periodic event for FPS displaying

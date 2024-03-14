@@ -20,10 +20,22 @@ public:
 	std::vector<GLuint> indices;
 	VAO VAO;
 
-	int blades;
+	std::vector<glm::vec2> positions;
+
 	float length;
 	float lengthVariance;
 	float pitchVariance;
+	float scale;
+	float scaleVariance;
+
+	// Ecosystem parameters
+	int ecosystemDominance;
+	float ecosystemOxygenUpperLimit;
+	float ecosystemOxygenLowerLimit;
+	float ecosystemRootingStrength;
+	float ecosystemMoistureRequirement;
+	float ecosystemInteractionLevel;
+
 
 	Noise* noise;
 
@@ -37,8 +49,7 @@ public:
 		Camera& camera,
 		glm::mat4 matrix = glm::mat4(1.0f),
 		glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-		glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f)
+		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f)
 	);
 };
 

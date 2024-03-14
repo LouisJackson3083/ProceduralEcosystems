@@ -2,7 +2,9 @@
 #define TERRAIN_CLASS_H
 
 #include"Patch.h"
+#include"shaderClass.h"
 #include <cmath>
+#include <math.h>
 
 class Terrain {
 public:
@@ -14,10 +16,28 @@ public:
 	glm::vec2 cameraPosition;
 	Noise* noise;
 	std::vector<Texture> textures;
+	Shader* terrainShader;
 
-	Terrain(int input_size, int input_subdivision, float input_amplitude, int input_render_distance, Noise* input_noise);
+	// Terrain Texture stuff
+	float snowStartHeight;
+	float snowBlendDistance;
+	float rockStartHeight;
+	float rockBlendDistance;
+	float slopeAmount;
+	float slopeBlendDist;
+
+
+	Terrain(int input_size, int input_subdivision, float input_amplitude, int input_render_distance, Noise* input_noise, Shader* input_terrainShader);
+
+	void UpdateTextureValues();
 
 	void UpdateRenderDistance(int input_render_distance);
+
+	void SaveTerrain(std::string file);
+
+	void LoadTerrainData(std::string file);
+
+	int GetPatchAt(float x, float z);
 
 	void UpdatePatches();
 

@@ -44,6 +44,7 @@ struct TreeGUIData
 	float sliderTreeInteractionLevel;
 
 	float sliderBranchMinHeight;
+	float sliderBranchMaxHeight;
 
 };
 
@@ -101,6 +102,7 @@ public:
 	float ecosystemInteractionLevel;
 
 	float branchMinHeight;
+	float branchMaxHeight;
 
 
 	std::vector<int> branch_bin;

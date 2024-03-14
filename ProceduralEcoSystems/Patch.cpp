@@ -32,13 +32,14 @@ std::tuple<float, glm::vec3> Patch::GetHeight(int vertexID, float scalar) {
 	float y = noise->get(offset[0] + x, offset[2] + z) * amplitude;
 	
 	// calculate pitch/yaw
-	normalOffset = scalar * size;
+	//normalOffset = scalar * size;
 	float hL = noise->get(offset[0] + x, offset[2] + z - normalOffset) * amplitude;
 	float hR = noise->get(offset[0] + x, offset[2] + z + normalOffset) * amplitude;
 	float hD = noise->get(offset[0] + x - normalOffset, offset[2] + z) * amplitude;
 	float hU = noise->get(offset[0] + x + normalOffset, offset[2] + z) * amplitude;
 	glm::vec3 normal(hD - hU, 2.0, hL - hR);
 	normal = glm::normalize(normal);
+
 
 	int iRank = i % 3;
 	int jRank = j % 3;

@@ -18,6 +18,9 @@ uniform float time;
 uniform float bladeLength;
 uniform float pitchVariance;
 uniform float lengthVariance;
+uniform float scale;
+uniform float scaleVariance;
+
 
 float random (vec2 st) {
     return 0.5-fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
@@ -63,5 +66,5 @@ void main()
 	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2( tex_XCoord, width + 0.5 );
 	
 	// Outputs the positions/coordinates of all vertices
-	gl_Position = camMatrix * vec4(crntPos + aPos, 1.0);
+	gl_Position = camMatrix * vec4(crntPos*vec3(scale+(rnd*scaleVariance)) + aPos, 1.0);
 }

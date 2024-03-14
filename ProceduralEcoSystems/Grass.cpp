@@ -3,10 +3,24 @@
 Grass::Grass(Noise* input_noise) {
 	noise = input_noise;
 
-	blades = 10;
+
+	for (int i = 0; i < 10; i++) {
+		positions.push_back(glm::vec2(i, 0.0f));
+	}
+
 	length = 5.0f;
 	lengthVariance = 1.0f;
 	pitchVariance = 0.03f;
+	scale = 0.05f;
+	scaleVariance = 0.05f;
+
+	//init ecosystem variables
+	ecosystemDominance = 1;
+	ecosystemOxygenUpperLimit = 1.0f;
+	ecosystemOxygenLowerLimit = 0.0f;
+	ecosystemRootingStrength = 0.5f;
+	ecosystemMoistureRequirement = 0.0f;
+	ecosystemInteractionLevel = 0.0f;
 
 	textures.push_back(Texture("./Resources/Textures/blade1.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/blade1Spec.png", "specular", 1));
@@ -22,19 +36,22 @@ void Grass::GenerateVertices() {
 	int radius = 25;
 
 	// Used to keep track of the current vertex so that indice instantiation is correct
-	for (int i = 0; i < blades; i++) {
+	for (int i = 0; i < positions.size(); i++) {
 
 
 		float r = radius * sqrt(((float)rand() / (RAND_MAX)));
 		float theta = ((float)rand() / (RAND_MAX)) * 6.283185307179586476925286766559;
 		float x = r * cos(theta);
 		float y = r * sin(theta);
-		glm::vec3 position = glm::vec3(x, noise->get(x, y) * noise->amplitude, y);
 
 		for (int j = 0; j < 4; j++) {
 			vertices.push_back(PlantVertex
 				{
-					position
+					glm::vec3( // Positions
+						positions[i][0],
+						noise->get(positions[i][0], positions[i][1]) * noise->amplitude,
+						positions[i][1]
+					)
 				}
 			);
 		}
@@ -78,8 +95,7 @@ void Grass::Draw
 	Camera& camera,
 	glm::mat4 matrix,
 	glm::vec3 translation,
-	glm::quat rotation,
-	glm::vec3 scale
+	glm::quat rotation
 )
 {
 	// Bind shader to be able to access uniforms
@@ -120,6 +136,8 @@ void Grass::Draw
 	glUniform1f(glGetUniformLocation(shader.ID, "bladeLength"), length);
 	glUniform1f(glGetUniformLocation(shader.ID, "pitchVariance"), pitchVariance);
 	glUniform1f(glGetUniformLocation(shader.ID, "lengthVariance"), lengthVariance);
+	glUniform1f(glGetUniformLocation(shader.ID, "scale"), scale);
+	glUniform1f(glGetUniformLocation(shader.ID, "scaleVariance"), scaleVariance);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }

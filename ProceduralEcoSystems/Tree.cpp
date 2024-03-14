@@ -13,6 +13,7 @@ Tree::Tree(Noise* input_noise) {
 	vertices_per_trunk = resolution * segments;
 	height = 5.0f;
 	branchMinHeight = height / 2;
+	branchMaxHeight = height * 2;
 	radius = 0.5f;
 	radiusFalloff = 1.5f;
 	radiusFalloffRate = 0.5f;
@@ -115,6 +116,7 @@ Tree::Tree(std::string file, Noise* input_noise) {
 		ecosystemInteractionLevel = std::stof(results[27]);
 
 		branchMinHeight = std::stof(results[28]);
+		branchMaxHeight = std::stof(results[29]);
 
 		GenerateBranchBin();
 		GenerateVertices();
@@ -151,6 +153,7 @@ TreeGUIData Tree::GetGUIData() {
 		ecosystemMoistureRequirement,
 		ecosystemInteractionLevel,
 		branchMinHeight,
+		branchMaxHeight,
 	};
 }
 
@@ -195,6 +198,7 @@ void Tree::SaveTreeData(TreeGUIData* treeGUIData, std::string file) {
 	myfile << treeGUIData->sliderTreeInteractionLevel << ",";
 
 	myfile << treeGUIData->sliderBranchMinHeight << ",";
+	myfile << treeGUIData->sliderBranchMaxHeight << ",";
 
 	myfile.close();
 }
@@ -228,6 +232,7 @@ void Tree::UpdateValues(TreeGUIData treeGUIData) {
 	ecosystemInteractionLevel = treeGUIData.sliderTreeInteractionLevel;
 
 	branchMinHeight = treeGUIData.sliderBranchMinHeight;
+	branchMaxHeight = treeGUIData.sliderBranchMaxHeight;
 }
 
 void Tree::ChangeTreeTextures(const char* texture, const int type) {
@@ -328,7 +333,9 @@ void Tree::GenerateVertices() {
 	branchIndices.clear();
 	vertices_per_branch = branchSegments * 2;
 	std::default_random_engine gen;
-	std::uniform_real_distribution<double> distribution(branchMinHeight, height);
+
+	std::cout << branchMinHeight << " , " << branchMaxHeight << std::endl;
+	std::uniform_real_distribution<double> distribution(branchMinHeight, branchMaxHeight);
 	float branch_height = distribution(gen);
 
 	// Used to keep track of the current vertex so that indice instantiation is correct

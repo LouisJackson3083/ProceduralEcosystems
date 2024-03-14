@@ -1,4 +1,15 @@
-﻿  Patch.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Patch.cpp(26,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Patch.cpp(168,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+﻿  GUI.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(146,10): warning C4312: 'type cast': conversion from 'GLuint' to 'void *' of greater size
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(288,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(448,62): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1018,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Tree.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(339,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(350,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(354,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(459,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(470,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(510,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Tree.cpp(531,49): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  Generating Code...
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\x64\Debug\ProceduralEcoSystems.exe

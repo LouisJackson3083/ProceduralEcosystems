@@ -44,6 +44,10 @@ public:
 
 	void CleanUp();
 
+	void SaveEcosystem(std::string file);
+
+	void LoadEcosystem(std::string file);
+
 	void SavePlantData(Plant plant, PlantGUIData* plantGUIData, std::string file);
 
 	std::vector<Texture> noiseTextures;
@@ -70,10 +74,11 @@ public:
 private:
 
 	// Grass sliders
-	int sliderGrassBlades;
 	float sliderGrassLength;
 	float sliderGrassLengthVariance;
 	float sliderGrassPitchVariance;
+	float sliderGrassScale;
+	float sliderGrassScaleVariance;
 
 	// Noise sliders
 	float sliderScale;

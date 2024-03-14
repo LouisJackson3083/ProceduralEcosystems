@@ -27,6 +27,13 @@ uniform vec3 lightPos;
 // Gets the position of the camera from the main function
 uniform vec3 camPos;
 
+uniform float snow_blend_distance;
+uniform float snow_height;
+uniform float rock_blend_distance;
+uniform float rock_height;
+uniform float slope_amount;
+uniform float slope_blend_distance;
+
 
 vec4 pointLight()
 {	
@@ -68,21 +75,53 @@ vec4 direcLight()
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
 	// specular lighting
-	float specularLight = 0.50f;
+	float specularLight = 0.20f;
 	vec3 viewDirection = normalize(camPos - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
 	float pitch = asin(-normal.y) / 1.57079632679;
+	float snow_start_height = snow_height - snow_blend_distance;
+	float rock_start_height = rock_height - rock_blend_distance;
 
-	//vec4 diffuse_tex = mix(texture(diffuse0, texCoord), texture(diffuse1, texCoord), pitch);
-	//if ( pitch > -0.75 )
-		//diffuse_tex = texture(diffuse0, texCoord);
-    //else 
-		//diffuse_tex = texture(diffuse1, texCoord);
+	// diffuse2 = dirt
+	// diffuse1 = rock
+	// diffuse0 = snow
+	vec4 diffuse_tex = texture(diffuse2, texCoord);
+	vec4 specular_tex = texture(diffuse2, texCoord);
+	// Handle rock blending
+	if ( crntPos.y > rock_height ) {
+		diffuse_tex = texture(diffuse1, texCoord);
+		specular_tex = texture(specular1, texCoord);
+	}
+	else if ( crntPos.y > rock_start_height ) {
+		diffuse_tex = mix(texture(diffuse1, texCoord), diffuse_tex, abs(crntPos.y - rock_height)/rock_blend_distance);
+		specular_tex = mix(texture(specular1, texCoord), specular_tex, abs(crntPos.y - rock_height)/rock_blend_distance);
+	}
+	
+	// Handle slope stuff
+	if (normal.y < slope_amount) {
+		diffuse_tex = texture(diffuse1, texCoord);
+		specular_tex = texture(diffuse1, texCoord);
+	}
+	else if (normal.y < slope_amount + slope_blend_distance) {
+		diffuse_tex = mix(texture(diffuse1, texCoord), diffuse_tex, abs(normal.y - slope_amount)/slope_blend_distance);
+		specular_tex = mix(texture(specular1, texCoord), specular_tex, abs(normal.y - slope_amount)/slope_blend_distance);
+	}
 
-	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
+	// Handle snow blending
+	if ( crntPos.y > snow_height ) {
+		diffuse_tex = texture(diffuse0, texCoord);
+		specular_tex = texture(specular1, texCoord);
+	}
+	else if ( crntPos.y > snow_start_height ) {
+		diffuse_tex = mix(texture(diffuse0, texCoord), diffuse_tex, abs(crntPos.y - snow_height)/snow_blend_distance);
+		specular_tex = mix(texture(specular0, texCoord), specular_tex, abs(crntPos.y - snow_height)/snow_blend_distance);
+	}
+
+
+	return (diffuse_tex * (diffuse + ambient) + specular_tex.r * specular) * lightColor;
 }
 
 vec4 spotLight()
@@ -137,9 +176,6 @@ void main()
 	float depth = linearizeDepth(gl_FragCoord.z);
 	FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(0.85f, 0.85f, 0.90f), 1.0f);
 
-
     //float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
     //FragColor = 1.0 - vec4(vec3(depth), 1.0) * direcLight();
-
- 
 }
