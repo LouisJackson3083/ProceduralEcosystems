@@ -36,7 +36,6 @@ public:
 	float ecosystemMoistureRequirement;
 	float ecosystemInteractionLevel;
 
-
 	Noise* noise;
 
 	Grass(Noise* input_noise);

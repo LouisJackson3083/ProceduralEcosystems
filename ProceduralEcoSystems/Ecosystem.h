@@ -16,7 +16,7 @@ class Ecosystem
 public:
 	Ecosystem(Grass* input_grass, std::vector<Plant>* input_plants, std::vector<Tree>* input_trees, Noise* input_noise, Terrain* input_terrain);
 
-	void GeneratePoissonPositions(float terrainSize);
+	void GeneratePoissonPositions(float terrainSize, float grassSize);
 
 	void RecalculateLayers();
 	

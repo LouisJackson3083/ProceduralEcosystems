@@ -102,6 +102,8 @@ private:
 	float sliderPatchAmplitude;
 	int sliderRenderDistance;
 
+	int sliderGrassRenderDistance;
+
 	// Ecosystem Sliders
 	std::vector<float> sliderPoissonRadii;
 
