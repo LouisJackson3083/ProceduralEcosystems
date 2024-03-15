@@ -1,27 +1,22 @@
-﻿  Ecosystem.cpp
+﻿  Camera.cpp
+  EBO.cpp
+  Ecosystem.cpp
   GUI.cpp
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(147,10): warning C4312: 'type cast': conversion from 'GLuint' to 'void *' of greater size
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(294,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(298,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(299,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(434,61): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(440,61): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(450,62): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1023,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1024,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1025,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(444,62): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1017,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1018,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\GUI.cpp(1019,21): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Grass.cpp
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Grass.cpp(160,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Grass.cpp(171,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Grass.cpp(203,50): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   Main.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(164,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-  Mesh.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Mesh.cpp(106,44): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Mesh.cpp(110,53): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-  Model.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Model.cpp(265,91): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Model.cpp(273,93): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Main.cpp(144,21): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   Noise.cpp
 C:\Users\neoni\OneDrive\Documents\UNI\ProceduralEcoSystems\ProceduralEcoSystems\Noise.cpp(26,31): warning C4244: 'argument': conversion from 'int' to '_Ty', possible loss of data
           with

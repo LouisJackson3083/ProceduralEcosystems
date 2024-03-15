@@ -154,8 +154,6 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Patch.cpp" />
     <ClCompile Include="Grass.cpp" />
@@ -225,8 +223,6 @@
     <ClInclude Include="Noise.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="SimplexNoise.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="shaderClass.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Tree.h" />
