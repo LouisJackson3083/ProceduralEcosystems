@@ -7,17 +7,22 @@ Ecosystem::Ecosystem(Grass* input_grass, std::vector<Plant>* input_plants, std::
 	terrain = input_terrain;
 	grass = input_grass;
 	layerRadii = { 10.0f, 5.0f, 5.0f, 0.1f };
+	lowPolyGrassLimit = 256.0f;
 }
 
-void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize) {
+void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, float grassSize2) {
 	poissonPositions.clear();
 	RecalculateLayers();
+
+	lowPolyGrassLimit = grassSize1;
 
 	auto kXMin = std::array<float, 2>{{-terrainSize, -terrainSize}};
 	auto kXMax = std::array<float, 2>{{terrainSize, terrainSize}};
 
-	auto grass_kXMin = std::array<float, 2>{{-grassSize, -grassSize}};
-	auto grass_kXMax = std::array<float, 2>{{grassSize, grassSize}};
+	auto grass_kXMin1 = std::array<float, 2>{{-grassSize1, -grassSize1}};
+	auto grass_kXMax1 = std::array<float, 2>{{grassSize1, grassSize1}};
+	auto grass_kXMin2 = std::array<float, 2>{{-grassSize2, -grassSize2}};
+	auto grass_kXMax2 = std::array<float, 2>{{grassSize2, grassSize2}};
 
 	// Minimal amount of information provided to sampling function.
 	for (int i = 0; i < 3; i++) {
@@ -32,12 +37,22 @@ void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize) {
 		poissonPositions.push_back(currPositions);
 	}
 
-	const auto samples = thinks::PoissonDiskSampling(layerRadii[3], grass_kXMin, grass_kXMax);
+	// Grass stuff
+	const auto samples = thinks::PoissonDiskSampling(layerRadii[3], grass_kXMin1, grass_kXMax1);
 	std::vector<glm::vec2> currPositions;
 	for (const auto& sample : samples) {
 		currPositions.push_back(glm::vec2(sample[0], sample[1]));
 	}
 	poissonPositions.push_back(currPositions);
+
+	const auto samples2 = thinks::PoissonDiskSampling(layerRadii[3] * 2.0f, grass_kXMin2, grass_kXMax2);
+	currPositions.clear();
+	for (const auto& sample : samples2) {
+		currPositions.push_back(glm::vec2(sample[0], sample[1]));
+	}
+
+	poissonPositions.push_back(currPositions);
+
 
 }
 
@@ -65,6 +80,7 @@ void Ecosystem::RecalculateLayers() {
 	}
 
 	grass->positions.clear();
+	grass->positionsLowPoly.clear();
 
 	layerIndices.push_back(layer0Indices);
 	layerIndices.push_back(layer1Indices);
@@ -77,7 +93,6 @@ void Ecosystem::DistributePositions() {
 	// Handle tree distribution
 	if (layerIndices[0].size() != 0) {
 		for (int p = 0; p < poissonPositions[0].size(); p++) {
-			
 			//terrainScalar = terrain->patches[terrain->GetPatchAt(poissonPositions[0][p][0], poissonPositions[0][p][1])].normalOffset / 2.0f;
 			glm::vec2 heightAndGradient = noise->EcosystemGetHeightAndGradients(poissonPositions[0][p][0], poissonPositions[0][p][1], terrainScalar, terrain->amplitude);
 			std::vector<int> potential_trees;
@@ -102,7 +117,7 @@ void Ecosystem::DistributePositions() {
 	}
 
 	// Handle plants and small plant distribution
-	for (int i = 1; i < poissonPositions.size() - 1; i++) {
+	for (int i = 1; i < poissonPositions.size() - 2; i++) {
 		if (layerIndices[i].size() == 0) { continue; }
 		for (int p = 0; p < poissonPositions[i].size(); p++) {
 			//terrainScalar = terrain->patches[terrain->GetPatchAt(poissonPositions[0][p][0], poissonPositions[0][p][1])].normalOffset / 2.0f;
@@ -134,7 +149,6 @@ void Ecosystem::DistributePositions() {
 	// Handle grass distribution
 	for (int p = 0; p < poissonPositions[3].size(); p++) {
 		glm::vec2 heightAndGradient = noise->EcosystemGetHeightAndGradients(poissonPositions[3][p][0], poissonPositions[3][p][1], terrainScalar, terrain->amplitude);
-		std::vector<int> potential_trees;
 		if (grass->ecosystemRootingStrength > heightAndGradient[1] ||
 			grass->ecosystemOxygenLowerLimit > heightAndGradient[0] ||
 			grass->ecosystemOxygenUpperLimit < heightAndGradient[0]
@@ -142,6 +156,18 @@ void Ecosystem::DistributePositions() {
 			continue;
 		}
 		grass->positions.push_back(poissonPositions[3][p]);
+	}
+	// Handle grass distribution
+	for (int p = 0; p < poissonPositions[4].size(); p++) {
+		if (poissonPositions[4][p][0] <= lowPolyGrassLimit and poissonPositions[4][p][0] >= -lowPolyGrassLimit and poissonPositions[4][p][1] <= lowPolyGrassLimit and poissonPositions[4][p][1] >= -lowPolyGrassLimit) { continue; }
+		glm::vec2 heightAndGradient = noise->EcosystemGetHeightAndGradients(poissonPositions[4][p][0], poissonPositions[4][p][1], terrainScalar, terrain->amplitude);
+		if (grass->ecosystemRootingStrength > heightAndGradient[1] ||
+			grass->ecosystemOxygenLowerLimit > heightAndGradient[0] ||
+			grass->ecosystemOxygenUpperLimit < heightAndGradient[0]
+			) {
+			continue;
+		}
+		grass->positionsLowPoly.push_back(poissonPositions[4][p]);
 	}
 
 	for (int i = 0; i < plants->size(); i++) {

@@ -16,7 +16,7 @@ class Ecosystem
 public:
 	Ecosystem(Grass* input_grass, std::vector<Plant>* input_plants, std::vector<Tree>* input_trees, Noise* input_noise, Terrain* input_terrain);
 
-	void GeneratePoissonPositions(float terrainSize, float grassSize);
+	void GeneratePoissonPositions(float terrainSize, float grassSize1, float grassSize2);
 
 	void RecalculateLayers();
 	
@@ -30,6 +30,7 @@ public:
 	std::vector<std::vector<glm::vec2>> poissonPositions;
 	Noise* noise;
 	Terrain* terrain;
+	float lowPolyGrassLimit;
 
 };
 #endif

@@ -334,7 +334,6 @@ void Tree::GenerateVertices() {
 	vertices_per_branch = branchSegments * 2;
 	std::default_random_engine gen;
 
-	std::cout << branchMinHeight << " , " << branchMaxHeight << std::endl;
 	std::uniform_real_distribution<double> distribution(branchMinHeight, branchMaxHeight);
 	float branch_height = distribution(gen);
 

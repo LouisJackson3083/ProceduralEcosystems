@@ -27,6 +27,7 @@ public:
 	float slopeBlendDist;
 
 
+
 	Terrain(int input_size, int input_subdivision, float input_amplitude, int input_render_distance, Noise* input_noise, Shader* input_terrainShader);
 
 	void UpdateTextureValues();

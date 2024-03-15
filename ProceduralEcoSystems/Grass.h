@@ -16,11 +16,16 @@ class Grass {
 public:
 
 	std::vector<Texture> textures;
+	std::vector<Texture> textures2;
 	std::vector<PlantVertex> vertices;
 	std::vector<GLuint> indices;
-	VAO VAO;
+	std::vector<PlantVertex> lowPolyVertices;
+	std::vector<GLuint> lowPolyIndices;
+	VAO vao;
+	VAO lowPolyvao;
 
 	std::vector<glm::vec2> positions;
+	std::vector<glm::vec2> positionsLowPoly;
 
 	float length;
 	float lengthVariance;
@@ -45,6 +50,7 @@ public:
 
 	void Draw(
 		Shader& shader,
+		Shader& shader2,
 		Camera& camera,
 		glm::mat4 matrix = glm::mat4(1.0f),
 		glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f),

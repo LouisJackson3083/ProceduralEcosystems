@@ -103,6 +103,8 @@ GUI::GUI(
 	sliderPatchAmplitude = terrain->amplitude;
 	noise->amplitude = sliderPatchAmplitude;
 	sliderRenderDistance = terrain->render_distance;
+	sliderGrassRenderDistance = terrain->render_distance - 1;
+	sliderGrassRenderDistance2 = terrain->render_distance;
 
 	// Erosion
 	sliderErosionDropletRadii = noise->dropletRadii;
@@ -124,7 +126,6 @@ GUI::GUI(
 	renderPlants = true;
 	renderTrees = true;
 	boolWireframe = false;
-
 	NewNoiseTextures();
 	
 	NewPlantTextures();
@@ -222,6 +223,11 @@ void GUI::SaveEcosystem(std::string file) {
 		(*plants)[i].SavePlantData(&plantData, plantFile);
 		myfile << plantFile << ",";
 	}
+
+
+	myfile << sliderGrassRenderDistance << ",";
+	myfile << sliderGrassRenderDistance2 << ",";
+
 	std::cout << "SAVED TO " << file << std::endl;
 
 	myfile.close();
@@ -286,7 +292,12 @@ void GUI::LoadEcosystem(std::string file) {
 		NewNoiseTextures();
 
 		float terrainSize = (float)terrain->size * std::pow(3, terrain->render_distance) / 2.0f;
-		sliderGrassRenderDistance = (float)terrain->size * std::pow(3, 1) / 2.0f;
+
+		sliderGrassRenderDistance = std::stoi(results[18 + numTrees + numPlants]);
+		sliderGrassRenderDistance2 = std::stoi(results[18 + numTrees + numPlants + 1]);
+		float grassSize1 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance) / 2.0f;
+		float grassSize2 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance2) / 2.0f;
+
 		ecosystem->layerRadii[0] = std::stof(results[2]);
 		ecosystem->layerRadii[1] = std::stof(results[3]);
 		ecosystem->layerRadii[2] = std::stof(results[4]);
@@ -294,7 +305,7 @@ void GUI::LoadEcosystem(std::string file) {
 		sliderPoissonRadii = ecosystem->layerRadii;
 
 		ecosystem->RecalculateLayers();
-		ecosystem->GeneratePoissonPositions(terrainSize, sliderGrassRenderDistance);
+		ecosystem->GeneratePoissonPositions(terrainSize, grassSize1, grassSize2);
 		ecosystem->DistributePositions();
 
 		myfile.close();
@@ -392,23 +403,11 @@ void GUI::Update() {
 
 	// Erosion Sliders
 	if (ImGui::TreeNodeEx("Erosion Sliders")) {
+		
+		ImGui::Text("Erosion");
+		Texture erosionImage = Texture(noise, 2, sliderScale, "diffuse", 0);
+		ImGui::Image((void*)(intptr_t)erosionImage.ID, ImVec2(256.0f, 256.0f));
 
-		if (ImGui::TreeNodeEx("Erosion Images")) {
-			if (noiseTextures.size() <= 3) {
-				noiseTextures.push_back(Texture(noise, 1, sliderScale, "diffuse", 0));
-				noiseTextures.push_back(Texture(noise, 2, sliderScale, "diffuse", 0));
-				noiseTextures.push_back(Texture(noise, 3, sliderScale, "diffuse", 0));
-			}
-			ImGui::Text("Steepness");
-			ImGui::Image((void*)(intptr_t)noiseTextures[1].ID, ImVec2(256.0f, 256.0f));
-			ImGui::Text("Erosion");
-			ImGui::Image((void*)(intptr_t)noiseTextures[2].ID, ImVec2(256.0f, 256.0f));
-			ImGui::Text("Noise + Erosion Overlay");
-			ImGui::Image((void*)(intptr_t)noiseTextures[3].ID, ImVec2(256.0f, 256.0f));
-
-
-			ImGui::TreePop();
-		}
 		bool boolErosionDropletRadii = ImGui::SliderFloat("Distance between Droplets", &sliderErosionDropletRadii, 0.0f, 10.0f);
 		bool boolErosionLifetime = ImGui::SliderInt("Lifetime of Droplets", &sliderErosionLifetime, 1, 50);
 		bool boolErosionInertia = ImGui::SliderFloat("Inertia", &sliderErosionInertia, 0.0f, 1.0f);
@@ -432,12 +431,8 @@ void GUI::Update() {
 				sliderErosionErodeSpeed,
 				sliderErosionEvaporateSpeed
 			);
-		}
-
-		// Buttons
-		if (ImGui::Button("Update Erosion Texture")) {
+			noise->terrainSize = (int)terrain->size * std::pow(3, 1) / 2.0f;
 			noise->generateErosionMap();
-			NewNoiseTextures();
 		}
 
 		// Use Erosion Checkbox
@@ -623,6 +618,7 @@ void GUI::Update() {
 	ImGui::Checkbox("Toggle Grass", &renderGrass);
 	ImGui::Checkbox("Toggle Plants", &renderPlants);
 	ImGui::Checkbox("Toggle Trees", &renderTrees);
+
 
 	// Presets
 	if (ImGui::TreeNodeEx("Presets")) {
@@ -1019,8 +1015,9 @@ void GUI::Update() {
 		ImGui::SameLine();
 		if (ImGui::Button("Update Plant Positions")) {
 			float terrainSize = (float)terrain->size * std::pow(3, terrain->render_distance) / 2.0f;
-			float grassSize = (float)terrain->size * std::pow(3, sliderGrassRenderDistance) / 2.0f;
-			ecosystem->GeneratePoissonPositions(terrainSize, grassSize);
+			float grassSize1 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance) / 2.0f;
+			float grassSize2 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance2) / 2.0f;
+			ecosystem->GeneratePoissonPositions(terrainSize, grassSize1, grassSize2);
 			ecosystem->DistributePositions();
 			/*ecosystem->GeneratePoissonPositions();
 			(*plants)[0].positions = ecosystem->poissonPositions[0];
@@ -1109,9 +1106,11 @@ void GUI::Update() {
 				bool boolGrassRootingStrength = ImGui::SliderFloat("Rooting Requirement", &grass->ecosystemRootingStrength, 0.0f, 1.0f);
 				bool boolGrassMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &grass->ecosystemMoistureRequirement, 0.0f, 1.0f);
 				bool boolGrassInteractionLevel = ImGui::SliderFloat("Interaction Level", &grass->ecosystemInteractionLevel, 0.0f, 1.0f);
-				bool boolGrassRenderDistance = ImGui::SliderInt("Render Distance", &sliderGrassRenderDistance, 1, terrain->render_distance);
+				bool boolGrassRenderDistance = ImGui::SliderInt("Render Distance", &sliderGrassRenderDistance, 1, sliderGrassRenderDistance2);
+				bool boolGrassRenderDistance2 = ImGui::SliderInt("Low Poly Distance", &sliderGrassRenderDistance2, sliderGrassRenderDistance, terrain->render_distance);
 
 				if (boolGrassRenderDistance ||
+					boolGrassRenderDistance2 ||
 					boolGrassOxygenUpperLimit ||
 					boolGrassOxygenLowerLimit ||
 					boolGrassRootingStrength ||

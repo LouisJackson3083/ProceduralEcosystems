@@ -6,6 +6,7 @@ Grass::Grass(Noise* input_noise) {
 
 	for (int i = 0; i < 10; i++) {
 		positions.push_back(glm::vec2(i, 0.0f));
+		positionsLowPoly.push_back(glm::vec2(i, 0.0f));
 	}
 
 	length = 5.0f;
@@ -24,6 +25,8 @@ Grass::Grass(Noise* input_noise) {
 
 	textures.push_back(Texture("./Resources/Textures/blade1.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/blade1Spec.png", "specular", 1));
+	textures2.push_back(Texture("./Resources/Textures/grassBlades.png", "diffuse", 0));
+	textures2.push_back(Texture("./Resources/Textures/blade1Spec.png", "specular", 1));
 	GenerateVertices();
 
 }
@@ -32,18 +35,11 @@ void Grass::GenerateVertices() {
 	// Clear the vertices and indices vectors
 	vertices.clear();
 	indices.clear();
-
-	int radius = 25;
+	lowPolyVertices.clear();
+	lowPolyIndices.clear();
 
 	// Used to keep track of the current vertex so that indice instantiation is correct
 	for (int i = 0; i < positions.size(); i++) {
-
-
-		float r = radius * sqrt(((float)rand() / (RAND_MAX)));
-		float theta = ((float)rand() / (RAND_MAX)) * 6.283185307179586476925286766559;
-		float x = r * cos(theta);
-		float y = r * sin(theta);
-
 		for (int j = 0; j < 4; j++) {
 			vertices.push_back(PlantVertex
 				{
@@ -67,11 +63,34 @@ void Grass::GenerateVertices() {
 		indices.push_back((i * 4) + 1);
 	}
 
-	VAO.Bind();
+	// Used to keep track of the current vertex so that indice instantiation is correct
+	for (int i = 0; i < positionsLowPoly.size(); i++) {
+		for (int j = 0; j < 4; j++) {
+			lowPolyVertices.push_back(PlantVertex
+				{
+					glm::vec3( // Positions
+						positionsLowPoly[i][0],
+						noise->get(positionsLowPoly[i][0], positionsLowPoly[i][1]) * noise->amplitude,
+						positionsLowPoly[i][1]
+					)
+				}
+			);
+		}
+
+		lowPolyIndices.push_back((i * 4));
+		lowPolyIndices.push_back((i * 4) + 3);
+		lowPolyIndices.push_back((i * 4) + 1);
+
+		lowPolyIndices.push_back((i * 4));
+		lowPolyIndices.push_back((i * 4) + 3);
+		lowPolyIndices.push_back((i * 4) + 2);
+	}
+
+	vao.Bind();
 	// Generates PlantVertex Buffer Object and links it to vertices
-	VBO VBO(vertices);
+	VBO vbo(vertices);
 	// Generates Element Buffer Object and links it to indices
-	EBO EBO(indices);
+	EBO ebo(indices);
 
 
 	// arg[1] = Specifies the index of the generic vertex attribute to be modified.
@@ -81,17 +100,27 @@ void Grass::GenerateVertices() {
 	// attributes are understood to be tightly packed in the array. The initial value is 0.
 	// arg[5] offset = Specifies a offset of the first component of the first generic vertex attribute in the array in the data store of the buffer 
 	// currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
-	VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(PlantVertex), (void*)0);
+	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(PlantVertex), (void*)0);
 
 	// Unbind all to prevent accidentally modifying them
-	VAO.Unbind();
-	VBO.Unbind();
-	EBO.Unbind();
+	vao.Unbind();
+	vbo.Unbind();
+	ebo.Unbind();
+
+
+	lowPolyvao.Bind();
+	VBO lowPolyVbo(lowPolyVertices);
+	EBO lowPolyEbo(lowPolyIndices);
+	lowPolyvao.LinkAttrib(lowPolyVbo, 0, 3, GL_FLOAT, sizeof(PlantVertex), (void*)0);
+	lowPolyvao.Unbind();
+	lowPolyVbo.Unbind();
+	lowPolyEbo.Unbind();
 }
 
 void Grass::Draw
 (
 	Shader& shader,
+	Shader& shader2,
 	Camera& camera,
 	glm::mat4 matrix,
 	glm::vec3 translation,
@@ -101,7 +130,7 @@ void Grass::Draw
 	// Bind shader to be able to access uniforms
 	shader.Activate();
 	// Bind the VAO so OpenGL knows to use it
-	VAO.Bind();
+	vao.Bind();
 
 	// Binds textures so that they appear in the rendering
 	// Keep track of how many of each type of textures we have
@@ -140,4 +169,36 @@ void Grass::Draw
 	glUniform1f(glGetUniformLocation(shader.ID, "scaleVariance"), scaleVariance);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+
+
+
+	shader2.Activate();
+	lowPolyvao.Bind();
+	unsigned int numDiffuse2 = 0;
+	unsigned int numSpecular2 = 0;
+	for (unsigned int i = 0; i < textures2.size(); i++)
+	{
+		std::string num;
+		std::string type = textures2[i].type;
+		if (type == "diffuse")
+		{
+			num = std::to_string(numDiffuse2++);
+		}
+		else if (type == "specular")
+		{
+			num = std::to_string(numSpecular2++);
+		}
+		textures2[i].texUnit(shader2, (type + num).c_str(), i);
+		textures2[i].Bind();
+	}
+	glUniform3f(glGetUniformLocation(shader2.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	camera.Matrix(shader2, "camMatrix");
+	glUniform1f(glGetUniformLocation(shader2.ID, "time"), crntTime);
+	glUniform1f(glGetUniformLocation(shader2.ID, "bladeLength"), length);
+	glUniform1f(glGetUniformLocation(shader2.ID, "pitchVariance"), pitchVariance);
+	glUniform1f(glGetUniformLocation(shader2.ID, "lengthVariance"), lengthVariance);
+	glUniform1f(glGetUniformLocation(shader2.ID, "scale"), scale);
+	glUniform1f(glGetUniformLocation(shader2.ID, "scaleVariance"), scaleVariance);
+	glDrawElements(GL_TRIANGLES, lowPolyIndices.size(), GL_UNSIGNED_INT, 0);
 }

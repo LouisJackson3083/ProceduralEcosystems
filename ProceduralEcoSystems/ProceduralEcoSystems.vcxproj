@@ -185,6 +185,7 @@
     <None Include="framebuffer.vert" />
     <None Include="grass.frag" />
     <None Include="grass.vert" />
+    <None Include="grass2.vert" />
     <None Include="plant.frag" />
     <None Include="plant.vert" />
     <None Include="instanced.vert" />

@@ -161,8 +161,6 @@ void Noise::updateErosionValues(
 
 void Noise::generateErosionMap() {
     // Resize the erosion map and reset it
-
-
     erosionMap.clear();
     erosionMapSize = terrainSubdivision * 3;
     erosionMapSize = std::max(erosionMapSize, 256);
@@ -172,24 +170,15 @@ void Noise::generateErosionMap() {
         {
             std::fill(inner_vec.begin(), inner_vec.end(), 0.0f);
         });
-    std::cout << erosionMap.size() << " ,, " << erosionMap[0].size() << std::endl;
 
-    for (int i = 0; i < erosionMap.size(); i++) {
-        for (int j = 0; j < erosionMap[0].size(); j++) {
-            if (erosionMap[i][j] != 0) {
-                std::cout << " AAAAAAAAAA " << erosionMap[i][j] << std::endl;
-            }
-
-        }
-    }
     // Get droplets through poisson disk sampling
     auto kXMin = std::array<float, 2>{{-(float)terrainSize, -(float)terrainSize}};
     auto kXMax = std::array<float, 2>{{(float)terrainSize, (float)terrainSize}};
     // Minimal amount of information provided to sampling function.
     const auto droplets = thinks::PoissonDiskSampling(dropletRadii, kXMin, kXMax);
 
-    int numDroplets = 1;
-    // numDroplets = number of water droplets to spawn and simulate
+    std::cout << dropletRadii << " , " << droplets.size() << std::endl;
+
     for (int droplet = 0; droplet < droplets.size(); droplet++) {
         // Create water droplet at random point on erosion map
         float x = droplets[droplet][0];
@@ -286,8 +275,6 @@ void Noise::generateErosionMap() {
             water *= (1 - evaporateSpeed);
         }
     }
-
-    std::cout << erosionMap.size() << " , " << erosionMap[0].size() << std::endl;
 
     for (int i = 0; i < erosionMap.size(); i++) {
         for (int j = 0; j < erosionMap[0].size(); j++) {

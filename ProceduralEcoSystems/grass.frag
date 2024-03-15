@@ -107,8 +107,19 @@ vec4 spotLight()
 }
 
 
+ 
+float near = 0.001; 
+float far  = 100.0; 
+
+float linearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
 void main()
 {
 	// outputs final color
-	FragColor = direcLight();
+	float depth = linearizeDepth(gl_FragCoord.z);
+	FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(0.85f, 0.85f, 0.90f), 1.0f);
 }

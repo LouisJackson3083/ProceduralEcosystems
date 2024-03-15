@@ -71,6 +71,7 @@ public:
 	bool renderPlants;
 	bool boolWireframe;
 
+
 private:
 
 	// Grass sliders
@@ -103,9 +104,11 @@ private:
 	int sliderRenderDistance;
 
 	int sliderGrassRenderDistance;
+	int sliderGrassRenderDistance2;
 
 	// Ecosystem Sliders
 	std::vector<float> sliderPoissonRadii;
+
 
 
 	// Camera stuff

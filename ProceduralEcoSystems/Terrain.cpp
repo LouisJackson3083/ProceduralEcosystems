@@ -16,7 +16,6 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 	slopeAmount = 0.75f;
 	slopeBlendDist = 0.05f;
 
-
 	textures.push_back(Texture("./Resources/Textures/snow.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/snowSpec.png", "specular", 1));
 	textures.push_back(Texture("./Resources/Textures/rock.png", "diffuse", 2));

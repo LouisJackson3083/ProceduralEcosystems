@@ -97,6 +97,7 @@ int main()
 	Shader trunkShader("tree.vert", "tree.frag");
 	Shader branchShader("branch.vert", "branch.frag");
 	Shader grassShader("grass.vert", "grass.frag");
+	Shader grassShader2("grass2.vert", "grass.frag");
 	Shader skyboxShader("skybox.vert", "skybox.frag");
 	//Shader instancedShader("instanced.vert", "default.frag");
 
@@ -125,10 +126,14 @@ int main()
 	grassShader.Activate();
 	glUniform4f(glGetUniformLocation(grassShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(grassShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	grassShader2.Activate();
+	glUniform4f(glGetUniformLocation(grassShader2.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(grassShader2.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	terrainShader.Activate();
 	glUniform4f(glGetUniformLocation(terrainShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(terrainShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
 
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
@@ -157,15 +162,13 @@ int main()
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(4, 14, 10.0f, 1, &noise, &terrainShader);
+	Terrain terrain(4, 1, 10.0f, 1, &noise, &terrainShader);
 	std::vector<Plant> plants;
 	std::vector<Tree> trees;
-	trees.push_back(&noise);
 	Grass grass(&noise);
 	Ecosystem ecosystem(&grass, &plants, &trees, &noise, &terrain);
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &trees, &grass, &ecosystem);
-	GUI.LoadEcosystem("./Resources/PlantData/default.eco");
-
+	//GUI.LoadEcosystem("./Resources/PlantData/default.eco");
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -288,7 +291,6 @@ int main()
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
 
-
 		glDisable(GL_CULL_FACE);
 
 		if (GUI.renderPlants) {
@@ -297,10 +299,8 @@ int main()
 			}
 		}
 		if (GUI.renderGrass) {
-			grass.Draw(grassShader, camera);
+			grass.Draw(grassShader, grassShader2, camera);
 		}
-
-
 
 		if (GUI.renderTrees) {
 			// Branches are not rendered with face culling

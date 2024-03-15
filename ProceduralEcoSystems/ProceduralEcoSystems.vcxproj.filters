@@ -196,6 +196,9 @@
     <None Include="branch.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="grass2.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderClass.h">
