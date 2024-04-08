@@ -125,6 +125,7 @@ GUI::GUI(
 	renderTerrain = true;
 	renderPlants = true;
 	renderTrees = true;
+	renderSkybox = true;
 	boolWireframe = false;
 	NewNoiseTextures();
 	
@@ -618,6 +619,7 @@ void GUI::Update() {
 	ImGui::Checkbox("Toggle Grass", &renderGrass);
 	ImGui::Checkbox("Toggle Plants", &renderPlants);
 	ImGui::Checkbox("Toggle Trees", &renderTrees);
+	ImGui::Checkbox("Toggle Skybox", &renderSkybox);
 
 
 	// Presets

@@ -69,6 +69,7 @@ public:
 	bool renderGrass;
 	bool renderTrees;
 	bool renderPlants;
+	bool renderSkybox;
 	bool boolWireframe;
 
 
