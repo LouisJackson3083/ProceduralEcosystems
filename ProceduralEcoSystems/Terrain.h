@@ -25,6 +25,7 @@ public:
 	float rockBlendDistance;
 	float slopeAmount;
 	float slopeBlendDist;
+	int grassTextureRenderDistance;
 
 
 

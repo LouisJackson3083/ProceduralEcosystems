@@ -118,15 +118,9 @@ Texture::Texture(Noise* noise, int type, float steepness_scalar, const char* tex
 		}
 	}
 	else if (type == 3) { // An erosion + noise image
-		GLfloat noiseImage[texSize][texSize];
 		for (int i = 0; i < texSize; i++) {
 			for (int j = 0; j < texSize; j++) {
-				if (noise->useErosion) {
-					noiseImage[i][j] = (GLfloat)((noise->get(i, j) / 2.0f) + (noise->erosionMap[i][j] * 255.0f)); 
-				}
-				else {
-					noiseImage[i][j] = (GLfloat)(noise->get(i, j) / 2.0f);
-				}
+				noiseImage[i][j] = (GLfloat)((noise->get(i-noise->erosionMapHalfSize, j-noise->erosionMapHalfSize) / 2.0f) + (noise->erosionMap[i][j] * 10.0f));
 			}
 		}
 	}

@@ -15,6 +15,7 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 	rockBlendDistance = 10.0f;
 	slopeAmount = 0.75f;
 	slopeBlendDist = 0.05f;
+	grassTextureRenderDistance = render_distance;
 
 	textures.push_back(Texture("./Resources/Textures/snow.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/snowSpec.png", "specular", 1));
@@ -22,6 +23,8 @@ Terrain::Terrain(int input_size, int input_subdivision, float input_amplitude, i
 	textures.push_back(Texture("./Resources/Textures/rockSpec.png", "specular", 3));
 	textures.push_back(Texture("./Resources/Textures/dirt.png", "diffuse", 4));
 	textures.push_back(Texture("./Resources/Textures/dirtSpec.png", "specular", 5));
+	textures.push_back(Texture("./Resources/Textures/grass.png", "diffuse", 4));
+	textures.push_back(Texture("./Resources/Textures/grassSpec.png", "specular", 5));
 
 	for (int j = 0; j < (render_distance * 8) + 1; j++) {
 		patches.push_back(
@@ -53,7 +56,6 @@ void Terrain::UpdateTextureValues() {
 void Terrain::UpdateRenderDistance(int input_render_distance) {
 	render_distance = input_render_distance;
 	patches.clear();
-
 	for (int j = 0; j < (render_distance * 8) + 1; j++) {
 		patches.push_back(
 			Patch(
@@ -119,6 +121,17 @@ void Terrain::SaveTerrain(std::string file) {
 	myfile << rockBlendDistance << ",";
 	myfile << slopeAmount << ",";
 	myfile << slopeBlendDist << ",";
+
+	myfile << noise->fastNoiseLite.GetFrequency() << ",";
+	myfile << noise->fastNoiseLite.GetOctaves() << ",";
+	myfile << noise->fastNoiseLite.GetGain() << ",";
+	myfile << noise->fastNoiseLite.GetLacunarity() << ",";
+	myfile << noise->fastNoiseLite.GetFractalPingPongStrength() << ",";
+	myfile << noise->fastNoiseLite.GetDomainWarpAmp() << ",";
+
+
+	myfile << noise->fastNoiseLite.GetDomainWarpType() << ",";
+	myfile << noise->fastNoiseLite.GetCellularDistanceFunction() << ",";
 
 	myfile.close();
 }
@@ -186,9 +199,6 @@ void Terrain::LoadTerrainData(std::string file) {
 		amplitude = std::stof(results[8]);
 		noise->amplitude = std::stof(results[8]);
 		render_distance = std::stoi(results[9]);
-		UpdateRenderDistance(render_distance);
-		UpdatePatches();
-
 
 		snowStartHeight = std::stof(results[10]);
 		snowBlendDistance = std::stof(results[11]);
@@ -196,6 +206,41 @@ void Terrain::LoadTerrainData(std::string file) {
 		rockBlendDistance = std::stof(results[13]);
 		slopeAmount = std::stof(results[14]);
 		slopeBlendDist = std::stof(results[15]);
+
+
+		noise->fastNoiseLite.SetFrequency(std::stof(results[16]));
+		noise->fastNoiseLite.SetOctaves(std::stoi(results[17]));
+		noise->fastNoiseLite.SetGain(std::stof(results[18]));
+		noise->fastNoiseLite.SetLacunarity(std::stof(results[19]));
+		noise->fastNoiseLite.SetFractalPingPongStrength(std::stof(results[20]));
+		noise->fastNoiseLite.SetDomainWarpAmp(std::stof(results[21]));
+		switch (std::stoi(results[22])) {
+		case 0:
+			noise->fastNoiseLite.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+			break;
+		case 1:
+			noise->fastNoiseLite.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2Reduced);
+			break;
+		default:
+			noise->fastNoiseLite.SetDomainWarpType(FastNoiseLite::DomainWarpType_BasicGrid);
+			break;
+		}
+		switch (std::stoi(results[23])) {
+		case 0:
+			noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Euclidean);
+			break;
+		case 1:
+			noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
+			break;
+		case 2:
+			noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Manhattan);
+			break;
+		default:
+			noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Hybrid);
+			break;
+		}
+
+		UpdateRenderDistance(render_distance);
 		UpdateTextureValues();
 
 		myfile.close();
@@ -214,19 +259,29 @@ void Terrain::UpdatePatches() {
 				patches[patchIndex].offset = glm::vec3{ x + cameraPosition[0] , 0.0f, z + cameraPosition[1] };
 				patches[patchIndex].amplitude = amplitude;
 				patches[patchIndex].size = size * std::pow(3, j);
-				patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3], &textures[4], &textures[5] };
+				if (j >= grassTextureRenderDistance) {
+					patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3], &textures[6], &textures[7] };
+				}
+				else {
+					patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3], &textures[4], &textures[5] };
+				}
 				patches[patchIndex].subdivision = subdivision;
 				patches[patchIndex].GenerateVertices();
 				patchIndex++;
 			}
-		}
+		}	
 	}
 
 	patches[patchIndex].corner_data = glm::vec2{ 0.0f, 0.0f };
 	patches[patchIndex].offset = glm::vec3{ cameraPosition[0] , 0.0f, cameraPosition[1] };
 	patches[patchIndex].amplitude = amplitude;
 	patches[patchIndex].size = size;
-	patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3], &textures[4], &textures[5] };
+	if (0 >= grassTextureRenderDistance) {
+		patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3], &textures[6], &textures[7] };
+	}
+	else {
+		patches[patchIndex].textures = { &textures[0], &textures[1], &textures[2], &textures[3], &textures[4], &textures[5] };
+	}
 	patches[patchIndex].subdivision = subdivision;
 	patches[patchIndex].GenerateVertices();
 	UpdateTextureValues();

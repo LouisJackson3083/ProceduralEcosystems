@@ -162,27 +162,25 @@ void Noise::updateErosionValues(
 void Noise::generateErosionMap() {
     // Resize the erosion map and reset it
     erosionMap.clear();
-    erosionMapSize = terrainSubdivision * 3;
-    erosionMapSize = std::max(erosionMapSize, 256);
-    erosionMapHalfSize = erosionMapSize/2.0f;
     erosionMap.resize(erosionMapSize, std::vector<float>(erosionMapSize));
     std::for_each(erosionMap.begin(), erosionMap.end(), [](std::vector<float>& inner_vec)
         {
             std::fill(inner_vec.begin(), inner_vec.end(), 0.0f);
         });
+    // Reset the offset
+    erosionMapHalfSize = erosionMapSize / 2;
 
-    // Get droplets through poisson disk sampling
     auto kXMin = std::array<float, 2>{{-(float)terrainSize, -(float)terrainSize}};
     auto kXMax = std::array<float, 2>{{(float)terrainSize, (float)terrainSize}};
     // Minimal amount of information provided to sampling function.
     const auto droplets = thinks::PoissonDiskSampling(dropletRadii, kXMin, kXMax);
 
-    std::cout << dropletRadii << " , " << droplets.size() << std::endl;
 
-    for (int droplet = 0; droplet < droplets.size(); droplet++) {
+    // numDroplets = number of water droplets to spawn and simulate
+    for (int droplet = 0; droplet < 100; droplet++) {
         // Create water droplet at random point on erosion map
-        float x = droplets[droplet][0];
-        float y = droplets[droplet][1];
+        float x = rand() % erosionMapSize;
+        float y = rand() % erosionMapSize;
         float directionX = 0; // stores the direction of the droplet in X
         float directionY = 0;
         float speed = 1.0f;
@@ -273,15 +271,6 @@ void Noise::generateErosionMap() {
             // Update droplet's speed and water content
             speed = sqrt(speed * speed + deltaHeight * -9.81f);
             water *= (1 - evaporateSpeed);
-        }
-    }
-
-    for (int i = 0; i < erosionMap.size(); i++) {
-        for (int j = 0; j < erosionMap[0].size(); j++) {
-            if (erosionMap[i][j] != 0) {
-                std::cout <<" AAAAAAAAAA " <<  erosionMap[i][j] << std::endl;
-            }
-           
         }
     }
 }

@@ -31,7 +31,6 @@ float modI(float a,float b) { //  Returns accurate MOD when arguments are approx
 void main()
 {
 	// calculates current position
-
 	float xPos = floor(gl_VertexID / subdivision);
 	float zPos = modI(float(gl_VertexID), float(subdivision));
 	

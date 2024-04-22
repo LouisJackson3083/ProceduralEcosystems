@@ -88,6 +88,13 @@ private:
 	float sliderPersistance;
 	int sliderOctaves;
 
+	float mScale;
+	float mLacunarity;
+	float mPersistance;
+	int mOctaves;
+	float mPingPongStrength;
+	float mDomainWarpAmp;
+
 	// Erosion sliders
 	float sliderErosionDropletRadii;
 	int sliderErosionLifetime;

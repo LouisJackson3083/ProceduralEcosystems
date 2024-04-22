@@ -96,6 +96,13 @@ GUI::GUI(
 	sliderLacunarity = noise->lacunarity;
 	sliderPersistance = noise->persistance;
 
+	mScale = noise->fastNoiseLite.GetFrequency();
+	mOctaves = noise->fastNoiseLite.GetOctaves();
+	mLacunarity = noise->fastNoiseLite.GetLacunarity();
+	mPersistance = noise->fastNoiseLite.GetGain();
+	mPingPongStrength = noise->fastNoiseLite.GetFractalPingPongStrength();
+	mDomainWarpAmp = noise->fastNoiseLite.GetDomainWarpAmp();
+
 	// Terrain
 	terrain = input_terrain;
 	sliderPatchSize = terrain->size;
@@ -164,6 +171,14 @@ void GUI::NewFrame() {
 void GUI::NewNoiseTextures() {
 	noiseTextures.clear();
 	noiseTextures.push_back(Texture(noise, 0, 0.0f, "diffuse", 0));
+	if (noise->useErosion) {
+		noiseTextures.push_back(Texture(noise, 2, sliderScale, "diffuse", 0));
+		noiseTextures.push_back(Texture(noise, 3, sliderScale, "diffuse", 0));
+	}
+	else {
+		noiseTextures.push_back(Texture("./Resources/Textures/naimage.png", "diffuse", 0));
+		noiseTextures.push_back(Texture("./Resources/Textures/naimage.png", "diffuse", 0));
+	}
 }
 
 void GUI::NewPlantTextures() {
@@ -296,6 +311,7 @@ void GUI::LoadEcosystem(std::string file) {
 
 		sliderGrassRenderDistance = std::stoi(results[18 + numTrees + numPlants]);
 		sliderGrassRenderDistance2 = std::stoi(results[18 + numTrees + numPlants + 1]);
+		terrain->grassTextureRenderDistance = sliderGrassRenderDistance2;
 		float grassSize1 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance) / 2.0f;
 		float grassSize2 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance2) / 2.0f;
 
@@ -308,6 +324,7 @@ void GUI::LoadEcosystem(std::string file) {
 		ecosystem->RecalculateLayers();
 		ecosystem->GeneratePoissonPositions(terrainSize, grassSize1, grassSize2);
 		ecosystem->DistributePositions();
+		terrain->UpdatePatches();
 
 		myfile.close();
 
@@ -333,6 +350,45 @@ void GUI::Update() {
 		bool boolOctaves = ImGui::SliderInt("Octaves", &sliderOctaves, 1, 50);
 		bool boolPersistance = ImGui::SliderFloat("Persistance", &sliderPersistance, 0.0f, 5.0f);
 		bool boolLacunarity = ImGui::SliderFloat("Lacunarity", &sliderLacunarity, 0.0f, 5.0f);
+
+		ImGui::Text("Fast Noise Lite Sliders");
+		bool boolMScale = ImGui::SliderFloat("FNL Scale", &mScale, 0.00001f, 0.2f);
+		bool boolMOctaves = ImGui::SliderInt("FNL Octaves", &mOctaves, 1, 50);
+		bool boolMPersistance = ImGui::SliderFloat("FNL Persistance", &mPersistance, 0.0f, 5.0f);
+		bool boolMLacunarity = ImGui::SliderFloat("FNL Lacunarity", &mLacunarity, 0.0f, 5.0f);
+		bool boolMPingPongStrength = ImGui::SliderFloat("FNL Ping Pong Strength", &mPingPongStrength, 0.0f, 5.0f);
+		bool boolMDomainWarpAmp = ImGui::SliderFloat("FNL Domain Warp Amplitude", &mDomainWarpAmp, 0.0f, 5.0f);
+		if (ImGui::TreeNodeEx("Domain Warp Type")) {
+			if (ImGui::Button("OpenSimplex2")) {
+				noise->fastNoiseLite.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("OpenSimplex2Reduced")) {
+				noise->fastNoiseLite.SetDomainWarpType(FastNoiseLite::DomainWarpType_OpenSimplex2Reduced);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Basic Grid")) {
+				noise->fastNoiseLite.SetDomainWarpType(FastNoiseLite::DomainWarpType_BasicGrid);
+			}
+			ImGui::TreePop();
+		}if (ImGui::TreeNodeEx("Cellular Distance Function")) {
+			if (ImGui::Button("Euclidean")) {
+				noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Euclidean);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Euclidean Squared")) {
+				noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Manhattan")) {
+				noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Manhattan);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Hybrid")) {
+				noise->fastNoiseLite.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Hybrid);
+			}
+			ImGui::TreePop();
+		}
 
 		// Noise Type
 		if (ImGui::TreeNodeEx("Noise Type")) {
@@ -393,8 +449,20 @@ void GUI::Update() {
 		if (boolScale ||
 			boolLacunarity ||
 			boolPersistance ||
-			boolOctaves
+			boolOctaves ||
+			boolMScale ||
+			boolMLacunarity ||
+			boolMPersistance ||
+			boolMOctaves ||
+			boolMPingPongStrength ||
+			boolMDomainWarpAmp
 			) {
+			noise->fastNoiseLite.SetFrequency(mScale);
+			noise->fastNoiseLite.SetOctaves(mOctaves);
+			noise->fastNoiseLite.SetLacunarity(mLacunarity);
+			noise->fastNoiseLite.SetGain(mPersistance);
+			noise->fastNoiseLite.SetFractalPingPongStrength(mPingPongStrength);
+			noise->fastNoiseLite.SetDomainWarpAmp(mDomainWarpAmp);
 			noise->updateNoiseValues(sliderScale, sliderOctaves, sliderPersistance, sliderLacunarity);
 			NewNoiseTextures();
 		}
@@ -406,8 +474,9 @@ void GUI::Update() {
 	if (ImGui::TreeNodeEx("Erosion Sliders")) {
 		
 		ImGui::Text("Erosion");
-		Texture erosionImage = Texture(noise, 2, sliderScale, "diffuse", 0);
-		ImGui::Image((void*)(intptr_t)erosionImage.ID, ImVec2(256.0f, 256.0f));
+		
+		ImGui::Image((void*)(intptr_t)noiseTextures[1].ID, ImVec2(256.0f, 256.0f));
+		ImGui::Image((void*)(intptr_t)noiseTextures[2].ID, ImVec2(256.0f, 256.0f));
 
 		bool boolErosionDropletRadii = ImGui::SliderFloat("Distance between Droplets", &sliderErosionDropletRadii, 0.0f, 10.0f);
 		bool boolErosionLifetime = ImGui::SliderInt("Lifetime of Droplets", &sliderErosionLifetime, 1, 50);
@@ -445,10 +514,12 @@ void GUI::Update() {
 				noise->terrainSize = (int)terrain->size * std::pow(3, 1) / 2.0f;
 				noise->terrainSubdivision = (int)terrain->subdivision;
 				noise->generateErosionMap();
+				NewNoiseTextures();
 				terrain->UpdatePatches();
 			}
 			else {
 				noise->useErosion = false;
+				NewNoiseTextures();
 				terrain->UpdatePatches();
 			}
 		}
@@ -481,6 +552,35 @@ void GUI::Update() {
 		bool boolRockDist = ImGui::SliderFloat("Rock Blend Distance", &terrain->rockBlendDistance, 0.0f, 64.0f);
 		bool boolSlopeAmount = ImGui::SliderFloat("Slope Rock Amount", &terrain->slopeAmount, 0.0f, 1.0f);
 		bool boolSlopeDist = ImGui::SliderFloat("Slope Blend Distance", &terrain->slopeBlendDist, 0.0f, 1.0f);
+
+		if (ImGui::TreeNodeEx("Terrain Texture Set")) {
+			if (ImGui::Button("Default")) {
+				terrain->textures.clear();
+				terrain->textures.push_back(Texture("./Resources/Textures/snow.png", "diffuse", 0));
+				terrain->textures.push_back(Texture("./Resources/Textures/snowSpec.png", "specular", 1));
+				terrain->textures.push_back(Texture("./Resources/Textures/rock.png", "diffuse", 2));
+				terrain->textures.push_back(Texture("./Resources/Textures/rockSpec.png", "specular", 3));
+				terrain->textures.push_back(Texture("./Resources/Textures/dirt.png", "diffuse", 4));
+				terrain->textures.push_back(Texture("./Resources/Textures/dirtSpec.png", "specular", 5));
+				terrain->textures.push_back(Texture("./Resources/Textures/grass.png", "diffuse", 6));
+				terrain->textures.push_back(Texture("./Resources/Textures/grassSpec.png", "specular", 7));
+				terrain->UpdatePatches();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Desert")) {
+				terrain->textures.clear();
+				terrain->textures.push_back(Texture("./Resources/Textures/sand.jpg", "diffuse", 0));
+				terrain->textures.push_back(Texture("./Resources/Textures/sandSpec.jpg", "specular", 1));
+				terrain->textures.push_back(Texture("./Resources/Textures/sand.jpg", "diffuse", 2));
+				terrain->textures.push_back(Texture("./Resources/Textures/sandSpec.jpg", "specular", 3));
+				terrain->textures.push_back(Texture("./Resources/Textures/sand.jpg", "diffuse", 4));
+				terrain->textures.push_back(Texture("./Resources/Textures/sandSpec.jpg", "specular", 5));
+				terrain->textures.push_back(Texture("./Resources/Textures/sand.jpg", "diffuse", 6));
+				terrain->textures.push_back(Texture("./Resources/Textures/sandSpec.jpg", "specular", 7));
+				terrain->UpdatePatches();
+			}
+			ImGui::TreePop();
+		}
 
 		if (boolSnowHeight ||
 			boolSnowDist ||
@@ -535,6 +635,13 @@ void GUI::Update() {
 				noise->amplitude = sliderPatchAmplitude;
 				sliderRenderDistance = terrain->render_distance;
 
+				mScale = noise->fastNoiseLite.GetFrequency();
+				mOctaves = noise->fastNoiseLite.GetOctaves();
+				mLacunarity = noise->fastNoiseLite.GetLacunarity();
+				mPersistance = noise->fastNoiseLite.GetGain();
+				mPingPongStrength = noise->fastNoiseLite.GetFractalPingPongStrength();
+				mDomainWarpAmp = noise->fastNoiseLite.GetFractalPingPongStrength();
+				terrain->UpdatePatches();
 				NewNoiseTextures();
 			}
 			ifd::FileDialog::Instance().Close();
@@ -542,7 +649,7 @@ void GUI::Update() {
 
 
 		if (ImGui::Button("Plains")) {
-			terrain->LoadTerrainData(std::string("./Resources/PlantData/plains.terrain"));
+			terrain->LoadTerrainData(std::string("./Resources/PlantData/plain.terrain"));
 
 			sliderScale = noise->scale;
 			sliderOctaves = noise->octaves;
@@ -555,6 +662,61 @@ void GUI::Update() {
 			noise->amplitude = sliderPatchAmplitude;
 			sliderRenderDistance = terrain->render_distance;
 
+			mScale = noise->fastNoiseLite.GetFrequency();
+			mOctaves = noise->fastNoiseLite.GetOctaves();
+			mLacunarity = noise->fastNoiseLite.GetLacunarity();
+			mPersistance = noise->fastNoiseLite.GetGain();
+			mPingPongStrength = noise->fastNoiseLite.GetFractalPingPongStrength();
+			mDomainWarpAmp = noise->fastNoiseLite.GetFractalPingPongStrength();
+			terrain->UpdatePatches();
+			NewNoiseTextures();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Hills")) {
+			terrain->LoadTerrainData(std::string("./Resources/PlantData/hills.terrain"));
+
+			sliderScale = noise->scale;
+			sliderOctaves = noise->octaves;
+			sliderLacunarity = noise->lacunarity;
+			sliderPersistance = noise->persistance;
+
+			sliderPatchSize = terrain->size;
+			sliderPatchSubdivision = terrain->subdivision / 3;
+			sliderPatchAmplitude = terrain->amplitude;
+			noise->amplitude = sliderPatchAmplitude;
+			sliderRenderDistance = terrain->render_distance;
+
+			mScale = noise->fastNoiseLite.GetFrequency();
+			mOctaves = noise->fastNoiseLite.GetOctaves();
+			mLacunarity = noise->fastNoiseLite.GetLacunarity();
+			mPersistance = noise->fastNoiseLite.GetGain();
+			mPingPongStrength = noise->fastNoiseLite.GetFractalPingPongStrength();
+			mDomainWarpAmp = noise->fastNoiseLite.GetFractalPingPongStrength();
+			terrain->UpdatePatches();
+			NewNoiseTextures();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Desert")) {
+			terrain->LoadTerrainData(std::string("./Resources/PlantData/desert.terrain"));
+
+			sliderScale = noise->scale;
+			sliderOctaves = noise->octaves;
+			sliderLacunarity = noise->lacunarity;
+			sliderPersistance = noise->persistance;
+
+			sliderPatchSize = terrain->size;
+			sliderPatchSubdivision = terrain->subdivision / 3;
+			sliderPatchAmplitude = terrain->amplitude;
+			noise->amplitude = sliderPatchAmplitude;
+			sliderRenderDistance = terrain->render_distance;
+
+			mScale = noise->fastNoiseLite.GetFrequency();
+			mOctaves = noise->fastNoiseLite.GetOctaves();
+			mLacunarity = noise->fastNoiseLite.GetLacunarity();
+			mPersistance = noise->fastNoiseLite.GetGain();
+			mPingPongStrength = noise->fastNoiseLite.GetFractalPingPongStrength();
+			mDomainWarpAmp = noise->fastNoiseLite.GetFractalPingPongStrength();
+			terrain->UpdatePatches();
 			NewNoiseTextures();
 		}
 		ImGui::SameLine();
@@ -572,6 +734,13 @@ void GUI::Update() {
 			noise->amplitude = sliderPatchAmplitude;
 			sliderRenderDistance = terrain->render_distance;
 
+			mScale = noise->fastNoiseLite.GetFrequency();
+			mOctaves = noise->fastNoiseLite.GetOctaves();
+			mLacunarity = noise->fastNoiseLite.GetLacunarity();
+			mPersistance = noise->fastNoiseLite.GetGain();
+			mPingPongStrength = noise->fastNoiseLite.GetFractalPingPongStrength();
+			mDomainWarpAmp = noise->fastNoiseLite.GetFractalPingPongStrength();
+			terrain->UpdatePatches();
 			NewNoiseTextures();
 		}
 		ImGui::TreePop();
@@ -650,14 +819,6 @@ void GUI::Update() {
 			ifd::FileDialog::Instance().Close();
 		}
 
-
-		if (ImGui::Button("Plains")) {
-			LoadEcosystem(std::string("./Resources/PlantData/plains.eco"));
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Mountain")) {
-			LoadEcosystem(std::string("./Resources/PlantData/mountain.eco"));
-		}
 		ImGui::TreePop();
 	}
 
@@ -1108,8 +1269,8 @@ void GUI::Update() {
 				bool boolGrassRootingStrength = ImGui::SliderFloat("Rooting Requirement", &grass->ecosystemRootingStrength, 0.0f, 1.0f);
 				bool boolGrassMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &grass->ecosystemMoistureRequirement, 0.0f, 1.0f);
 				bool boolGrassInteractionLevel = ImGui::SliderFloat("Interaction Level", &grass->ecosystemInteractionLevel, 0.0f, 1.0f);
-				bool boolGrassRenderDistance = ImGui::SliderInt("Render Distance", &sliderGrassRenderDistance, 1, sliderGrassRenderDistance2);
-				bool boolGrassRenderDistance2 = ImGui::SliderInt("Low Poly Distance", &sliderGrassRenderDistance2, sliderGrassRenderDistance, terrain->render_distance);
+				bool boolGrassRenderDistance = ImGui::SliderInt("LOD 1 Distance", &sliderGrassRenderDistance, 1, sliderGrassRenderDistance2);
+				bool boolGrassRenderDistance2 = ImGui::SliderInt("LOD 2 Distance", &sliderGrassRenderDistance2, sliderGrassRenderDistance, terrain->render_distance);
 
 				if (boolGrassRenderDistance ||
 					boolGrassRenderDistance2 ||
@@ -1120,6 +1281,7 @@ void GUI::Update() {
 					boolGrassInteractionLevel
 					)
 				{
+					terrain->grassTextureRenderDistance = sliderGrassRenderDistance2;
 					grass->GenerateVertices();
 				}
 			ImGui::TreePop();

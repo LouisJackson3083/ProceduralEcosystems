@@ -152,6 +152,19 @@ public:
     /// Default: 0.01
     /// </remarks>
     void SetFrequency(float frequency) { mFrequency = frequency; }
+    float GetFrequency() { return mFrequency; }
+
+    void SetOctaves(int octaves) {
+        mOctaves = octaves;
+        CalculateFractalBounding();
+    }
+    int GetOctaves() { return mOctaves; }
+
+    void SetLacunarity(float lacunarity) { mLacunarity = lacunarity; }
+    float GetLacunarity() { return mLacunarity; }
+
+    void SetGain(float gain) { mGain = gain; }
+    float GetGain() { return mGain; }
 
     /// <summary>
     /// Sets noise algorithm used for GetNoise(...)
@@ -245,6 +258,7 @@ public:
     /// Default: 2.0
     /// </remarks>
     void SetFractalPingPongStrength(float pingPongStrength) { mPingPongStrength = pingPongStrength; }
+    float GetFractalPingPongStrength() { return mPingPongStrength; }
 
 
     /// <summary>
@@ -254,6 +268,7 @@ public:
     /// Default: Distance
     /// </remarks>
     void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { mCellularDistanceFunction = cellularDistanceFunction; }
+    CellularDistanceFunction GetCellularDistanceFunction() { return mCellularDistanceFunction; }
 
     /// <summary>
     /// Sets return type from cellular noise calculations
@@ -284,6 +299,10 @@ public:
         mDomainWarpType = domainWarpType;
         UpdateWarpTransformType3D();
     }
+    DomainWarpType GetDomainWarpType()
+    {
+        return mDomainWarpType;
+    }
 
 
     /// <summary>
@@ -293,6 +312,8 @@ public:
     /// Default: 1.0
     /// </remarks>
     void SetDomainWarpAmp(float domainWarpAmp) { mDomainWarpAmp = domainWarpAmp; }
+
+    float GetDomainWarpAmp() { return mDomainWarpAmp; }
 
 
     /// <summary>

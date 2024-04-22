@@ -44,7 +44,7 @@ void main()
 	float dist = (bladeLength + (lengthVariance*rnd)) * floor((curr_vertex) / 2.0);
 
 	// Animate the leaf
-	float time_l = time - (dist * 0.25f);
+	float time_l = time + aPos.x + aPos.z - (dist * 0.25f);
 	float wind = sin(time_l) - sin(time_l/2) + sin(time_l/4) - sin(time_l/8);
 
 	// Get the pitch and yaw of the leaf
