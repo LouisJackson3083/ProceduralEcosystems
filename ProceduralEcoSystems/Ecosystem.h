@@ -30,6 +30,7 @@ public:
 	std::vector<std::vector<glm::vec2>> poissonPositions;
 	Noise* noise;
 	Terrain* terrain;
+	float terrainSizeLOCAL;
 	float lowPolyGrassLimit;
 
 };

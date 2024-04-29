@@ -38,8 +38,8 @@ void main()
 	int curr_vertex = int(modI(gl_VertexID, 4));
 	int curr_leaf = int(floor(gl_VertexID / 4));
 	
-	float rnd = random( vec2(curr_leaf * 2.414213562, curr_leaf * 2.04487392765219) );
-	
+	float rnd = random( vec2(curr_leaf * aPos.x * 2.414213562, curr_leaf * aPos.z * 5.04487392765219) );
+
 	float width = modI((curr_vertex), 2) * 2.0f;
 	float dist = (bladeLength + (lengthVariance*rnd)) * floor((curr_vertex) / 2.0);
 
@@ -47,7 +47,7 @@ void main()
 	float time_l = time + aPos.x + aPos.z - (dist * 0.25f);
 	float wind = sin(time_l) - sin(time_l/2) + sin(time_l/4) - sin(time_l/8);
 
-	// Get the pitch and yaw of the leaf
+	// Get the pitch and yaw of the grass
 	float newYaw = float((6.28/rnd) * curr_leaf);
 	float newPitch = (width-0.5) * pitchVariance*rnd - dist + wind * 0.04;
 	

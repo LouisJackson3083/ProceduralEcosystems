@@ -20,6 +20,10 @@ uniform float height;
 uniform float radius;
 uniform float radius_falloff;
 uniform float radius_falloff_rate;
+uniform float segment_jitter;
+uniform float trunk_jitter;
+uniform float trunk_jitter_falloff;
+uniform float trunk_jitter_falloff_rate;
 uniform int vertices_per_trunk;
 
 float random (vec2 st) {
@@ -44,11 +48,17 @@ void main()
 
 	float curr_segment = floor(curr_vertex / resolution);
 
+	float totalJitter = trunk_jitter / (trunk_jitter_falloff * pow(curr_segment+1, trunk_jitter_falloff_rate));
+	float rndSeed = max(1,(segment_jitter * curr_segment)) * curr_tree;
+	float rnd = totalJitter * random( vec2(rndSeed * aPos.x * 2.414213562, rndSeed * aPos.z * 5.04487392765219) );
+
 	float segment_radius = radius / (radius_falloff * pow(curr_segment+1, radius_falloff_rate));
 
-	crntPos.x = segment_radius * cos(t);
+
+
+	crntPos.x = segment_radius * cos(t) + rnd;
 	crntPos.y = height * (curr_segment / (segments - 1));
-	crntPos.z = segment_radius * sin(t);
+	crntPos.z = segment_radius * sin(t) + rnd;
 
 	//crntPos.x = radius * cos(6.28318530717958647692 * modI(curr_vertex, resolution) / float(resolution));
 	//crntPos.y = height * floor(float(curr_vertex)/float(resolution));
@@ -59,7 +69,7 @@ void main()
 	// Assigns the colors from the Vertex Data to "color"
 	color = vec3(0.0, 0.0, 0.0);
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
-	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2(crntPos.y, curr_circle_index);
+	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2(crntPos.y, t/6);
 	
 	// Outputs the positions/coordinates of all vertices
 	gl_Position = camMatrix * vec4(aPos + crntPos, 1.0);

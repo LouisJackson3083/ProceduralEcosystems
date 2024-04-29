@@ -43,8 +43,8 @@ struct PlantGUIData
 	float sliderPlantOxygenUpperLimit;
 	float sliderPlantOxygenLowerLimit;
 	float sliderPlantRootingStrength;
-	float sliderPlantMoistureRequirement;
-	float sliderPlantInteractionLevel;
+	float sliderPlantPropagationDistance;
+	float sliderPlantPropagationAmount;
 
 };
 
@@ -79,14 +79,16 @@ public:
 	float ecosystemOxygenUpperLimit;
 	float ecosystemOxygenLowerLimit;
 	float ecosystemRootingStrength;
-	float ecosystemMoistureRequirement;
-	float ecosystemInteractionLevel;
+	float ecosystemPropagationDistance;
+	float ecosystemPropagationAmount;
 
 	std::vector<int> plant_bin;
 	std::vector<glm::vec2> positions;
 	Noise* noise;
 
 	Plant(Noise* input_noise);
+
+	Plant(Noise* input_noise, int input_segments);
 
 	Plant(std::string file, Noise* input_noise);
 

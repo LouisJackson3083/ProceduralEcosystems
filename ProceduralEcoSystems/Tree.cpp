@@ -13,7 +13,7 @@ Tree::Tree(Noise* input_noise) {
 	vertices_per_trunk = resolution * segments;
 	height = 5.0f;
 	branchMinHeight = height / 2;
-	branchMaxHeight = height * 2;
+	branchMaxHeight = height + 1.0f;
 	radius = 0.5f;
 	radiusFalloff = 1.5f;
 	radiusFalloffRate = 0.5f;
@@ -24,24 +24,29 @@ Tree::Tree(Noise* input_noise) {
 	textures.push_back(Texture("./Resources/Textures/bark2Spec.png", "specular", 1));
 	tree_texture_filepaths.push_back(std::string("./Resources/Textures/bark2Spec.png"));
 
-	branchTextures.push_back(Texture("./Resources/Textures/pop_cat.png", "diffuse", 0));
-	branch_texture_filepaths.push_back(std::string("./Resources/Textures/pop_cat.png"));
-	branchTextures.push_back(Texture("./Resources/Textures/ivySpec.png", "specular", 1));
-	branch_texture_filepaths.push_back(std::string("./Resources/Textures/ivySpec.png"));
+	branchTextures.push_back(Texture("./Resources/Textures/spruceTree1.png", "diffuse", 0));
+	branch_texture_filepaths.push_back(std::string("./Resources/Textures/spruceTree1.png"));
+	branchTextures.push_back(Texture("./Resources/Textures/spruceTree1Spec.png", "specular", 1));
+	branch_texture_filepaths.push_back(std::string("./Resources/Textures/spruceTree1Spec.png"));
 
-	pitch = 2.09f;
-	minBranches = 2;
-	maxBranches = 3;
+	pitch = 4.0f;
+	minBranches = 24;
+	maxBranches = 24;
 	number_of_branches = 4;
 	branchSegments = 2;
 	vertices_per_branch = branchSegments * 2;
 	branchLength = 5;
-	bendStrength = -0.14f;
-	pitchVariance = 0.0f;
-	bendVariance = 0.0f;
-	lengthVariance = 0.0f;
-	scaleVariance = 0.0f;
-	scale = 1.0f;
+	bendStrength = 0.2f;
+	pitchVariance = 0.3f;
+	bendVariance = 0.1f;
+	lengthVariance = 0.2f;
+	scaleVariance = 0.2f;
+	scale = 1.5f;
+
+	trunkJitter = 0.0f;
+	trunkJitterFalloff = 1.5f;
+	trunkJitterFalloffRate = 0.5f;
+	segmentJitter = 0.0f;
 
 	//init ecosystem variables
 	layer = 0;
@@ -49,8 +54,69 @@ Tree::Tree(Noise* input_noise) {
 	ecosystemOxygenUpperLimit = 1.0f;
 	ecosystemOxygenLowerLimit = 0.0f;
 	ecosystemRootingStrength = 0.5f;
-	ecosystemMoistureRequirement = 0.0f;
-	ecosystemInteractionLevel = 0.0f;
+	ecosystemPropagationDistance = 0.0f;
+	ecosystemPropagationAmount = 0.0f;
+
+	GenerateBranchBin();
+	GenerateVertices();
+}
+
+Tree::Tree(Noise* input_noise, int input_segments) {
+	noise = input_noise;
+
+	for (int i = 0; i < 10; i++) {
+		positions.push_back(glm::vec2(i, 0.0f));
+	}
+
+	//init appearance variables
+	resolution = 8;
+	segments = input_segments;
+	vertices_per_trunk = resolution * segments;
+	height = 5.0f;
+	branchMinHeight = height / 2;
+	branchMaxHeight = height + 1.0f;
+	radius = 0.5f;
+	radiusFalloff = 1.5f;
+	radiusFalloffRate = 0.5f;
+
+
+	textures.push_back(Texture("./Resources/Textures/bark2.png", "diffuse", 0));
+	tree_texture_filepaths.push_back(std::string("./Resources/Textures/bark2.png"));
+	textures.push_back(Texture("./Resources/Textures/bark2Spec.png", "specular", 1));
+	tree_texture_filepaths.push_back(std::string("./Resources/Textures/bark2Spec.png"));
+
+	branchTextures.push_back(Texture("./Resources/Textures/spruceTree1.png", "diffuse", 0));
+	branch_texture_filepaths.push_back(std::string("./Resources/Textures/spruceTree1.png"));
+	branchTextures.push_back(Texture("./Resources/Textures/spruceTree1Spec.png", "specular", 1));
+	branch_texture_filepaths.push_back(std::string("./Resources/Textures/spruceTree1Spec.png"));
+
+	pitch = 4.0f;
+	minBranches = 24;
+	maxBranches = 24;
+	number_of_branches = 4;
+	branchSegments = input_segments;
+	vertices_per_branch = branchSegments * 2;
+	branchLength = 5;
+	bendStrength = 0.2f;
+	pitchVariance = 0.3f;
+	bendVariance = 0.1f;
+	lengthVariance = 0.2f;
+	scaleVariance = 0.2f;
+	scale = 1.5f;
+
+	trunkJitter = 0.0f;
+	trunkJitterFalloff = 1.5f;
+	trunkJitterFalloffRate = 0.5f;
+	segmentJitter = 0.0f;
+
+	//init ecosystem variables
+	layer = 0;
+	ecosystemDominance = 1;
+	ecosystemOxygenUpperLimit = 1.0f;
+	ecosystemOxygenLowerLimit = 0.0f;
+	ecosystemRootingStrength = 0.5f;
+	ecosystemPropagationDistance = 0.0f;
+	ecosystemPropagationAmount = 0.0f;
 
 	GenerateBranchBin();
 	GenerateVertices();
@@ -112,11 +178,16 @@ Tree::Tree(std::string file, Noise* input_noise) {
 		ecosystemOxygenUpperLimit = std::stof(results[23]);
 		ecosystemOxygenLowerLimit = std::stof(results[24]);
 		ecosystemRootingStrength = std::stof(results[25]);
-		ecosystemMoistureRequirement = std::stof(results[26]);
-		ecosystemInteractionLevel = std::stof(results[27]);
+		ecosystemPropagationDistance = std::stof(results[26]);
+		ecosystemPropagationAmount = std::stof(results[27]);
 
 		branchMinHeight = std::stof(results[28]);
 		branchMaxHeight = std::stof(results[29]);
+
+		trunkJitter = std::stof(results[30]);
+		trunkJitterFalloff = std::stof(results[31]);
+		trunkJitterFalloffRate = std::stof(results[32]);
+		segmentJitter = std::stof(results[33]);
 
 		GenerateBranchBin();
 		GenerateVertices();
@@ -150,10 +221,14 @@ TreeGUIData Tree::GetGUIData() {
 		ecosystemOxygenUpperLimit,
 		ecosystemOxygenLowerLimit,
 		ecosystemRootingStrength,
-		ecosystemMoistureRequirement,
-		ecosystemInteractionLevel,
+		ecosystemPropagationDistance,
+		ecosystemPropagationAmount,
 		branchMinHeight,
 		branchMaxHeight,
+		trunkJitter,
+		trunkJitterFalloff,
+		trunkJitterFalloffRate,
+		segmentJitter,
 	};
 }
 
@@ -194,11 +269,16 @@ void Tree::SaveTreeData(TreeGUIData* treeGUIData, std::string file) {
 	myfile << treeGUIData->sliderTreeOxygenUpperLimit << ",";
 	myfile << treeGUIData->sliderTreeOxygenLowerLimit << ",";
 	myfile << treeGUIData->sliderTreeRootingStrength << ",";
-	myfile << treeGUIData->sliderTreeMoistureRequirement << ",";
-	myfile << treeGUIData->sliderTreeInteractionLevel << ",";
+	myfile << treeGUIData->sliderTreePropagationDistance << ",";
+	myfile << treeGUIData->sliderTreePropagationAmount << ",";
 
 	myfile << treeGUIData->sliderBranchMinHeight << ",";
 	myfile << treeGUIData->sliderBranchMaxHeight << ",";
+
+	myfile << treeGUIData->sliderTrunkJitter << ",";
+	myfile << treeGUIData->sliderTrunkJitterFalloff << ",";
+	myfile << treeGUIData->sliderTrunkJitterFalloffRate << ",";
+	myfile << treeGUIData->sliderSegmentJitter << ",";
 
 	myfile.close();
 }
@@ -228,11 +308,16 @@ void Tree::UpdateValues(TreeGUIData treeGUIData) {
 	ecosystemOxygenUpperLimit = treeGUIData.sliderTreeOxygenUpperLimit;
 	ecosystemOxygenLowerLimit = treeGUIData.sliderTreeOxygenLowerLimit;
 	ecosystemRootingStrength = treeGUIData.sliderTreeRootingStrength;
-	ecosystemMoistureRequirement = treeGUIData.sliderTreeMoistureRequirement;
-	ecosystemInteractionLevel = treeGUIData.sliderTreeInteractionLevel;
+	ecosystemPropagationDistance = treeGUIData.sliderTreePropagationDistance;
+	ecosystemPropagationAmount = treeGUIData.sliderTreePropagationAmount;
 
 	branchMinHeight = treeGUIData.sliderBranchMinHeight;
 	branchMaxHeight = treeGUIData.sliderBranchMaxHeight;
+
+	trunkJitter = treeGUIData.sliderTrunkJitter;
+	trunkJitterFalloff = treeGUIData.sliderTrunkJitterFalloff;
+	trunkJitterFalloffRate = treeGUIData.sliderTrunkJitterFalloffRate;
+	segmentJitter = treeGUIData.sliderSegmentJitter;
 }
 
 void Tree::ChangeTreeTextures(const char* texture, const int type) {
@@ -262,6 +347,12 @@ void Tree::GenerateVertices() {
 	// Clear the vertices and indices vectors
 	vertices.clear();
 	indices.clear();
+	branchVertices.clear();
+	branchIndices.clear();
+
+	if (positions.empty()) {
+		return;
+	}
 
 	vertices_per_trunk = resolution * segments;
 	int tree_id = -1;
@@ -329,8 +420,6 @@ void Tree::GenerateVertices() {
 
 	tree_id = 0;
 	int tree_id_branch_count = 0;
-	branchVertices.clear();
-	branchIndices.clear();
 	vertices_per_branch = branchSegments * 2;
 	std::default_random_engine gen;
 
@@ -464,6 +553,10 @@ void Tree::DrawTrunks
 	glUniform1f(glGetUniformLocation(trunkShader.ID, "radius_falloff_rate"), radiusFalloffRate);
 	glUniform1i(glGetUniformLocation(trunkShader.ID, "resolution"), resolution);
 	glUniform1i(glGetUniformLocation(trunkShader.ID, "segments"), segments);
+	glUniform1f(glGetUniformLocation(trunkShader.ID, "trunk_jitter"), trunkJitter);
+	glUniform1f(glGetUniformLocation(trunkShader.ID, "segment_jitter"), segmentJitter);
+	glUniform1f(glGetUniformLocation(trunkShader.ID, "trunk_jitter_falloff"), trunkJitterFalloff);
+	glUniform1f(glGetUniformLocation(trunkShader.ID, "trunk_jitter_falloff_rate"), trunkJitterFalloffRate);
 	glUniform1i(glGetUniformLocation(trunkShader.ID, "vertices_per_trunk"), vertices_per_trunk);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

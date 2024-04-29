@@ -20,8 +20,8 @@ Grass::Grass(Noise* input_noise) {
 	ecosystemOxygenUpperLimit = 1.0f;
 	ecosystemOxygenLowerLimit = 0.0f;
 	ecosystemRootingStrength = 0.5f;
-	ecosystemMoistureRequirement = 0.0f;
-	ecosystemInteractionLevel = 0.0f;
+	ecosystemPropagationDistance = 0.0f;
+	ecosystemPropagationAmount = 0.0f;
 
 	textures.push_back(Texture("./Resources/Textures/blade1.png", "diffuse", 0));
 	textures.push_back(Texture("./Resources/Textures/blade1Spec.png", "specular", 1));
@@ -200,5 +200,6 @@ void Grass::Draw
 	glUniform1f(glGetUniformLocation(shader2.ID, "lengthVariance"), lengthVariance);
 	glUniform1f(glGetUniformLocation(shader2.ID, "scale"), scale);
 	glUniform1f(glGetUniformLocation(shader2.ID, "scaleVariance"), scaleVariance);
+
 	glDrawElements(GL_TRIANGLES, lowPolyIndices.size(), GL_UNSIGNED_INT, 0);
 }

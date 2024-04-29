@@ -38,7 +38,7 @@ void main()
 	int curr_vertex = int(modI(gl_VertexID, 4));
 	int curr_leaf = int(floor(gl_VertexID / 4));
 	
-	float rnd = random( vec2(curr_vertex+curr_leaf * 2.414213562, curr_vertex+curr_leaf * 2.04487392765219) );
+	float rnd = random( vec2(curr_vertex+curr_leaf * aPos.x * 2.414213562, curr_vertex+curr_leaf * aPos.z * 5.04487392765219) );
 	
 	float width = modI((curr_vertex), 2)/4;
 	float dist = (bladeLength + (lengthVariance*rnd)) * floor((curr_vertex) / 2.0);

@@ -8,6 +8,7 @@ Ecosystem::Ecosystem(Grass* input_grass, std::vector<Plant>* input_plants, std::
 	grass = input_grass;
 	layerRadii = { 10.0f, 5.0f, 5.0f, 0.1f };
 	lowPolyGrassLimit = 256.0f;
+	terrainSizeLOCAL = 0.0f;
 }
 
 void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, float grassSize2) {
@@ -15,6 +16,7 @@ void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, fl
 	RecalculateLayers();
 
 	lowPolyGrassLimit = grassSize1;
+	terrainSizeLOCAL = terrainSize;
 
 	auto kXMin = std::array<float, 2>{{-terrainSize, -terrainSize}};
 	auto kXMax = std::array<float, 2>{{terrainSize, terrainSize}};
@@ -26,9 +28,8 @@ void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, fl
 
 	// Minimal amount of information provided to sampling function.
 	for (int i = 0; i < 3; i++) {
-		
+		std::cout << "---- SAMPLING LAYER" << i+1 << std::endl;
 		const auto samples = thinks::PoissonDiskSampling(layerRadii[i], kXMin, kXMax);
-
 		std::vector<glm::vec2> currPositions;
 
 		for (const auto& sample : samples) {
@@ -38,16 +39,21 @@ void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, fl
 	}
 
 	// Grass stuff
+	std::cout << "---- SAMPLING LAYER" << 4 << std::endl;
 	const auto samples = thinks::PoissonDiskSampling(layerRadii[3], grass_kXMin1, grass_kXMax1);
 	std::vector<glm::vec2> currPositions;
 	for (const auto& sample : samples) {
+
 		currPositions.push_back(glm::vec2(sample[0], sample[1]));
 	}
 	poissonPositions.push_back(currPositions);
 
+
+	std::cout << "---- SAMPLING LAYER" << 5 << std::endl;
 	const auto samples2 = thinks::PoissonDiskSampling(layerRadii[3] * 2.0f, grass_kXMin2, grass_kXMax2);
 	currPositions.clear();
 	for (const auto& sample : samples2) {
+
 		currPositions.push_back(glm::vec2(sample[0], sample[1]));
 	}
 
@@ -112,6 +118,30 @@ void Ecosystem::DistributePositions() {
 			if (!potential_trees.empty()) {
 				int selection = potential_trees[rand() % potential_trees.size()];
 				(*trees)[selection].positions.push_back(poissonPositions[0][p]);
+
+				// Cluster stuff
+				float clusterChance = (rand() % 1000) / 1000.0f;
+				if ((*trees)[selection].ecosystemPropagationAmount >= clusterChance) {
+
+					float angle = rand() % 6;
+					float length = (*trees)[selection].radius * 2.0f + (2.0f * (*trees)[selection].ecosystemPropagationDistance);
+					int numClusters = (rand() % 3) + 1;
+					float angleSector = 6.283 / (float)numClusters;
+
+					for (int c = 0; c < numClusters; c++) {
+						float rnd_seed = (rand() % 1000) / 1000;
+						float a = (angle + (angleSector * c) + (2.0f * rnd_seed - 0.5f));
+						float l = length + (2.0f * (*trees)[selection].ecosystemPropagationDistance * (rnd_seed - 0.5f));
+
+						glm::vec2 clusterPosition = glm::vec2(
+							poissonPositions[0][p][0] + l * cos(a),
+							poissonPositions[0][p][1] + l * sin(a)
+						);
+						if (std::abs(clusterPosition[0]) < terrainSizeLOCAL && std::abs(clusterPosition[1]) < terrainSizeLOCAL) {
+							(*trees)[selection].positions.push_back(clusterPosition);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -141,6 +171,30 @@ void Ecosystem::DistributePositions() {
 			if (!potential_plants.empty()) {
 				int selection = potential_plants[rand() % potential_plants.size()];
 				(*plants)[selection].positions.push_back(poissonPositions[i][p]);
+
+				// Cluster stuff
+				float clusterChance = (rand() % 1000) / 1000.0f;
+				if ((*plants)[selection].ecosystemPropagationAmount >= clusterChance) {
+
+					float angle = rand() % 6;
+					float length = (*plants)[selection].leafLength * (*plants)[selection].scale + (2.0f * (*plants)[selection].ecosystemPropagationDistance);
+					int numClusters = (rand() % 3) + 1;
+					float angleSector = 6.283 / (float)numClusters;
+
+					for (int c = 0; c < numClusters; c++) {
+						float rnd_seed = (rand() % 1000) / 1000;
+						float a = (angle + (angleSector * c) + (2.0f * rnd_seed - 0.5f));
+						float l = length + (2.0f * (*plants)[selection].ecosystemPropagationDistance * (rnd_seed - 0.5f));
+
+						glm::vec2 clusterPosition = glm::vec2(
+							poissonPositions[i][p][0] + l * cos(a),
+							poissonPositions[i][p][1] + l * sin(a)
+						);
+						if (std::abs(clusterPosition[0]) < terrainSizeLOCAL && std::abs(clusterPosition[1]) < terrainSizeLOCAL) {
+							(*plants)[selection].positions.push_back(clusterPosition);
+						}
+					}
+				}
 			}
 			
 		}
@@ -156,6 +210,31 @@ void Ecosystem::DistributePositions() {
 			continue;
 		}
 		grass->positions.push_back(poissonPositions[3][p]);
+
+
+		// Cluster stuff
+		float clusterChance = (rand() % 1000) / 1000.0f;
+		if (grass->ecosystemPropagationAmount >= clusterChance) {
+
+			float angle = rand() % 6;
+			float length = grass->scale + (2.0f * grass->ecosystemPropagationDistance);
+			int numClusters = (rand() % 3) + 1;
+			float angleSector = 6.283 / (float)numClusters;
+
+			for (int c = 0; c < numClusters; c++) {
+				float rnd_seed = (rand() % 1000) / 1000;
+				float a = (angle + (angleSector * c) + (2.0f * rnd_seed - 0.5f));
+				float l = length + (2.0f * grass->ecosystemPropagationDistance * (rnd_seed - 0.5f));
+
+				glm::vec2 clusterPosition = glm::vec2(
+					poissonPositions[3][p][0] + l * cos(a),
+					poissonPositions[3][p][1] + l * sin(a)
+				);
+				if (std::abs(clusterPosition[0]) < terrainSizeLOCAL && std::abs(clusterPosition[1]) < terrainSizeLOCAL) {
+					grass->positions.push_back(clusterPosition);
+				}
+			}
+		}
 	}
 	// Handle grass distribution
 	for (int p = 0; p < poissonPositions[4].size(); p++) {
@@ -168,6 +247,31 @@ void Ecosystem::DistributePositions() {
 			continue;
 		}
 		grass->positionsLowPoly.push_back(poissonPositions[4][p]);
+
+
+		// Cluster stuff
+		float clusterChance = (rand() % 1000) / 1000.0f;
+		if (grass->ecosystemPropagationAmount >= clusterChance) {
+
+			float angle = rand() % 6;
+			float length = grass->scale + (2.0f * grass->ecosystemPropagationDistance);
+			int numClusters = (rand() % 3) + 1;
+			float angleSector = 6.283 / (float)numClusters;
+
+			for (int c = 0; c < numClusters; c++) {
+				float rnd_seed = (rand() % 1000) / 1000;
+				float a = (angle + (angleSector * c) + (2.0f * rnd_seed - 0.5f));
+				float l = length + (2.0f * grass->ecosystemPropagationDistance * (rnd_seed - 0.5f));
+
+				glm::vec2 clusterPosition = glm::vec2(
+					poissonPositions[4][p][0] + l * cos(a),
+					poissonPositions[4][p][1] + l * sin(a)
+				);
+				if (std::abs(clusterPosition[0]) < terrainSizeLOCAL && std::abs(clusterPosition[1]) < terrainSizeLOCAL) {
+					grass->positionsLowPoly.push_back(clusterPosition);
+				}
+			}
+		}
 	}
 
 	for (int i = 0; i < plants->size(); i++) {

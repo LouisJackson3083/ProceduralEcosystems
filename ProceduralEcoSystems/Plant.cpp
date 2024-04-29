@@ -15,7 +15,7 @@ Plant::Plant(Noise* input_noise) {
 	bendStrength = -0.14f;
 	segments = 7;
 	vertices_per_leaf = segments * 2;
-	maxLeaves = 3;
+	maxLeaves = 1;
 	minLeaves = 1;
 	leafLength = 5;
 	lengthVariance = 0.0f;
@@ -35,12 +35,54 @@ Plant::Plant(Noise* input_noise) {
 	ecosystemOxygenUpperLimit = 1.0f;
 	ecosystemOxygenLowerLimit = 0.0f;
 	ecosystemRootingStrength = 0.5f;
-	ecosystemMoistureRequirement = 0.0f;
-	ecosystemInteractionLevel = 0.0f;
+	ecosystemPropagationDistance = 0.0f;
+	ecosystemPropagationAmount = 0.0f;
 
 	GeneratePlantBin();
 	GenerateVertices();
 }
+
+Plant::Plant(Noise* input_noise, int input_segments) {
+	noise = input_noise;
+
+
+	for (int i = 0; i < 10; i++) {
+		positions.push_back(glm::vec2(i, 0.0f));
+	}
+
+	//init appearance variables
+	pitch = 2.09f;
+	yaw = 2.09f;
+	bendStrength = -0.14f;
+	segments = input_segments;
+	vertices_per_leaf = segments * 2;
+	maxLeaves = 1;
+	minLeaves = 1;
+	leafLength = 5;
+	lengthVariance = 0.0f;
+	pitchVariance = 0.0f;
+	bendVariance = 0.0f;
+	scaleVariance = 0.0f;
+	scale = 1.0f;
+
+	textures.push_back(Texture("./Resources/Textures/fern1.png", "diffuse", 0));
+	plant_texture_filepaths.push_back(std::string("./Resources/Textures/fern1.png"));
+	textures.push_back(Texture("./Resources/Textures/fern1Spec.png", "specular", 1));
+	plant_texture_filepaths.push_back(std::string("./Resources/Textures/fern1Spec.png"));
+
+	//init ecosystem variables
+	layer = 1;
+	ecosystemDominance = 1;
+	ecosystemOxygenUpperLimit = 1.0f;
+	ecosystemOxygenLowerLimit = 0.0f;
+	ecosystemRootingStrength = 0.5f;
+	ecosystemPropagationDistance = 0.0f;
+	ecosystemPropagationAmount = 0.0f;
+
+	GeneratePlantBin();
+	GenerateVertices();
+}
+
 
 Plant::Plant(std::string file, Noise* input_noise) {
 	noise = input_noise;
@@ -89,8 +131,8 @@ Plant::Plant(std::string file, Noise* input_noise) {
 		ecosystemOxygenUpperLimit = std::stof(results[16]);
 		ecosystemOxygenLowerLimit = std::stof(results[17]);
 		ecosystemRootingStrength = std::stof(results[18]);
-		ecosystemMoistureRequirement = std::stof(results[19]);
-		ecosystemInteractionLevel = std::stof(results[20]);
+		ecosystemPropagationDistance = std::stof(results[19]);
+		ecosystemPropagationAmount = std::stof(results[20]);
 
 		GeneratePlantBin();
 		GenerateVertices();
@@ -119,8 +161,8 @@ PlantGUIData Plant::GetGUIData() {
 		ecosystemOxygenUpperLimit,
 		ecosystemOxygenLowerLimit,
 		ecosystemRootingStrength,
-		ecosystemMoistureRequirement,
-		ecosystemInteractionLevel
+		ecosystemPropagationDistance,
+		ecosystemPropagationAmount
 	};
 }
 
@@ -153,8 +195,8 @@ void Plant::SavePlantData(PlantGUIData* plantGUIData, std::string file) {
 	myfile << plantGUIData->sliderPlantOxygenUpperLimit << ",";
 	myfile << plantGUIData->sliderPlantOxygenLowerLimit << ",";
 	myfile << plantGUIData->sliderPlantRootingStrength << ",";
-	myfile << plantGUIData->sliderPlantMoistureRequirement << ",";
-	myfile << plantGUIData->sliderPlantInteractionLevel << ",";
+	myfile << plantGUIData->sliderPlantPropagationDistance << ",";
+	myfile << plantGUIData->sliderPlantPropagationAmount << ",";
 
 	myfile.close();
 }
@@ -179,8 +221,8 @@ void Plant::UpdateValues(PlantGUIData plantGUIData) {
 	ecosystemOxygenUpperLimit = plantGUIData.sliderPlantOxygenUpperLimit;
 	ecosystemOxygenLowerLimit = plantGUIData.sliderPlantOxygenLowerLimit;
 	ecosystemRootingStrength = plantGUIData.sliderPlantRootingStrength;
-	ecosystemMoistureRequirement = plantGUIData.sliderPlantMoistureRequirement;
-	ecosystemInteractionLevel = plantGUIData.sliderPlantInteractionLevel;
+	ecosystemPropagationDistance = plantGUIData.sliderPlantPropagationDistance;
+	ecosystemPropagationAmount = plantGUIData.sliderPlantPropagationAmount;
 }
 
 void Plant::ChangeTextures(const char* texture, const int type) {
@@ -209,6 +251,9 @@ void Plant::GenerateVertices() {
 	// Clear the vertices and indices vectors
 	vertices.clear();
 	indices.clear();
+	if (positions.empty()) {
+		return;
+	}
 
 	int plant_id = 0;
 	int plant_id_leaf_count = 0;

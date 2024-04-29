@@ -45,15 +45,15 @@ void main()
 
 	int curr_vertex = int(modI(gl_VertexID, vertices_per_branch));
 	int curr_branch = int(floor(gl_VertexID / vertices_per_branch));
-
-    float rnd = random( vec2(curr_branch * 2.414213562, curr_branch * 2.04487392765219) );
+	
+    float rnd = random( vec2(curr_branch * aPos.x * 2.414213562, curr_branch * aPos.z * 5.04487392765219) );
 
 	// Get the width and distance of the branch
 	float width = modI((curr_vertex), 2)-0.5;
 	float distance = (branchLength + (lengthVariance*rnd)) * floor((curr_vertex) / 2.0) / vertices_per_branch;
 	
 	// Animate the branch
-	float time_l = time - (distance * 0.25f) - (curr_vertex/vertices_per_branch);
+	float time_l = time + aPos.x + aPos.z - (distance * 0.25f) - (curr_vertex/vertices_per_branch);
 	float wind = sin(time_l) - sin(time_l/2) + sin(time_l/4) - sin(time_l/8);
 	
 	// Get the pitch and yaw of the leaf

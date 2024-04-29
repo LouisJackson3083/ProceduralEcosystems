@@ -38,8 +38,8 @@ public:
 	float ecosystemOxygenUpperLimit;
 	float ecosystemOxygenLowerLimit;
 	float ecosystemRootingStrength;
-	float ecosystemMoistureRequirement;
-	float ecosystemInteractionLevel;
+	float ecosystemPropagationDistance;
+	float ecosystemPropagationAmount;
 
 	Noise* noise;
 

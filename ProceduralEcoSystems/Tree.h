@@ -40,12 +40,16 @@ struct TreeGUIData
 	float sliderTreeOxygenUpperLimit;
 	float sliderTreeOxygenLowerLimit;
 	float sliderTreeRootingStrength;
-	float sliderTreeMoistureRequirement;
-	float sliderTreeInteractionLevel;
+	float sliderTreePropagationDistance;
+	float sliderTreePropagationAmount;
 
 	float sliderBranchMinHeight;
 	float sliderBranchMaxHeight;
 
+	float sliderTrunkJitter;
+	float sliderTrunkJitterFalloff;
+	float sliderTrunkJitterFalloffRate;
+	float sliderSegmentJitter;
 };
 
 class Tree {
@@ -75,6 +79,10 @@ public:
 	float radius;
 	float radiusFalloff;
 	float radiusFalloffRate;
+	float trunkJitter;
+	float trunkJitterFalloff;
+	float trunkJitterFalloffRate;
+	float segmentJitter;
 
 	// Branch parameters
 	float pitch;
@@ -98,8 +106,8 @@ public:
 	float ecosystemOxygenUpperLimit;
 	float ecosystemOxygenLowerLimit;
 	float ecosystemRootingStrength;
-	float ecosystemMoistureRequirement;
-	float ecosystemInteractionLevel;
+	float ecosystemPropagationDistance;
+	float ecosystemPropagationAmount;
 
 	float branchMinHeight;
 	float branchMaxHeight;
@@ -108,6 +116,8 @@ public:
 	std::vector<int> branch_bin;
 
 	Tree(Noise* input_noise);
+
+	Tree(Noise* input_noise, int input_segments);
 
 	Tree(std::string file, Noise* input_noise);
 

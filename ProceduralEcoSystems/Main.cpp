@@ -139,20 +139,25 @@ int main()
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CCW);
 
+
 	// Init all the things needed for the ecosystem!
 	Camera camera(width, height, glm::vec3(4.0f, 2.0f, 8.0f));
 	Noise noise(0.07f, 4.0f, 2.0f, 0.6f, rand());
-	Terrain terrain(4, 6, 8.0f, 3, &noise, &terrainShader);
+	Terrain terrain(1, 1, 0.0f, 3, &noise, &terrainShader);
 	std::vector<Plant> plants;
 	std::vector<Tree> trees;
 	Grass grass(&noise);
 	Ecosystem ecosystem(&grass, &plants, &trees, &noise, &terrain);
+
 	GUI GUI(window, &noise, &terrain, &camera, &plants, &trees, &grass, &ecosystem);
-	GUI.renderGrass = true;
+	GUI.renderGrass = false;
+	GUI.renderTerrain = false;
 	GUI.renderPlants = false;
-	GUI.renderSkybox = true;
+	GUI.renderSkybox = false;
 	GUI.renderTrees = false;
-	GUI.LoadEcosystem("./Resources/PlantData/plains.eco");
+
+
+	//GUI.LoadEcosystem("./Resources/PlantData/bigForest.eco");
 
 	// init variables for FPS counter
 	double prevTime = 0.0;

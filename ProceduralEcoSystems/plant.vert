@@ -44,18 +44,18 @@ void main()
 	int curr_vertex = int(modI(gl_VertexID, vertices_per_leaf));
 	int curr_leaf = int(floor(gl_VertexID / vertices_per_leaf));
 	
-    float rnd = random( vec2(curr_leaf * 2.414213562, curr_leaf * 2.04487392765219) );
+    float rnd = random( vec2(curr_leaf * aPos.x * 2.414213562, curr_leaf * aPos.z * 5.04487392765219) );
 
 	// Get the width and distance of the leaf
 	float width = modI((curr_vertex), 2)-0.5;
 	float distance = (leafLength + (lengthVariance*rnd)) * floor((curr_vertex) / 2.0) / vertices_per_leaf;
 
 	// Animate the leaf
-	float time_l = time - (distance * 0.25f) - (curr_vertex/vertices_per_leaf);
+	float time_l = time + aPos.x + aPos.z - (distance * 0.25f) - (curr_vertex/vertices_per_leaf);
 	float wind = sin(time_l) - sin(time_l/2) + sin(time_l/4) - sin(time_l/8);
 
 	// Get the pitch and yaw of the leaf
-	float newYaw = yaw + (float(6.28/maxLeaves) * curr_leaf) + rnd;
+	float newYaw = yaw + (float(6.28/maxLeaves) * curr_leaf * rnd) + rnd;
 	float bendPitch = (pitch + (pitchVariance*rnd)) - distance * (bendStrength + (bendVariance*rnd)) + wind * 0.04;
 
 	crntPos.x = cos(newYaw) * -width + cos(bendPitch) * distance * sin(newYaw);
@@ -67,7 +67,7 @@ void main()
 	// Assigns the colors from the Vertex Data to "color"
 	color = vec3(0.0, 0.0, 0.0);
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
-	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2( floor((curr_vertex) / 2.0) / (segments-1), width + 0.5 );
+	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * vec2( floor((curr_vertex) / 2.0) / (segments-1), (width + 0.5) );
 	
 	// Outputs the positions/coordinates of all vertices
 	gl_Position = camMatrix * vec4(crntPos*vec3(scale+(rnd*scaleVariance)) + aPos, 1.0);

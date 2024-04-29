@@ -42,8 +42,8 @@ GUI::GUI(
 				(*plants)[i].ecosystemOxygenUpperLimit,
 				(*plants)[i].ecosystemOxygenLowerLimit,
 				(*plants)[i].ecosystemRootingStrength,
-				(*plants)[i].ecosystemMoistureRequirement,
-				(*plants)[i].ecosystemInteractionLevel,
+				(*plants)[i].ecosystemPropagationDistance,
+				(*plants)[i].ecosystemPropagationAmount,
 			}
 		);
 	}
@@ -72,10 +72,14 @@ GUI::GUI(
 				(*trees)[i].ecosystemOxygenUpperLimit,
 				(*trees)[i].ecosystemOxygenLowerLimit,
 				(*trees)[i].ecosystemRootingStrength,
-				(*trees)[i].ecosystemMoistureRequirement,
-				(*trees)[i].ecosystemInteractionLevel,
+				(*trees)[i].ecosystemPropagationDistance,
+				(*trees)[i].ecosystemPropagationAmount,
 				(*trees)[i].branchMinHeight,
 				(*trees)[i].branchMaxHeight,
+				(*trees)[i].trunkJitter,
+				(*trees)[i].trunkJitterFalloff,
+				(*trees)[i].trunkJitterFalloffRate,
+				(*trees)[i].segmentJitter,
 			}
 		);
 	}
@@ -221,8 +225,8 @@ void GUI::SaveEcosystem(std::string file) {
 	myfile << grass->ecosystemOxygenUpperLimit << ",";
 	myfile << grass->ecosystemOxygenLowerLimit << ",";
 	myfile << grass->ecosystemRootingStrength << ",";
-	myfile << grass->ecosystemMoistureRequirement << ",";
-	myfile << grass->ecosystemInteractionLevel << ",";
+	myfile << grass->ecosystemPropagationDistance << ",";
+	myfile << grass->ecosystemPropagationAmount << ",";
 
 	//17
 
@@ -263,6 +267,7 @@ void GUI::LoadEcosystem(std::string file) {
 		while (getline(ss, str, ',')) {
 			results.push_back(str);
 		}
+		std::cout << "!!!! LOADING ECOSYSTEM DATA" << std::endl;
 
 		int numTrees = std::stoi(results[0]);
 		int numPlants = std::stoi(results[1]);
@@ -272,6 +277,9 @@ void GUI::LoadEcosystem(std::string file) {
 		(*plants).clear();
 		plantGUIData.clear();
 		grass->positions.clear();
+
+		std::cout << "(1/9) CLEARED DATA" << std::endl;
+
 
 		grass->length = std::stof(results[7]);
 		grass->lengthVariance = std::stof(results[8]);
@@ -283,17 +291,23 @@ void GUI::LoadEcosystem(std::string file) {
 		grass->ecosystemOxygenUpperLimit = std::stof(results[13]);
 		grass->ecosystemOxygenLowerLimit = std::stof(results[14]);
 		grass->ecosystemRootingStrength = std::stof(results[15]);
-		grass->ecosystemMoistureRequirement = std::stof(results[16]);
-		grass->ecosystemInteractionLevel = std::stof(results[17]);
+		grass->ecosystemPropagationDistance = std::stof(results[16]);
+		grass->ecosystemPropagationAmount = std::stof(results[17]);
+
+		std::cout << "(2/9) LOADED GRASS" << std::endl;
+
 
 		for (int i = 0; i < numTrees; i++) {
 			(*trees).push_back(Tree(results[18 + i], noise));
 			treeGUIData.push_back((*trees).back().GetGUIData());
 		}
+		std::cout << "(3/9) LOADED TREES" << std::endl;
+
 		for (int i = 0; i < numPlants; i++) {
 			(*plants).push_back(Plant(results[18 + numTrees + i], noise));
 			plantGUIData.push_back((*plants).back().GetGUIData());
 		}
+		std::cout << "(4/9) LOADED PLANTS" << std::endl;
 
 		terrain->LoadTerrainData(results[6]);
 		sliderScale = noise->scale;
@@ -306,6 +320,8 @@ void GUI::LoadEcosystem(std::string file) {
 		noise->amplitude = sliderPatchAmplitude;
 		sliderRenderDistance = terrain->render_distance;
 		NewNoiseTextures();
+		std::cout << "(5/9) LOADED TERRAIN DATA" << std::endl;
+
 
 		float terrainSize = (float)terrain->size * std::pow(3, terrain->render_distance) / 2.0f;
 
@@ -321,14 +337,25 @@ void GUI::LoadEcosystem(std::string file) {
 		ecosystem->layerRadii[3] = std::stof(results[5]);
 		sliderPoissonRadii = ecosystem->layerRadii;
 
+		std::cout << "(6/9) RECALCULATING ECOSYSTEM LAYERS" << std::endl;
+
 		ecosystem->RecalculateLayers();
+
+		std::cout << "(7/9) GENERATING POSITIONS" << std::endl;
+
 		ecosystem->GeneratePoissonPositions(terrainSize, grassSize1, grassSize2);
+
+		std::cout << "(8/9) DISTRIBUTING POSITIONS" << std::endl;
+
 		ecosystem->DistributePositions();
+
+		std::cout << "(9/9) UPDATING TERRAIN" << std::endl;
+
 		terrain->UpdatePatches();
 
 		myfile.close();
 
-		std::cout << "LOADED FROM " << file << std::endl;
+		std::cout << "!!!! LOADED FROM " << file << std::endl;
 	}
 }
 
@@ -539,6 +566,9 @@ void GUI::Update() {
 			terrain->subdivision = (sliderPatchSubdivision * 3) + 1;
 			terrain->amplitude = sliderPatchAmplitude;
 			noise->amplitude = sliderPatchAmplitude;
+
+			sliderGrassRenderDistance = std::min(sliderGrassRenderDistance, sliderRenderDistance);
+			sliderGrassRenderDistance2 = std::min(sliderGrassRenderDistance2, sliderRenderDistance);
 			terrain->UpdateRenderDistance(sliderRenderDistance);
 			terrain->UpdatePatches();
 		}
@@ -774,7 +804,26 @@ void GUI::Update() {
 	ImGui::Begin("Render Control");
 
 	ImGui::Text("Camera Position = %f, %f", camera->Position[0], camera->Position[2]);
-	ImGui::Text("Total Triangles = %d", ((sliderRenderDistance * 8) + 1)* ((int)std::pow(sliderPatchSubdivision * 3, 2) * 2));
+
+	if (ImGui::TreeNodeEx("Tri Count Info")) {
+		int terrainTriCount = ((sliderRenderDistance * 8) + 1) * ((int)std::pow(sliderPatchSubdivision * 3, 2) * 2);
+		ImGui::Text("Terrain Tri Count = %d", terrainTriCount);
+		int grassTriCount = (grass->indices.size() / 3) + (grass->lowPolyIndices.size() / 3);
+		ImGui::Text("Grass Tri Count = %d", grassTriCount);
+		int plantTriCount = 0;
+		for (int i = 0; i < plants->size(); i++) {
+			plantTriCount += (*plants)[i].indices.size() / 3;
+		}
+		ImGui::Text("Plant Tri Count = %d", plantTriCount);
+		int treeTriCount = 0;
+		for (int i = 0; i < trees->size(); i++) {
+			treeTriCount += (*trees)[i].indices.size() / 3;
+		}
+		ImGui::Text("Tree Tri Count = %d", treeTriCount);
+		ImGui::Text("Total Tri Count = %d", terrainTriCount + grassTriCount + plantTriCount + treeTriCount);
+
+		ImGui::TreePop();
+	}
 
 	// Wireframe Checkbox
 	ImGui::Checkbox("Toggle Wireframe", &boolWireframe);
@@ -902,6 +951,10 @@ void GUI::Update() {
 					bool boolTreeRadius = ImGui::SliderFloat("Trunk Radius", &treeGUIData[i].sliderTreeRadius, 0.0f, 1.0f);
 					bool boolTreeRadiusFalloff = ImGui::SliderFloat("Trunk Radius Falloff", &treeGUIData[i].sliderTreeRadiusFalloff, 0.0f, 2.0f);
 					bool boolTreeRadiusFalloffRate = ImGui::SliderFloat("Trunk Radius FalloffRate", &treeGUIData[i].sliderTreeRadiusFalloffRate, 0.0f, 2.0f);
+					bool boolTrunkJitter = ImGui::SliderFloat("Trunk Jitter", &treeGUIData[i].sliderTrunkJitter, 0.0f, 1.0f);
+					bool boolTrunkJitterFalloff = ImGui::SliderFloat("Trunk Jitter Falloff", &treeGUIData[i].sliderTrunkJitterFalloff, 0.0f, 2.0f);
+					bool boolTrunkJitterFalloffRate = ImGui::SliderFloat("Trunk Jitter Falloff Rate", &treeGUIData[i].sliderTrunkJitterFalloffRate, 0.0f, 2.0f);
+					bool boolSegmentJitter = ImGui::SliderFloat("Segment Jitter", &treeGUIData[i].sliderSegmentJitter, 0.0f, 1.0f);
 					ImGui::Text("Branch Parameters");
 					bool boolBranchMinHeight = ImGui::SliderFloat("Min Start Height", &treeGUIData[i].sliderBranchMinHeight, 0.0f, treeGUIData[i].sliderBranchMaxHeight - 0.01f);
 					bool boolBranchMaxHeight = ImGui::SliderFloat("Max Start Height", &treeGUIData[i].sliderBranchMaxHeight, treeGUIData[i].sliderBranchMinHeight, (treeGUIData[i].sliderTreeHeight*2.0f));
@@ -935,7 +988,11 @@ void GUI::Update() {
 						boolBendVariance ||
 						boolLengthVariance ||
 						boolScaleVariance ||
-						boolScale
+						boolScale ||
+						boolTrunkJitter ||
+						boolTrunkJitterFalloff ||
+						boolTrunkJitterFalloffRate ||
+						boolSegmentJitter
 						) {
 						(*trees)[i].UpdateValues(treeGUIData[i]);
 						(*trees)[i].GenerateBranchBin();
@@ -1182,12 +1239,6 @@ void GUI::Update() {
 			float grassSize2 = (float)terrain->size * std::pow(3, sliderGrassRenderDistance2) / 2.0f;
 			ecosystem->GeneratePoissonPositions(terrainSize, grassSize1, grassSize2);
 			ecosystem->DistributePositions();
-			/*ecosystem->GeneratePoissonPositions();
-			(*plants)[0].positions = ecosystem->poissonPositions[0];
-
-			std::cout << ecosystem->poissonPositions[0].size() << std::endl;
-			(*plants)[0].GeneratePlantBin();
-			(*plants)[0].GenerateVertices();*/
 		}
 		
 		ImGui::TreePop();
@@ -1205,8 +1256,8 @@ void GUI::Update() {
 					bool boolTreeOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &treeGUIData[index].sliderTreeOxygenUpperLimit, 0.0f, 1.0f);
 					bool boolTreeOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &treeGUIData[index].sliderTreeOxygenLowerLimit, 0.0f, 1.0f);
 					bool boolTreeRootingStrength = ImGui::SliderFloat("Rooting Requirement", &treeGUIData[index].sliderTreeRootingStrength, 0.0f, 1.0f);
-					bool boolTreeMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &treeGUIData[index].sliderTreeMoistureRequirement, 0.0f, 1.0f);
-					bool boolTreeInteractionLevel = ImGui::SliderFloat("Interaction Level", &treeGUIData[index].sliderTreeInteractionLevel, 0.0f, 1.0f);
+					bool boolTreeMoistureRequirement = ImGui::SliderFloat("Propagation Distance", &treeGUIData[index].sliderTreePropagationDistance, 0.0f, 1.0f);
+					bool boolTreeInteractionLevel = ImGui::SliderFloat("Propagation Amount", &treeGUIData[index].sliderTreePropagationAmount, 0.0f, 1.0f);
 
 					if (boolTreeDominance ||
 						boolTreeOxygenUpperLimit ||
@@ -1240,8 +1291,8 @@ void GUI::Update() {
 						bool boolPlantOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &plantGUIData[index].sliderPlantOxygenUpperLimit, 0.0f, 1.0f);
 						bool boolPlantOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &plantGUIData[index].sliderPlantOxygenLowerLimit, 0.0f, 1.0f);
 						bool boolPlantRootingStrength = ImGui::SliderFloat("Rooting Strength Level", &plantGUIData[index].sliderPlantRootingStrength, 0.0f, 1.0f);
-						bool boolPlantMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &plantGUIData[index].sliderPlantMoistureRequirement, 0.0f, 1.0f);
-						bool boolPlantInteractionLevel = ImGui::SliderFloat("Interaction Level", &plantGUIData[index].sliderPlantInteractionLevel, 0.0f, 1.0f);
+						bool boolPlantMoistureRequirement = ImGui::SliderFloat("Propagation Distance", &plantGUIData[index].sliderPlantPropagationDistance, 0.0f, 1.0f);
+						bool boolPlantInteractionLevel = ImGui::SliderFloat("Propagation Amount", &plantGUIData[index].sliderPlantPropagationAmount, 0.0f, 1.0f);
 						
 						if (boolPlantDominance ||
 							boolPlantOxygenUpperLimit ||
@@ -1267,8 +1318,8 @@ void GUI::Update() {
 				bool boolGrassOxygenUpperLimit = ImGui::SliderFloat("Oxygen Upper Limit", &grass->ecosystemOxygenUpperLimit, 0.0f, 1.0f);
 				bool boolGrassOxygenLowerLimit = ImGui::SliderFloat("Oxygen Lower Limit", &grass->ecosystemOxygenLowerLimit, 0.0f, 1.0f);
 				bool boolGrassRootingStrength = ImGui::SliderFloat("Rooting Requirement", &grass->ecosystemRootingStrength, 0.0f, 1.0f);
-				bool boolGrassMoistureRequirement = ImGui::SliderFloat("Moisture Requirement", &grass->ecosystemMoistureRequirement, 0.0f, 1.0f);
-				bool boolGrassInteractionLevel = ImGui::SliderFloat("Interaction Level", &grass->ecosystemInteractionLevel, 0.0f, 1.0f);
+				bool boolGrassMoistureRequirement = ImGui::SliderFloat("Propagation Distance", &grass->ecosystemPropagationDistance, 0.0f, 1.0f);
+				bool boolGrassInteractionLevel = ImGui::SliderFloat("Propagation Amount", &grass->ecosystemPropagationAmount, 0.0f, 1.0f);
 				bool boolGrassRenderDistance = ImGui::SliderInt("LOD 1 Distance", &sliderGrassRenderDistance, 1, sliderGrassRenderDistance2);
 				bool boolGrassRenderDistance2 = ImGui::SliderInt("LOD 2 Distance", &sliderGrassRenderDistance2, sliderGrassRenderDistance, terrain->render_distance);
 
