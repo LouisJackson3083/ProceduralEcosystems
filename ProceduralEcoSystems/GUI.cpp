@@ -267,7 +267,7 @@ void GUI::LoadEcosystem(std::string file) {
 		while (getline(ss, str, ',')) {
 			results.push_back(str);
 		}
-		std::cout << "!!!! LOADING ECOSYSTEM DATA" << std::endl;
+		std::cout << "\n!!!! LOADING ECOSYSTEM DATA" << std::endl;
 
 		int numTrees = std::stoi(results[0]);
 		int numPlants = std::stoi(results[1]);
@@ -355,7 +355,7 @@ void GUI::LoadEcosystem(std::string file) {
 
 		myfile.close();
 
-		std::cout << "!!!! LOADED FROM " << file << std::endl;
+		std::cout << "!!!! LOADED FROM " << file << "\n" << std::endl;
 	}
 }
 
@@ -1217,9 +1217,9 @@ void GUI::Update() {
 		ImGui::Image((void*)(intptr_t)poissonTextures[0].ID, ImVec2(256.0f, 256.0f));
 
 		ImGui::Text("Layer Radii Control");
-		bool boolTreeRadii = ImGui::SliderFloat("Tree Radius", &sliderPoissonRadii[0], 0.0f, 10.0f);
-		bool boolPlants1Radii = ImGui::SliderFloat("Plants 1 Radius", &sliderPoissonRadii[1], 0.0f, 5.0f);
-		bool boolPlants2Radii = ImGui::SliderFloat("Plants 2 Radius", &sliderPoissonRadii[2], 0.0f, 5.0f);
+		bool boolTreeRadii = ImGui::SliderFloat("Tree Radius", &sliderPoissonRadii[0], 0.0f, 50.0f);
+		bool boolPlants1Radii = ImGui::SliderFloat("Plants 1 Radius", &sliderPoissonRadii[1], 0.0f, 20.0f);
+		bool boolPlants2Radii = ImGui::SliderFloat("Plants 2 Radius", &sliderPoissonRadii[2], 0.0f, 20.0f);
 		bool boolGrassRadii = ImGui::SliderFloat("Grass Radius", &sliderPoissonRadii[3], 0.0f, 1.0f);
 		if (boolTreeRadii ||
 			boolPlants1Radii ||

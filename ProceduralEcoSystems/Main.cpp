@@ -156,7 +156,7 @@ int main()
 	GUI.renderSkybox = false;
 	GUI.renderTrees = false;
 
-
+	std::cout << "Loaded . . ." << std::endl;
 	//GUI.LoadEcosystem("./Resources/PlantData/bigForest.eco");
 
 	// init variables for FPS counter

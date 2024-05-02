@@ -26,6 +26,8 @@ void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, fl
 	auto grass_kXMin2 = std::array<float, 2>{{-grassSize2, -grassSize2}};
 	auto grass_kXMax2 = std::array<float, 2>{{grassSize2, grassSize2}};
 
+	std::cout << "\n---- BEGIN SAMPLING " << std::endl;
+
 	// Minimal amount of information provided to sampling function.
 	for (int i = 0; i < 3; i++) {
 		std::cout << "---- SAMPLING LAYER" << i+1 << std::endl;
@@ -48,16 +50,22 @@ void Ecosystem::GeneratePoissonPositions(float terrainSize, float grassSize1, fl
 	}
 	poissonPositions.push_back(currPositions);
 
+	if (grass_kXMin1 != grass_kXMin2) {
+		std::cout << "---- SAMPLING LAYER" << 5 << std::endl;
+		const auto samples2 = thinks::PoissonDiskSampling(layerRadii[3] * 2.0f, grass_kXMin2, grass_kXMax2);
+		currPositions.clear();
+		for (const auto& sample : samples2) {
 
-	std::cout << "---- SAMPLING LAYER" << 5 << std::endl;
-	const auto samples2 = thinks::PoissonDiskSampling(layerRadii[3] * 2.0f, grass_kXMin2, grass_kXMax2);
-	currPositions.clear();
-	for (const auto& sample : samples2) {
+			currPositions.push_back(glm::vec2(sample[0], sample[1]));
+		}
 
-		currPositions.push_back(glm::vec2(sample[0], sample[1]));
+		poissonPositions.push_back(currPositions);
+	}
+	else {
+		poissonPositions.push_back(currPositions);
 	}
 
-	poissonPositions.push_back(currPositions);
+	std::cout << "---- FINISHED SAMPLING \n" << std::endl;
 
 
 }

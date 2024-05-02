@@ -45,7 +45,7 @@ void Grass::GenerateVertices() {
 				{
 					glm::vec3( // Positions
 						positions[i][0],
-						noise->get(positions[i][0], positions[i][1]) * noise->amplitude,
+						noise->get(positions[i][0], positions[i][1]) * noise->amplitude - (0.1 * scale * length),
 						positions[i][1]
 					)
 				}
@@ -70,7 +70,7 @@ void Grass::GenerateVertices() {
 				{
 					glm::vec3( // Positions
 						positionsLowPoly[i][0],
-						noise->get(positionsLowPoly[i][0], positionsLowPoly[i][1]) * noise->amplitude,
+						noise->get(positionsLowPoly[i][0], positionsLowPoly[i][1]) * noise->amplitude - (0.1 * scale * length),
 						positionsLowPoly[i][1]
 					)
 				}

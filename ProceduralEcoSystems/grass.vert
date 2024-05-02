@@ -49,7 +49,7 @@ void main()
 
 	// Get the pitch and yaw of the leaf
 	float newYaw = float((6.28/rnd) * curr_leaf);
-	float newPitch = ((modI(gl_VertexID, 2))-0.5) * pitchVariance*rnd - dist + wind * 0.04;
+	float newPitch = ((modI(gl_VertexID, 2))-0.5) * pitchVariance*rnd - dist + wind * 0.08;
 	
 	crntPos.x = cos(newYaw) * -width + cos(newPitch) * dist * sin(newYaw);
 	crntPos.y = sin(newPitch) * dist;

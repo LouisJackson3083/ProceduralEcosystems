@@ -56,7 +56,7 @@ void main()
 
 	// Get the pitch and yaw of the leaf
 	float newYaw = yaw + (float(6.28/maxLeaves) * curr_leaf * rnd) + rnd;
-	float bendPitch = (pitch + (pitchVariance*rnd)) - distance * (bendStrength + (bendVariance*rnd)) + wind * 0.04;
+	float bendPitch = (pitch + (pitchVariance*rnd)) - distance * (bendStrength + (bendVariance*rnd)) + wind * 0.06;
 
 	crntPos.x = cos(newYaw) * -width + cos(bendPitch) * distance * sin(newYaw);
 	crntPos.y = sin(bendPitch) * distance;

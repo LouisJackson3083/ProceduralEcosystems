@@ -1,13 +1,5 @@
-﻿  Plant.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Plant.cpp(354,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Plant.cpp(373,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-  Tree.cpp
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(426,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(437,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(441,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(546,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(561,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(601,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Tree.cpp(622,49): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-  Generating Code...
+﻿  Grass.cpp
+C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Grass.cpp(160,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Grass.cpp(171,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\neoni\OneDrive\Documents\UNI\procedural\ProceduralEcoSystems\Grass.cpp(204,50): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   ProceduralEcoSystems.vcxproj -> C:\Users\neoni\OneDrive\Documents\UNI\procedural\x64\Debug\ProceduralEcoSystems.exe
